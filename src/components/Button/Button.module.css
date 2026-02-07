@@ -1,0 +1,134 @@
+.button {
+  position: relative;
+  padding: 14px 28px;
+  border-radius: 16px;
+  border: none;
+  cursor: pointer;
+
+  color: var(--base-color5);
+  font-weight: 600;
+  letter-spacing: 0.6px;
+
+  overflow: hidden;
+  transition: all 0.22s ease;
+
+  background: linear-gradient(145deg, var(--base-color2), var(--base-color1));
+
+  box-shadow:
+    0 10px 25px rgba(25, 0, 25, 0.35),
+    inset 0 1px 1px rgba(251, 228, 216, 0.15);
+
+  filter: drop-shadow(0 0 6px rgba(223, 182, 130, 0.2));
+}
+
+.button__content {
+  position: relative;
+  z-index: 2;
+}
+
+.button__ripple {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.button:active .button__ripple::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+
+  background: var(--base-color5);
+  opacity: 0.4;
+  border-radius: 50%;
+
+  transform: translate(-50%, -50%);
+  animation: ripple 0.6s ease-out;
+}
+
+.button_glow::before {
+  content: "";
+  position: absolute;
+
+  inset: -60%;
+
+  z-index: -1;
+  pointer-events: none;
+
+  background: conic-gradient(
+    from 0deg,
+    var(--base-color4),
+    var(--base-color3),
+    var(--base-color2),
+    var(--base-color4)
+  );
+
+  animation: rotate 3s linear infinite;
+
+  opacity: 0.45;
+  filter: blur(24px);
+}
+
+.button_neumorphic {
+  background: var(--base-color2);
+
+  box-shadow:
+    8px 8px 18px rgba(25, 0, 25, 0.6),
+    -8px -8px 18px rgba(133, 79, 108, 0.25);
+
+  filter: none;
+}
+
+/* .button_neumorphic::before {
+  display: none;
+} */
+
+.button_disabled {
+  cursor: not-allowed;
+  background: linear-gradient(145deg, var(--base-color1), var(--base-color6));
+  color: var(--base-color3);
+  filter: none;
+  box-shadow: none;
+}
+
+.button_disabled::before {
+  animation: none;
+  opacity: 0.1;
+}
+
+.button:hover {
+  transform: translateY(-2px) scale(1.02);
+
+  box-shadow:
+    0 14px 30px rgba(25, 0, 25, 0.45),
+    inset 0 1px 1px rgba(251, 228, 216, 0.25);
+}
+
+.button:active {
+  transform: scale(0.97);
+
+  box-shadow:
+    0 6px 15px rgba(25, 0, 25, 0.5),
+    inset 0 2px 3px rgba(0, 0, 0, 0.4);
+}
+
+@keyframes rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes ripple {
+  from {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0.45;
+  }
+  to {
+    transform: translate(-50%, -50%) scale(18);
+    opacity: 0;
+  }
+}
