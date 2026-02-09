@@ -1,0 +1,17 @@
+:root {
+  --base-color1: #2b124c;
+  --base-color2: #52265b;
+  --base-color3: #854f6c;
+  --base-color4: #dfb682;
+  --base-color5: #fbe4d8;
+  --base-color6: #190019;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.swie {
+  width: 50px;
+  height: 50px;
+}

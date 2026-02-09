@@ -5,7 +5,7 @@ import { ButtonVariant } from "./type";
 
 import styles from "./Button.module.css";
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant: ButtonVariant;
   glow?: boolean;
 }

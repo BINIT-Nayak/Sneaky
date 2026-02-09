@@ -1,7 +1,9 @@
 import { Button } from "./components/Button/Button";
 import { ButtonVariant } from "./components/Button/type";
+import { SwipeButton } from "./components/SwipeButton/SwipeButton";
+import { SwipeButtonType } from "./components/SwipeButton/type";
 
-import "./App.css";
+import "./index.css";
 
 export const App = () => {
   return (
@@ -13,6 +15,13 @@ export const App = () => {
       <Button variant={ButtonVariant.DEFAULT} glow={true}>
         Default
       </Button>
+      <SwipeButton className="swie" type={SwipeButtonType.LIKE} />
+      <SwipeButton
+        className="swie"
+        type={SwipeButtonType.DISLIKE}
+        disabled={true}
+      />
+      <SwipeButton className="swie" type={SwipeButtonType.CART} />
     </>
   );
 };

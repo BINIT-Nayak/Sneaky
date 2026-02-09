@@ -1,0 +1,75 @@
+.swipeButton {
+  position: relative;
+  padding: 10px 10px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  color: var(--base-color5);
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  overflow: hidden;
+  box-shadow:
+    0 6px 14px rgba(0, 0, 0, 0.25),
+    inset 0 2px 3px rgba(255, 255, 255, 0.3);
+  filter: drop-shadow(0 0 8px rgba(223, 182, 130, 0.25));
+  background: linear-gradient(
+    180deg,
+    var(--base-color5),
+    var(--base-color3),
+    var(--base-color2)
+  );
+  opacity: 0.9;
+  justify-content: center;
+  align-items: center;
+}
+
+.swipeButton::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  background: linear-gradient(var(--base-color2), var(--base-color5));
+  transition: transform 0.3s ease;
+  color: var(--base-color2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.swipeButton_disabled {
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    var(--base-color6),
+    var(--base-color1),
+    var(--base-color6)
+  );
+  box-shadow: none;
+  opacity: 0.5;
+}
+
+.swipeButton__icon {
+  transition: transform 0.2s ease;
+}
+
+@media (hover: hover) {
+  .swipeButton:hover {
+    box-shadow:
+      0px 2px 13px 5px rgba(0, 0, 0, 0.3),
+      inset 0 2px 4px rgba(255, 255, 255, 0.35);
+
+    filter: drop-shadow(0 0 10px rgba(223, 182, 130, 0.4));
+  }
+
+  .swipeButton:hover::after {
+    transform: translateX(-100%);
+  }
+}
+
+.swipeButton:active::after {
+  transform: translateX(-100%);
+}
+
+.swipeButton:active .swipeButton__icon {
+  transform: scale(1.5);
+}
