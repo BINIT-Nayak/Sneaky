@@ -1,7 +1,7 @@
 type Modifiers = Record<string, boolean | undefined>;
 
 export const useClasses = (
-  styles: Record<string, string>, // 👈 pass css module object
+  styles: Record<string, string>,
   block: string,
   modifiers?: Modifiers,
   extra?: string,

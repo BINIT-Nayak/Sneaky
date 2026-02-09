@@ -1,0 +1,105 @@
+.navBar {
+  position: relative;
+  width: max-content;
+  height: 100vh; /* TODO: Remove this */
+  padding: 20px;
+  border-radius: 14px;
+  background: conic-gradient(
+    from 0deg,
+    var(--base-color4),
+    var(--base-color3),
+    var(--base-color2),
+    var(--base-color4)
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.25),
+    inset 0 1px 1px rgba(255, 255, 255, 0.15);
+}
+
+.navBar::before {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border-radius: 13px;
+  padding: 2px;
+  background: linear-gradient(90deg, var(--base-color2), var(--base-color3));
+}
+
+.navBar__title {
+  display: flex;
+  align-items: center;
+  position: relative;
+  font-size: 50px;
+  font-weight: 600;
+  color: var(--base-color6);
+  margin-bottom: 50px;
+}
+
+.navBar__container {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.navBar__item {
+  position: relative;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 500;
+  font-family: Georgia, "Times New Roman", Times, serif;
+  color: var(--base-color2);
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.navBar__item::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.25),
+    rgba(255, 255, 255, 0.05),
+    rgba(255, 255, 255, 0.25)
+  );
+  z-index: -1;
+  filter: blur(3px);
+  opacity: 0.6;
+}
+
+@media (hover: hover) {
+  .navBar__item:hover {
+    background: rgba(255, 255, 255, 0.14);
+    transform: translateX(4px);
+    box-shadow:
+      0 8px 16px rgba(0, 0, 0, 0.15),
+      inset 0 0 6px rgba(255, 255, 255, 0.1);
+  }
+  .navBar__item:hover::before {
+    opacity: 0.9;
+    filter: blur(2px);
+    background:
+      linear-gradient(
+          120deg,
+          rgba(255, 255, 255, 0.25),
+          rgba(255, 255, 255, 0.05),
+          rgba(255, 255, 255, 0.25)
+        )
+        padding-box,
+      linear-gradient(90deg, var(--base-color4), var(--base-color2)) border-box;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+}
