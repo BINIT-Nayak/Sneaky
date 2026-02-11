@@ -1,3 +1,5 @@
+import { NavLink } from "react-router-dom";
+
 import { TiHome } from "react-icons/ti";
 import { RiShoppingCartFill } from "react-icons/ri";
 import { CgProfile } from "react-icons/cg";
@@ -17,22 +19,55 @@ export const NavBar = () => {
         />
         Sneaky
       </div>
+
       <div className={styles.navBar__container}>
-        <div className={styles.navBar__item}>
+        <NavLink
+          to="/"
+          className={({ isActive }) =>
+            isActive
+              ? `${styles.navBar__item} ${styles.navBar__item_active}`
+              : styles.navBar__item
+          }
+        >
           <TiHome />
           Home
-        </div>
-        <div className={styles.navBar__item}>
+        </NavLink>
+
+        <NavLink
+          to="/wishlist"
+          className={({ isActive }) =>
+            isActive
+              ? `${styles.navBar__item} ${styles.navBar__item_active}`
+              : styles.navBar__item
+          }
+        >
           <GiRoundStar />
           Wish List
-        </div>
-        <div className={styles.navBar__item}>
-          <RiShoppingCartFill /> Cart
-        </div>
-        <div className={styles.navBar__item}>
+        </NavLink>
+
+        <NavLink
+          to="/cart"
+          className={({ isActive }) =>
+            isActive
+              ? `${styles.navBar__item} ${styles.navBar__item_active}`
+              : styles.navBar__item
+          }
+        >
+          <RiShoppingCartFill />
+          Cart
+        </NavLink>
+
+        <NavLink
+          to="/profile"
+          className={({ isActive }) =>
+            isActive
+              ? `${styles.navBar__item} ${styles.navBar__item_active}`
+              : styles.navBar__item
+          }
+        >
           <CgProfile />
           Profile
-        </div>
+        </NavLink>
       </div>
     </div>
   );

@@ -1,7 +1,8 @@
 .navBar {
   position: relative;
   width: max-content;
-  height: 100vh; /* TODO: Remove this */
+  height: calc(100vh - 58px);
+  margin: 10px 8px 8px 8px;
   padding: 20px;
   border-radius: 14px;
   background: conic-gradient(
@@ -24,7 +25,7 @@
   inset: 2px;
   border-radius: 13px;
   padding: 2px;
-  background: linear-gradient(90deg, var(--base-color2), var(--base-color3));
+  background: linear-gradient(90deg, #562260, var(--base-color3));
 }
 
 .navBar__title {
@@ -52,6 +53,7 @@
   font-size: 18px;
   font-weight: 500;
   font-family: Georgia, "Times New Roman", Times, serif;
+  text-decoration: none;
   color: var(--base-color2);
   padding: 10px 14px;
   border-radius: 10px;
@@ -81,14 +83,16 @@
 }
 
 @media (hover: hover) {
-  .navBar__item:hover {
+  .navBar__item:hover,
+  .navBar__item_active {
     background: rgba(255, 255, 255, 0.14);
     transform: translateX(4px);
     box-shadow:
       0 8px 16px rgba(0, 0, 0, 0.15),
       inset 0 0 6px rgba(255, 255, 255, 0.1);
   }
-  .navBar__item:hover::before {
+  .navBar__item:hover::before,
+  .navBar__item_active::before {
     opacity: 0.9;
     filter: blur(2px);
     background:
@@ -102,4 +106,9 @@
       linear-gradient(90deg, var(--base-color4), var(--base-color2)) border-box;
     border: 1px solid rgba(255, 255, 255, 0.15);
   }
+}
+
+.navBar__item_active {
+  background: var(--base-color5);
+  border-radius: 50px;
 }
