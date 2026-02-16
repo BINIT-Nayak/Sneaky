@@ -1,8 +1,8 @@
 .navBar {
   position: relative;
   width: max-content;
-  height: calc(100vh - 65px);
-  margin: 10px 8px 8px 0px;
+  height: calc(100vh - 50px);
+  margin-right: 8px;
   padding: 20px;
   border-radius: 14px;
   background: conic-gradient(
@@ -32,6 +32,7 @@
   display: flex;
   align-items: center;
   position: relative;
+  gap: 12px;
   font-size: 50px;
   font-weight: 600;
   color: var(--base-color6);
@@ -109,12 +110,61 @@
 }
 
 .navBar__item_active {
-  background: var(--base-color5);
+  background: rgba(255, 255, 255, 0.14);
+  transform: translateX(4px);
+  box-shadow:
+    0 8px 16px rgba(0, 0, 0, 0.15),
+    inset 0 0 6px rgba(255, 255, 255, 0.1);
   border-radius: 50px;
 }
 
-@media (max-width: 1023px) {
+.navBar__item_active::before {
+  opacity: 0.9;
+  filter: blur(2px);
+  background:
+    linear-gradient(
+        120deg,
+        rgba(255, 255, 255, 0.25),
+        rgba(255, 255, 255, 0.05),
+        rgba(255, 255, 255, 0.25)
+      )
+      padding-box,
+    linear-gradient(90deg, var(--base-color4), var(--base-color2)) border-box;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+@media (max-width: 1024px) {
   .navBar {
+    width: fit-content;
+    padding: 12px;
+    height: calc(100vh - 25px);
+  }
+
+  .navBar__title {
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .navBar__titleText,
+  .navBar__label {
     display: none;
+  }
+
+  .navBar__container {
+    align-items: center;
+    gap: 14px;
+  }
+
+  .navBar__item {
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    border-radius: 50%;
+    font-size: 22px;
+  }
+
+  .navBar__item_active {
+    transform: none;
   }
 }

@@ -25,3 +25,23 @@ body {
   padding: 8px;
   width: 100%;
 }
+
+.outletContainer {
+  width: 100%;
+  background: linear-gradient(
+    135deg,
+    #ffff 2%,
+    var(--base-color3) 60%,
+    var(--base-color2)
+  );
+  border-radius: 10px;
+  box-shadow:
+    inset -8px -8px 40px 0px rgba(0, 0, 0, 0.25),
+    inset 0 1px 1px rgba(255, 255, 255, 0.15);
+}
+
+@media (max-width: 1024px) {
+  .app {
+    height: 100vh;
+  }
+}

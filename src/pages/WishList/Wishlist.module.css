@@ -22,3 +22,13 @@
   width: 800px;
   text-align: center;
 }
+
+@media (max-width: 1024px) {
+  .wishlistContainer {
+    height: calc(100% - 20px);
+  }
+
+  .wishlist__message {
+    font-size: 12px;
+  }
+}

@@ -6,25 +6,25 @@ import { NavBar } from "./components/NavBar/NavBar";
 import "./index.css";
 
 export const App = () => {
-  const [showNavBar, setShowNavBar] = useState(true);
+  // const [showNavBar, setShowNavBar] = useState(true);
 
-  useEffect(() => {
-    const handleResize = () => {
-      setShowNavBar(window.innerWidth > 1024);
-    };
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     setShowNavBar(window.innerWidth > 1024);
+  //   };
 
-    handleResize();
-    window.addEventListener("resize", handleResize);
+  //   handleResize();
+  //   window.addEventListener("resize", handleResize);
 
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+  //   return () => {
+  //     window.removeEventListener("resize", handleResize);
+  //   };
+  // }, []);
 
   return (
     <div className="app">
-      {showNavBar ? <NavBar /> : null}
-      <div style={{ width: "100%" }}>
+      <NavBar />
+      <div className="outletContainer">
         <Outlet />
       </div>
     </div>

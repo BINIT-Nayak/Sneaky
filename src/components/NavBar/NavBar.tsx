@@ -17,7 +17,7 @@ export const NavBar = () => {
           width="50"
           height="50"
         />
-        Sneaky
+        <span className={styles.navBar__titleText}>Sneaky</span>
       </div>
 
       <div className={styles.navBar__container}>
@@ -30,7 +30,7 @@ export const NavBar = () => {
           }
         >
           <TiHome />
-          Home
+          <span className={styles.navBar__label}>Home</span>
         </NavLink>
 
         <NavLink
@@ -42,7 +42,7 @@ export const NavBar = () => {
           }
         >
           <GiRoundStar />
-          Wish List
+          <span className={styles.navBar__label}>Wish List</span>
         </NavLink>
 
         <NavLink
@@ -54,7 +54,7 @@ export const NavBar = () => {
           }
         >
           <RiShoppingCartFill />
-          Cart
+          <span className={styles.navBar__label}>Cart</span>
         </NavLink>
 
         <NavLink
@@ -66,7 +66,7 @@ export const NavBar = () => {
           }
         >
           <CgProfile />
-          Profile
+          <span className={styles.navBar__label}>Profile</span>
         </NavLink>
       </div>
     </div>
