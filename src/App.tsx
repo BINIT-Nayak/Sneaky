@@ -1,26 +1,32 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { NavBar } from "./components/NavBar/NavBar";
+import { useEffect, useState } from "react";
+import { Outlet } from "react-router-dom";
 
-import { Home } from "./pages/Home";
-import { Wishlist } from "./pages/Wishlist";
-import { Cart } from "./pages/Cart";
-import { Profile } from "./pages/Profile";
+import { NavBar } from "./components/NavBar/NavBar";
 
 import "./index.css";
 
 export const App = () => {
+  const [showNavBar, setShowNavBar] = useState(true);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setShowNavBar(window.innerWidth > 1024);
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   return (
     <div className="app">
-      <BrowserRouter>
-        <NavBar />
-
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/wishlist" element={<Wishlist />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/profile" element={<Profile />} />
-        </Routes>
-      </BrowserRouter>
+      {showNavBar ? <NavBar /> : null}
+      <div style={{ width: "100%" }}>
+        <Outlet />
+      </div>
     </div>
   );
 };

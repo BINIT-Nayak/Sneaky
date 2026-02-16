@@ -5,6 +5,8 @@
   --base-color4: #dfb682;
   --base-color5: #fbe4d8;
   --base-color6: #190019;
+
+  font-size: 14px;
 }
 
 * {
@@ -20,4 +22,6 @@ body {
 
 .app {
   display: flex;
+  padding: 8px;
+  width: 100%;
 }

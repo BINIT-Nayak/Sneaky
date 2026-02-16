@@ -1,8 +1,8 @@
 .navBar {
   position: relative;
   width: max-content;
-  height: calc(100vh - 58px);
-  margin: 10px 8px 8px 8px;
+  height: calc(100vh - 65px);
+  margin: 10px 8px 8px 0px;
   padding: 20px;
   border-radius: 14px;
   background: conic-gradient(
@@ -111,4 +111,10 @@
 .navBar__item_active {
   background: var(--base-color5);
   border-radius: 50px;
+}
+
+@media (max-width: 1023px) {
+  .navBar {
+    display: none;
+  }
 }

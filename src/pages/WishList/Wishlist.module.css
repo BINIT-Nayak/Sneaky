@@ -1,0 +1,24 @@
+.wishlistContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 10px;
+  height: 100%;
+}
+
+.wishlist__icon {
+  height: 500px;
+  display: flex;
+  justify-self: center;
+}
+
+.wishlist__message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.7rem;
+  font-family: "Courier New", Courier, monospace;
+  font-weight: 600;
+  width: 800px;
+  text-align: center;
+}
