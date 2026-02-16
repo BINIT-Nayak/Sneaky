@@ -7,28 +7,15 @@ import { NavBar } from "../NavBar/NavBar";
 
 import styles from "./ResponsiveNav.module.css";
 import { useClasses } from "../../hooks/useClasses";
-
-const MOBILE_BREAKPOINT = 1040;
+import { useIsMobile } from "../../hooks/useIsMobile";
 
 export const ResponsiveNav = () => {
   const [showNavBar, setShowNavBar] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
-    const handleResize = () => {
-      const mobile = window.innerWidth <= MOBILE_BREAKPOINT;
-
-      setIsMobile(mobile);
-      setShowNavBar(!mobile);
-    };
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+    setShowNavBar(!isMobile);
+  }, [isMobile]);
 
   const handleNavBarToggle = () => {
     setShowNavBar((prev) => !prev);
