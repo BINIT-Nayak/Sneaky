@@ -63,8 +63,27 @@
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.15);
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+    transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-radius 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  animation: navItemEnter 650ms cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+
+.navBar__container .navBar__item:nth-child(1) {
+  animation-delay: 60ms;
+}
+
+.navBar__container .navBar__item:nth-child(2) {
+  animation-delay: 120ms;
+}
+
+.navBar__container .navBar__item:nth-child(3) {
+  animation-delay: 180ms;
+}
+
+.navBar__container .navBar__item:nth-child(4) {
+  animation-delay: 240ms;
 }
 
 .navBar__item::before {
@@ -133,6 +152,27 @@
   border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
+@keyframes navItemEnter {
+  0% {
+    opacity: 0;
+    transform: translateX(-18px);
+  }
+  70% {
+    opacity: 1;
+    transform: translateX(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navBar__item {
+    animation: none;
+  }
+}
+
 @media (max-width: 1024px) {
   .navBar {
     width: fit-content;
@@ -160,7 +200,6 @@
     width: 46px;
     height: 46px;
     padding: 0;
-    border-radius: 50%;
     font-size: 22px;
   }
 

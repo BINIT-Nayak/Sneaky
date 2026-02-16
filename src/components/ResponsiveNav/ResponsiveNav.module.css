@@ -1,0 +1,104 @@
+.responsiveNav {
+  position: relative;
+}
+
+.responsiveNav__placeholder {
+  position: absolute;
+  top: 20px;
+  left: 12px;
+  z-index: 1;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow:
+    0 6px 16px rgba(0, 0, 0, 0.25),
+    inset 0 1px 1px rgba(255, 255, 255, 0.4),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.15);
+  opacity: 0.95;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition:
+    transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 220ms ease;
+  cursor: pointer;
+  padding: 0;
+  color: var(--base-color5);
+}
+
+.responsiveNav__placeholder::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  right: 8px;
+  height: 40%;
+  border-radius: 50%;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.45),
+    rgba(255, 255, 255, 0.05)
+  );
+  filter: blur(2px);
+  pointer-events: none;
+}
+
+.responsiveNav__placeholder:active {
+  transform: scale(1.05);
+}
+
+.responsiveNav__placeholder_hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.96);
+}
+
+.responsiveNav__panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 20;
+  display: flex;
+  transform: translateX(-120%);
+  transition: transform 480ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.responsiveNav__panel_open {
+  transform: translateX(0);
+}
+
+.responsiveNav__closeButton {
+  position: absolute;
+  bottom: 10px;
+  left: 15px;
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--base-color5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow:
+    0 6px 16px rgba(0, 0, 0, 0.25),
+    inset 0 1px 1px rgba(255, 255, 255, 0.4),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 250ms ease;
+}
+
+.responsiveNav__closeButton:active {
+  transform: scale(1.05);
+}
+
+.responsiveNav_open {
+  z-index: 2;
+}

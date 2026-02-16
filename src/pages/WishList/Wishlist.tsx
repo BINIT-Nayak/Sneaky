@@ -43,10 +43,10 @@ export const Wishlist = () => {
                 src={bellIcon}
                 alt="Bell icon"
               />
-              <p className={styles.wishlist__message}>
+              <div className={styles.wishlist__message}>
                 Your wishlist is empty—for now. Start liking products, to save
                 them here
-              </p>
+              </div>
             </div>
           )}
         </div>
@@ -57,9 +57,9 @@ export const Wishlist = () => {
             src={emptyList}
             alt="Empty list icon"
           />
-          <p className={styles.wishlist__message}>
+          <div className={styles.wishlist__message}>
             Your wishlist is waiting. Log in to continue.
-          </p>
+          </div>
         </div>
       )}
     </div>
