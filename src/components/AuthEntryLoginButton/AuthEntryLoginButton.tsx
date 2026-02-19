@@ -9,7 +9,7 @@ export const AuthEntryLoginButton = () => {
 
   return (
     <div className={style.authLoginButton} onPointerUp={onclick}>
-      <FaSignInAlt size={25} color="var(--base-color2)" />
+      <FaSignInAlt size={20} color="var(--base-color2)" />
     </div>
   );
 };

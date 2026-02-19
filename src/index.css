@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Imperial+Script&display=swap");
+
 :root {
   --base-color1: #2b124c;
   --base-color2: #52265b;
@@ -41,13 +43,33 @@ body {
   transition: transform 480ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+.appName {
+  z-index: 1;
+  position: absolute;
+  display: flex;
+  top: 20px;
+  width: 100%;
+  justify-content: center;
+  font-size: 40px;
+  font-weight: 600;
+  font-family: "Imperial Script", cursive;
+  color: var(--base-color6);
+  pointer-events: none;
+}
+
 @media (max-width: 1024px) {
   .app {
     height: 100vh;
     overflow: hidden;
+    margin: 0;
+    padding: 0;
   }
 
   .app:has(.responsiveNav_open) .outletContainer {
     transform: translateX(92px);
+  }
+
+  .outletContainer {
+    border-radius: 0;
   }
 }

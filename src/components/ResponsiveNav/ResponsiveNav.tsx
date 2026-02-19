@@ -46,7 +46,7 @@ export const ResponsiveNav = () => {
         aria-label="Open navigation"
         aria-expanded={showNavBar}
       >
-        <TiThMenu size={30} color="var(--base-color2)" />
+        <TiThMenu size={25} color="var(--base-color2)" />
       </button>
 
       <div className={navPanelMod}>

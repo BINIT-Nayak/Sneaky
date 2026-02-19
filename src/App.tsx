@@ -11,7 +11,12 @@ export const App = () => {
   return (
     <div className="app">
       <ResponsiveNav />
-      {ismobile ? <AuthEntryLoginButton /> : null}
+      {ismobile ? (
+        <>
+          <AuthEntryLoginButton />
+          <div className="appName">Sneaky</div>
+        </>
+      ) : null}
       <div className="outletContainer">
         <Outlet />
       </div>
