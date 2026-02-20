@@ -13,7 +13,7 @@
   height: 100%;
   width: 100%;
   border-radius: 14px;
-  background: linear-gradient(0deg, #ffff 10%, var(--base-color4));
+  background: linear-gradient(0deg, #ffff 80%, #854f6c);
   max-width: 900px;
 }
 

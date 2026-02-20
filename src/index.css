@@ -30,11 +30,11 @@ body {
 
 .outletContainer {
   width: 100%;
-  background: linear-gradient(
-    135deg,
+  background: radial-gradient(
+    circle at center,
     #ffff 2%,
-    var(--base-color3) 60%,
-    var(--base-color2)
+    var(--base-color5),
+    var(--base-color4)
   );
   border-radius: 10px;
   box-shadow:
