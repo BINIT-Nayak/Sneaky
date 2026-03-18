@@ -1,3 +1,4 @@
+// src/components/SwipeButton/SwipeButton.tsx
 import type { FC } from "react";
 
 import { PiHeartStraightFill } from "react-icons/pi";
@@ -51,7 +52,7 @@ export const SwipeButton: FC<SwipeButtonProps> = ({
   const mods = useClasses(styles, "swipeButton", { disabled }, className);
 
   return (
-    <button className={mods} data-text={type}>
+    <button className={mods} data-text={type} disabled={disabled}>
       {getIcon()}
     </button>
   );
