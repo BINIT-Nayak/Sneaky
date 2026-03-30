@@ -1,4 +1,3 @@
-// src/components/AuthModal/AuthModal.tsx
 import {type FC, useState } from "react";
 import { FaTimes } from "react-icons/fa";
 import { Button } from "../../components/Button/Button";

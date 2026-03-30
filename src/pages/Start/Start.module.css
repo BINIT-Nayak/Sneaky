@@ -193,7 +193,7 @@
   font-weight: 500;
 }
 
-.start__taglineWord--accent {
+.start__taglineWord_accent {
   color: var(--base-color4);
   font-weight: 600;
   text-shadow: 0 0 10px rgba(223, 182, 130, 0.3);
@@ -263,7 +263,7 @@
   left: 100%;
 }
 
-.start__btn--primary {
+.start__btn_primary {
   background: linear-gradient(135deg, var(--base-color2), var(--base-color3));
   color: var(--base-color5);
   box-shadow: 
@@ -271,18 +271,18 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
-.start__btn--primary:hover {
+.start__btn_primary:hover {
   transform: translateY(-5px) scale(1.02);
   box-shadow: 
     0 20px 35px rgba(133, 79, 108, 0.7),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
-.start__btn--primary:active {
+.start__btn_primary:active {
   transform: translateY(0) scale(0.98);
 }
 
-.start__btn--secondary {
+.start__btn_secondary {
   background: transparent;
   color: var(--base-color5);
   border: 2px solid rgba(223, 182, 130, 0.3);
@@ -290,14 +290,14 @@
   -webkit-backdrop-filter: blur(10px);
 }
 
-.start__btn--secondary:hover {
+.start__btn_secondary:hover {
   transform: translateY(-5px) scale(1.02);
   border-color: var(--base-color4);
   background: rgba(223, 182, 130, 0.1);
   box-shadow: 0 15px 30px rgba(223, 182, 130, 0.2);
 }
 
-.start__btn--secondary:active {
+.start__btn_secondary:active {
   transform: translateY(0) scale(0.98);
 }
 

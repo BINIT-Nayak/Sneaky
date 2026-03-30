@@ -70,13 +70,13 @@ export const Start: FC = () => {
         {/* Tagline */}
         <div className={styles.start__tagline}>
           <div className={styles.start__taglineRow}>
-            <span className={`${styles.start__taglineWord} ${styles["start__taglineWord--accent"]}`}>
+            <span className={`${styles.start__taglineWord} ${styles["start__taglineWord_accent"]}`}>
               Swipe.
             </span>
             <span className={styles.start__taglineDot} aria-hidden="true" />
             <span className={styles.start__taglineWord}>Style.</span>
             <span className={styles.start__taglineDot} aria-hidden="true" />
-            <span className={`${styles.start__taglineWord} ${styles["start__taglineWord--accent"]}`}>
+            <span className={`${styles.start__taglineWord} ${styles["start__taglineWord_accent"]}`}>
               Shop.
             </span>
             <span className={styles.start__taglineDot} aria-hidden="true" />
@@ -94,13 +94,13 @@ export const Start: FC = () => {
         {/* CTA buttons - DONO BUTTONS YAHAN HAIN */}
         <div className={styles.start__actions}>
           <button
-            className={`${styles.start__btn} ${styles["start__btn--primary"]}`}
+            className={`${styles.start__btn} ${styles["start__btn_primary"]}`}
             onClick={handleStartSwiping}
           >
             Start Swiping
           </button>
           <button
-            className={`${styles.start__btn} ${styles["start__btn--secondary"]}`}
+            className={`${styles.start__btn} ${styles["start__btn_secondary"]}`}
             onClick={handleSignIn}
           >
             Sign In

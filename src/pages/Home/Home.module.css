@@ -222,18 +222,18 @@
 }
 
 /* Dislike button */
-.home__actionBtn--dislike {
+.home__actionBtn_dislike {
   color: #ff6b6b;
   border-color: rgba(255, 107, 107, 0.3);
 }
 
-.home__actionBtn--dislike:hover {
+.home__actionBtn_dislike:hover {
   background: rgba(255, 107, 107, 0.15);
   box-shadow: 0 15px 30px rgba(255, 107, 107, 0.4);
 }
 
 /* Cart button */
-.home__actionBtn--cart {
+.home__actionBtn_cart {
   width: 75px;
   height: 75px;
   font-size: 32px;
@@ -242,18 +242,18 @@
   background: rgba(223, 182, 130, 0.1);
 }
 
-.home__actionBtn--cart:hover {
+.home__actionBtn_cart:hover {
   background: rgba(223, 182, 130, 0.2);
   box-shadow: 0 15px 30px rgba(223, 182, 130, 0.4);
 }
 
 /* Like button */
-.home__actionBtn--like {
+.home__actionBtn_like {
   color: #51cf66;
   border-color: rgba(81, 207, 102, 0.3);
 }
 
-.home__actionBtn--like:hover {
+.home__actionBtn_like:hover {
   background: rgba(81, 207, 102, 0.15);
   box-shadow: 0 15px 30px rgba(81, 207, 102, 0.4);
 }
@@ -315,7 +315,7 @@
     font-size: 24px;
   }
 
-  .home__actionBtn--cart {
+  .home__actionBtn_cart {
     width: 65px;
     height: 65px;
     font-size: 28px;
@@ -351,7 +351,7 @@
     font-size: 22px;
   }
 
-  .home__actionBtn--cart {
+  .home__actionBtn_cart {
     width: 60px;
     height: 60px;
     font-size: 26px;

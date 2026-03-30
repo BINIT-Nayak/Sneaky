@@ -60,13 +60,13 @@ export const Home = () => {
           </div>
 
           <div className={styles.home__controls__actions}>
-            <div className={`${styles.home__actionBtn} ${styles["home__actionBtn--dislike"]}`}>
+            <div className={`${styles.home__actionBtn} ${styles["home__actionBtn_dislike"]}`}>
               <SwipeButton type={SwipeButtonType.DISLIKE} />
             </div>
-            <div className={`${styles.home__actionBtn} ${styles["home__actionBtn--cart"]}`}>
+            <div className={`${styles.home__actionBtn} ${styles["home__actionBtn_cart"]}`}>
               <SwipeButton type={SwipeButtonType.CART} />
             </div>
-            <div className={`${styles.home__actionBtn} ${styles["home__actionBtn--like"]}`}>
+            <div className={`${styles.home__actionBtn} ${styles["home__actionBtn_like"]}`}>
               <SwipeButton type={SwipeButtonType.LIKE} />
             </div>
           </div>
