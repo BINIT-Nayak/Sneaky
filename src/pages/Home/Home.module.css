@@ -180,7 +180,7 @@
   font-size: 28px;
   color: var(--base-color5);
   overflow: hidden;
-  transition: all var(--transition-base);
+  transition: transform var(--transition-base);
   animation: homeButtonPop 0.5s ease both;
 }
 
