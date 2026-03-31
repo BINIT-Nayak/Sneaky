@@ -1,4 +1,3 @@
-// src/components/NavBar/NavBar.tsx
 import { NavLink, useNavigate } from "react-router-dom";
 import { TiHome } from "react-icons/ti";
 import { RiShoppingCartFill } from "react-icons/ri";

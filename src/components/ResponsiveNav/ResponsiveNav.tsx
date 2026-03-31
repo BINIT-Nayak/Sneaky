@@ -1,4 +1,3 @@
-// src/components/ResponsiveNav/ResponsiveNav.tsx
 import { useEffect, useState } from "react";
 import { TiThMenu } from "react-icons/ti";
 import { RxCross2 } from "react-icons/rx";
@@ -28,7 +27,6 @@ export const ResponsiveNav = () => {
     return <NavBar />;
   }
 
-  /* ── Mobile: hamburger + slide-over ── */
   return (
     <>
       {/* Hamburger trigger */}

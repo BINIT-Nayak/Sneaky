@@ -1,4 +1,3 @@
-// src/App.tsx
 import { useState, createContext, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 
@@ -37,7 +36,6 @@ export const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<UserType | null>(null);
 
-  // Check for existing session on mount
   useEffect(() => {
     const savedUser = localStorage.getItem('sneaky_user');
     if (savedUser) {
@@ -97,18 +95,15 @@ export const App = () => {
     }}>
       <div className="app">
 
-        {/* Navbar hamesha dikhega */}
         <ResponsiveNav />
 
         <main className="app__main">
-          {/* Login button sirf tab dikhe jab user logged in na ho */}
-          {!isLoggedIn && (
+          {!isLoggedIn ? (
             <AuthEntryLoginButton onOpenAuth={handleOpenAuth} />
-          )}
+          ) : null}
 
           <div className="app__content">
             <Routes>
-              {/* Sab routes accessible hain bina login ke */}
               <Route path="/" element={<LandingPage />} />
               <Route path="/home" element={<Home />} />
               <Route path="/wishlist" element={<Wishlist />} />

@@ -1,4 +1,3 @@
-// src/components/SwipeButton/SwipeButton.tsx
 import type { FC } from "react";
 
 import { PiHeartStraightFill } from "react-icons/pi";

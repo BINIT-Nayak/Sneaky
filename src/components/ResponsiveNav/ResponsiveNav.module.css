@@ -1,11 +1,8 @@
-/* ResponsiveNav.module.css */
 
-/* ── Desktop / tablet: just a wrapper, NavBar is fixed ── */
 .responsiveNav {
-  display: contents; /* invisible wrapper on desktop */
+  display: contents; 
 }
 
-/* ── Mobile-only elements ─────────────────────────────── */
 .responsiveNav__trigger {
   position: fixed;
   top: 16px;
