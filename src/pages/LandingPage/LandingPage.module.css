@@ -239,7 +239,7 @@
   border: none;
   min-width: 200px;
   overflow: hidden;
-  transition: all var(--transition-base);
+  transition: transform var(--transition-base);
   text-transform: uppercase;
 }
 
@@ -323,8 +323,7 @@
   color: rgba(251, 228, 216, 0.8);
   font-size: 14px;
   font-weight: 500;
-  cursor: default;
-  transition: all var(--transition-base);
+  transition: transform var(--transition-base);
 }
 
 .start__feature:hover {
@@ -340,7 +339,7 @@
   align-items: center;
   font-size: 16px;
   color: var(--base-color4);
-  transition: all var(--transition-base);
+  transition: transform var(--transition-base);
 }
 
 .start__feature:hover .start__featureIcon {
