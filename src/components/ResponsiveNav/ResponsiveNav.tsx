@@ -42,13 +42,15 @@ export const ResponsiveNav = () => {
       </button>
 
       {/* Backdrop */}
-      {open && (
-        <div
-          className={styles.responsiveNav__backdrop}
-          onClick={() => setOpen(false)}
-          aria-hidden="true"
-        />
-      )}
+      {
+  open ? (
+    <div
+      className={styles.responsiveNav__backdrop}
+      onClick={() => setOpen(false)}
+      aria-hidden="true"
+    />
+  ) : null
+}
 
       {/* Slide-over panel */}
       <div

@@ -4,9 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { FiHeart, FiShoppingCart } from "react-icons/fi";
 import { GiRoundStar } from "react-icons/gi";
 import { AuthContext } from "../../App";
-import styles from "./Start.module.css";
+import styles from "./LandingPage.module.css";
 
-export const Start: FC = () => {
+export const LandingPage: FC = () => {
   const navigate = useNavigate();
   const { onOpenAuth } = useContext(AuthContext);
   const particlesRef = useRef<HTMLDivElement>(null);

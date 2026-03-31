@@ -48,19 +48,20 @@ export const AuthModal: FC<AuthModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className={styles.authModal__form}>
-          {!isLoginMode && (
-            <div className={styles.authModal__field}>
-              <label htmlFor="name">Name</label>
-              <input
-                type="text"
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Enter your name"
-                required
-              />
-            </div>
-          )}
+          {!isLoginMode ? (
+    <div className={styles.authModal__field}>
+      <label htmlFor="name">Name</label>
+      <input
+        type="text"
+        id="name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Enter your name"
+        required
+      />
+    </div>
+  ) : null
+}
 
           <div className={styles.authModal__field}>
             <label htmlFor="email">Email</label>

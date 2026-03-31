@@ -5,7 +5,7 @@ import { Routes, Route } from "react-router-dom";
 import { ResponsiveNav } from "./components/ResponsiveNav/ResponsiveNav";
 import { AuthEntryLoginButton } from "./components/AuthEntryLoginButton/AuthEntryLoginButton";
 import { AuthModal } from "./pages/Auth/AuthModal";
-import { Start } from "./pages/Start/Start";
+import { LandingPage } from "./pages/LandingPage/LandingPage";
 import { Home } from "./pages/Home/Home";
 import { Wishlist } from "./pages/WishList/Wishlist";
 import { Cart } from "./pages/Cart/Cart";
@@ -109,7 +109,7 @@ export const App = () => {
           <div className="app__content">
             <Routes>
               {/* Sab routes accessible hain bina login ke */}
-              <Route path="/" element={<Start />} />
+              <Route path="/" element={<LandingPage />} />
               <Route path="/home" element={<Home />} />
               <Route path="/wishlist" element={<Wishlist />} />
               <Route path="/cart" element={<Cart />} />
