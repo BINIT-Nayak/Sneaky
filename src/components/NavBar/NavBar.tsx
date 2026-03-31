@@ -12,7 +12,7 @@ export const NavBar = memo(() => {
 
   const cls = useCallback((isActive: boolean) => 
     isActive
-      ? `${styles.navBar__item} ${styles["navBar__item--active"]}`
+      ? `${styles.navBar__item} ${styles["navBar__item_active"]}`
       : styles.navBar__item, 
   []);
 
