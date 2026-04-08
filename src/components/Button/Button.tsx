@@ -1,4 +1,5 @@
-import type { ButtonHTMLAttributes, ReactElement } from "react";
+// src/components/Button/Button.tsx
+import type { ButtonHTMLAttributes, ReactElement, ReactNode } from "react";
 
 import { useClasses } from "../../hooks/useClasses";
 import { ButtonVariant } from "./type";
@@ -11,7 +12,6 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export const Button = ({
-  children,
   variant = ButtonVariant.DEFAULT,
   glow = false,
   className,
@@ -22,7 +22,7 @@ export const Button = ({
     styles,
     "button",
     {
-      neumorphic: variant == ButtonVariant.NEUMORPHIC,
+      neumorphic: variant === ButtonVariant.NEUMORPHIC,
       glow: glow && !disabled,
       disabled: disabled,
     },
@@ -30,8 +30,8 @@ export const Button = ({
   );
 
   return (
-    <button className={mods} disabled={disabled} {...props}>
-      <span className={styles.button__content}>{children}</span>
+     <button className={mods} disabled={disabled} {...props}>
+      <span className={styles.button__content} />
       <span className={styles.button__ripple} />
     </button>
   );
