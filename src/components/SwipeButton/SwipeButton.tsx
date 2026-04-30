@@ -51,7 +51,7 @@ export const SwipeButton: FC<SwipeButtonProps> = ({
   const mods = useClasses(styles, "swipeButton", { disabled }, className);
 
   return (
-    <button className={mods} data-text={type}>
+    <button className={mods} data-text={type} disabled={disabled}>
       {getIcon()}
     </button>
   );
