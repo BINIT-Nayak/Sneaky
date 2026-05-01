@@ -257,6 +257,52 @@
   background: rgba(81, 207, 102, 0.15);
   box-shadow: 0 15px 30px rgba(81, 207, 102, 0.4);
 }
+.home__toast {
+  position: fixed;
+  bottom: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, var(--base-color2), var(--base-color3));
+  color: var(--base-color5);
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 1000;
+  animation: slideUp 0.3s ease, fadeOut 0.3s ease 1.7s forwards;
+  white-space: nowrap;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(223, 182, 130, 0.3);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@media (max-width: 768px) {
+  .home__toast {
+    bottom: 100px;
+    white-space: normal;
+    text-align: center;
+    max-width: 80%;
+    font-size: 12px;
+    padding: 10px 20px;
+  }
+}
 
 /* Animations */
 @keyframes homeBackgroundPulse {

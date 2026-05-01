@@ -1,4 +1,3 @@
-// src/pages/Start/Start.tsx
 import { type FC, useContext, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiHeart, FiShoppingCart } from "react-icons/fi";

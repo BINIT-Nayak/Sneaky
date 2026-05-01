@@ -9,6 +9,7 @@ import styles from "./Button.module.css";
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant: ButtonVariant;
   glow?: boolean;
+  children?: ReactNode;
 }
 
 export const Button = ({
@@ -16,6 +17,7 @@ export const Button = ({
   glow = false,
   className,
   disabled,
+  children, 
   ...props
 }: ButtonProps): ReactElement => {
   const mods = useClasses(
@@ -32,6 +34,11 @@ export const Button = ({
   return (
      <button className={mods} disabled={disabled} {...props}>
       <span className={styles.button__content} />
+      {children && (
+        <span className={styles.button__children}>
+          {children}
+        </span>
+      )}
       <span className={styles.button__ripple} />
     </button>
   );

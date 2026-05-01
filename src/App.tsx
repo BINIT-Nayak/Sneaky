@@ -1,3 +1,4 @@
+// src/App.tsx (simplified - no ShopProvider)
 import { useState, createContext, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 
@@ -45,8 +46,6 @@ export const App = () => {
   }, []);
 
   const handleLogin = (email: string, password: string) => {
-    console.log("Login:", { email, password });
-    
     const userData = {
       name: email.split('@')[0],
       email: email,
@@ -59,8 +58,6 @@ export const App = () => {
   };
 
   const handleSignUp = (name: string, email: string, password: string) => {
-    console.log("Sign Up:", { name, email, password });
-    
     const userData = {
       name: name,
       email: email,
@@ -76,6 +73,7 @@ export const App = () => {
     setIsLoggedIn(false);
     setUser(null);
     localStorage.removeItem('sneaky_user');
+    // Note: We don't clear wishlist/cart on logout - they persist
   };
 
   const handleOpenAuth = () => {
@@ -94,7 +92,6 @@ export const App = () => {
       user 
     }}>
       <div className="app">
-
         <ResponsiveNav />
 
         <main className="app__main">
@@ -112,7 +109,6 @@ export const App = () => {
             </Routes>
           </div>
         </main>
-
       </div>
 
       <AuthModal

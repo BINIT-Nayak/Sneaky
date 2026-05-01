@@ -1,4 +1,4 @@
-.cart__loginBtn {
+.profile__loginBtn {
   margin-top: 20px;
   padding: 12px 32px;
   background: linear-gradient(135deg, var(--base-color2), var(--base-color3));
@@ -11,6 +11,6 @@
   transition: transform 0.3s ease;
 }
 
-.cart__loginBtn:hover {
+.profile__loginBtn:hover {
   transform: translateY(-3px);
 }
