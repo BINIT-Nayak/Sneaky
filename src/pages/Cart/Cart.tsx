@@ -1,42 +1,48 @@
-// src/pages/Cart/Cart.tsx
-import { useState, useEffect, useContext } from "react";
-import { AuthContext } from "../../App";
-import {type CartItem } from "../../utils/storage";
-import { getCart, removeFromCart, updateCartQuantity, getCartTotal, getCartItemCount, clearCart } from "../../utils/storage";
+import { useState, useContext } from "react";
 import { FiTrash2, FiPlus, FiMinus, FiShoppingBag } from "react-icons/fi";
-import styles from "./Cart.module.css";
+
 import emptyCart from "../../assets/emptyList.png";
+import { AuthContext } from "../../context/AuthContext";
+import { type CartItem } from "../../utils/storage";
+import {
+  getCart,
+  removeFromCart,
+  updateCartQuantity,
+  getCartTotal,
+  getCartItemCount,
+  clearCart,
+} from "../../utils/storage";
+
+import styles from "./Cart.module.css";
 
 export const Cart = () => {
-  const { isLoggedIn,onOpenAuth } = useContext(AuthContext);
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [total, setTotal] = useState(0);
-  const [itemCount, setItemCount] = useState(0);
+  const { isLoggedIn, onOpenAuth } = useContext(AuthContext);
+  const [cart, setCart] = useState<CartItem[]>(() => getCart());
+  const [total, setTotal] = useState(() => getCartTotal());
+  const [itemCount, setItemCount] = useState(() => getCartItemCount());
 
-  useEffect(() => {
-    loadCart();
-  }, []);
-
-  const loadCart = () => {
-    const items = getCart();
-    setCart(items);
+  const handleUpdateQuantity = (productId: string, newQuantity: number) => {
+    updateCartQuantity(productId, newQuantity);
+    // Refresh cart state
+    setCart(getCart());
     setTotal(getCartTotal());
     setItemCount(getCartItemCount());
   };
 
-  const handleUpdateQuantity = (productId: string, newQuantity: number) => {
-    updateCartQuantity(productId, newQuantity);
-    loadCart(); // Refresh cart
-  };
-
   const handleRemove = (productId: string) => {
     removeFromCart(productId);
-    loadCart(); // Refresh cart
+    // Refresh cart state
+    setCart(getCart());
+    setTotal(getCartTotal());
+    setItemCount(getCartItemCount());
   };
 
   const handleClearCart = () => {
     clearCart();
-    loadCart(); // Refresh cart
+    // Refresh cart state
+    setCart(getCart());
+    setTotal(getCartTotal());
+    setItemCount(getCartItemCount());
   };
 
   if (!isLoggedIn) {
@@ -47,12 +53,9 @@ export const Cart = () => {
           <div className={styles.cart__message}>
             Please log in to view your cart
           </div>
-           <button 
-          className={styles.cart__loginBtn}
-          onClick={onOpenAuth}
-        >
-          Sign In
-        </button>
+          <button className={styles.cart__loginBtn} onClick={onOpenAuth}>
+            Sign In
+          </button>
         </div>
       </div>
     );
@@ -82,9 +85,9 @@ export const Cart = () => {
           <div className={styles.cart__items}>
             {cart.map((item) => (
               <div key={item.id} className={styles.cart__item}>
-                <img 
-                  src={item.image} 
-                  alt={item.name} 
+                <img
+                  src={item.image}
+                  alt={item.name}
                   className={styles.cart__itemImage}
                 />
                 <div className={styles.cart__itemDetails}>
@@ -96,21 +99,27 @@ export const Cart = () => {
                 </div>
                 <div className={styles.cart__itemActions}>
                   <div className={styles.cart__quantity}>
-                    <button 
+                    <button
                       className={styles.cart__quantityBtn}
-                      onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
+                      onClick={() =>
+                        handleUpdateQuantity(item.id, item.quantity - 1)
+                      }
                     >
                       <FiMinus />
                     </button>
-                    <span className={styles.cart__quantityValue}>{item.quantity}</span>
-                    <button 
+                    <span className={styles.cart__quantityValue}>
+                      {item.quantity}
+                    </span>
+                    <button
                       className={styles.cart__quantityBtn}
-                      onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                      onClick={() =>
+                        handleUpdateQuantity(item.id, item.quantity + 1)
+                      }
                     >
                       <FiPlus />
                     </button>
                   </div>
-                  <button 
+                  <button
                     className={styles.cart__removeBtn}
                     onClick={() => handleRemove(item.id)}
                   >
@@ -135,17 +144,16 @@ export const Cart = () => {
               <span>Free</span>
             </div>
             <div className={styles.cart__summaryDivider} />
-            <div className={`${styles.cart__summaryRow} ${styles.cart__summaryTotal}`}>
+            <div
+              className={`${styles.cart__summaryRow} ${styles.cart__summaryTotal}`}
+            >
               <span>Total</span>
               <span>₹{total.toLocaleString()}</span>
             </div>
             <button className={styles.cart__checkoutBtn}>
               Proceed to Checkout →
             </button>
-            <button 
-              className={styles.cart__clearBtn}
-              onClick={handleClearCart}
-            >
+            <button className={styles.cart__clearBtn} onClick={handleClearCart}>
               Clear Cart
             </button>
           </div>

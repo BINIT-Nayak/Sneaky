@@ -1,7 +1,10 @@
-import {type FC, useState } from "react";
+import type { FC } from "react";
+import { useState } from "react";
 import { FaTimes } from "react-icons/fa";
+
 import { Button } from "../../components/Button/Button";
 import { ButtonVariant } from "../../components/Button/type";
+
 import styles from "./AuthModal.module.css";
 
 interface AuthModalProps {
@@ -49,19 +52,18 @@ export const AuthModal: FC<AuthModalProps> = ({
 
         <form onSubmit={handleSubmit} className={styles.authModal__form}>
           {!isLoginMode ? (
-    <div className={styles.authModal__field}>
-      <label htmlFor="name">Name</label>
-      <input
-        type="text"
-        id="name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="Enter your name"
-        required
-      />
-    </div>
-  ) : null
-}
+            <div className={styles.authModal__field}>
+              <label htmlFor="name">Name</label>
+              <input
+                type="text"
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Enter your name"
+                required
+              />
+            </div>
+          ) : null}
 
           <div className={styles.authModal__field}>
             <label htmlFor="email">Email</label>
@@ -105,19 +107,16 @@ export const AuthModal: FC<AuthModalProps> = ({
 
         <div className={styles.authModal__toggle}>
           <p>
-            {isLoginMode ? "Don't have an account?" : "Already have an account?"}
-            <button
-              type="button"
-              onClick={() => setIsLoginMode(!isLoginMode)}
-            >
+            {isLoginMode
+              ? "Don't have an account?"
+              : "Already have an account?"}
+            <button type="button" onClick={() => setIsLoginMode(!isLoginMode)}>
               {isLoginMode ? "Sign Up" : "Sign In"}
             </button>
           </p>
         </div>
 
-        <div className={styles.authModal__powered}>
-          Powered by Sneaky
-        </div>
+        <div className={styles.authModal__powered}>Powered by Sneaky</div>
       </div>
     </div>
   );

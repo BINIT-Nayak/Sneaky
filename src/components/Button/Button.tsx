@@ -1,7 +1,6 @@
-// src/components/Button/Button.tsx
 import type { ButtonHTMLAttributes, ReactElement, ReactNode } from "react";
 
-import { useClasses } from "../../hooks/useClasses";
+import { getClasses } from "../../hooks/useClasses";
 import { ButtonVariant } from "./type";
 
 import styles from "./Button.module.css";
@@ -17,10 +16,10 @@ export const Button = ({
   glow = false,
   className,
   disabled,
-  children, 
+  children,
   ...props
 }: ButtonProps): ReactElement => {
-  const mods = useClasses(
+  const mods = getClasses(
     styles,
     "button",
     {
@@ -32,13 +31,11 @@ export const Button = ({
   );
 
   return (
-     <button className={mods} disabled={disabled} {...props}>
+    <button className={mods} disabled={disabled} {...props}>
       <span className={styles.button__content} />
-      {children && (
-        <span className={styles.button__children}>
-          {children}
-        </span>
-      )}
+      {children ? (
+        <span className={styles.button__children}>{children}</span>
+      ) : null}
       <span className={styles.button__ripple} />
     </button>
   );

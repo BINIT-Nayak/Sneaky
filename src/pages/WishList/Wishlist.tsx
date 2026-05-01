@@ -1,9 +1,10 @@
-// src/pages/WishList/Wishlist.tsx
 import { useContext } from "react";
-import { AuthContext } from "../../App";
+
+import { AuthContext } from "../../context/AuthContext";
 import { getWishlist } from "../../utils/storage";
 import bellIcon from "../../assets/bell.png";
 import emptyList from "../../assets/emptyList.png";
+
 import styles from "./Wishlist.module.css";
 
 export const Wishlist = () => {
@@ -23,10 +24,7 @@ export const Wishlist = () => {
           <div className={styles.wishlist__message}>
             Your wishlist is waiting. Log in to continue.
           </div>
-          <button 
-            className={styles.wishlist__loginBtn}
-            onClick={onOpenAuth}
-          >
+          <button className={styles.wishlist__loginBtn} onClick={onOpenAuth}>
             Sign In
           </button>
         </div>
@@ -45,7 +43,8 @@ export const Wishlist = () => {
             alt="Bell icon"
           />
           <div className={styles.wishlist__message}>
-            Your wishlist is empty—for now. Start liking products to save them here
+            Your wishlist is empty—for now. Start liking products to save them
+            here
           </div>
         </div>
       </div>
@@ -60,11 +59,17 @@ export const Wishlist = () => {
         <div className={styles.wishlist__grid}>
           {wishlistItems.map((item) => (
             <div key={item.id} className={styles.wishlist__item}>
-              <img src={item.image} alt={item.name} className={styles.wishlist__itemImage} />
+              <img
+                src={item.image}
+                alt={item.name}
+                className={styles.wishlist__itemImage}
+              />
               <div className={styles.wishlist__itemInfo}>
                 <h3>{item.name}</h3>
                 <p>{item.brand}</p>
-                <p className={styles.wishlist__itemPrice}>₹{item.price.toLocaleString()}</p>
+                <p className={styles.wishlist__itemPrice}>
+                  ₹{item.price.toLocaleString()}
+                </p>
               </div>
             </div>
           ))}

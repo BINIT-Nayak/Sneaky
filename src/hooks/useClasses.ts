@@ -1,6 +1,6 @@
 type Modifiers = Record<string, boolean | undefined>;
 
-export const useClasses = (
+export const getClasses = (
   styles: Record<string, string>,
   block: string,
   modifiers?: Modifiers,
@@ -17,7 +17,7 @@ export const useClasses = (
   if (modifiers) {
     Object.entries(modifiers).forEach(([key, value]) => {
       if (value) {
-        const modKey = `${block}_${key}`; 
+        const modKey = `${block}_${key}`;
         if (styles[modKey]) {
           classes.push(styles[modKey]);
         }

@@ -1,8 +1,11 @@
-import { type FC, useContext, useEffect, useRef } from "react";
+import type { FC } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiHeart, FiShoppingCart } from "react-icons/fi";
 import { GiRoundStar } from "react-icons/gi";
-import { AuthContext } from "../../App";
+
+import { AuthContext } from "../../context/AuthContext";
+
 import styles from "./LandingPage.module.css";
 
 export const LandingPage: FC = () => {
@@ -17,9 +20,9 @@ export const LandingPage: FC = () => {
     const particleCount = 20;
 
     for (let i = 0; i < particleCount; i++) {
-      const particle = document.createElement('div');
+      const particle = document.createElement("div");
       particle.className = styles.start__particle;
-      
+
       const size = Math.random() * 6 + 2;
       particle.style.width = `${size}px`;
       particle.style.height = `${size}px`;
@@ -27,12 +30,12 @@ export const LandingPage: FC = () => {
       particle.style.top = `${Math.random() * 100}%`;
       particle.style.animationDelay = `${Math.random() * 5}s`;
       particle.style.animationDuration = `${Math.random() * 10 + 5}s`;
-      
+
       particles.appendChild(particle);
     }
 
     return () => {
-      particles.innerHTML = '';
+      particles.innerHTML = "";
     };
   }, []);
 
@@ -51,12 +54,13 @@ export const LandingPage: FC = () => {
       <div className={styles.start__particles} ref={particlesRef} />
 
       <div className={styles.start__content}>
-
         {/* Brand */}
         <div className={styles.start__brand}>
           <div className={styles.start__eyebrow}>WELCOME TO</div>
           <h1 className={styles.start__title}>Sneaky</h1>
-          <span className={styles.start__subtitle}>DISCOVER FASHION THE FUN WAY</span>
+          <span className={styles.start__subtitle}>
+            DISCOVER FASHION THE FUN WAY
+          </span>
         </div>
 
         {/* Decorative divider */}
@@ -69,13 +73,17 @@ export const LandingPage: FC = () => {
         {/* Tagline */}
         <div className={styles.start__tagline}>
           <div className={styles.start__taglineRow}>
-            <span className={`${styles.start__taglineWord} ${styles["start__taglineWord_accent"]}`}>
+            <span
+              className={`${styles.start__taglineWord} ${styles["start__taglineWord_accent"]}`}
+            >
               Swipe.
             </span>
             <span className={styles.start__taglineDot} aria-hidden="true" />
             <span className={styles.start__taglineWord}>Style.</span>
             <span className={styles.start__taglineDot} aria-hidden="true" />
-            <span className={`${styles.start__taglineWord} ${styles["start__taglineWord_accent"]}`}>
+            <span
+              className={`${styles.start__taglineWord} ${styles["start__taglineWord_accent"]}`}
+            >
               Shop.
             </span>
             <span className={styles.start__taglineDot} aria-hidden="true" />
@@ -85,9 +93,9 @@ export const LandingPage: FC = () => {
 
         {/* Description */}
         <p className={styles.start__description}>
-          The most exciting way to discover fashion that matches your unique style.
-          Swipe through curated collections and build your wishlist with our 
-          immersive card-based interface.
+          The most exciting way to discover fashion that matches your unique
+          style. Swipe through curated collections and build your wishlist with
+          our immersive card-based interface.
         </p>
 
         {/* CTA buttons - DONO BUTTONS YAHAN HAIN */}
@@ -134,7 +142,6 @@ export const LandingPage: FC = () => {
         <p className={styles.start__note}>
           ✦ Sign in to save your wishlist and cart ✦
         </p>
-
       </div>
     </div>
   );

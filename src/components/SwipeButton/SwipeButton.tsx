@@ -4,7 +4,7 @@ import { PiHeartStraightFill } from "react-icons/pi";
 import { ImCross } from "react-icons/im";
 import { RiShoppingCartFill } from "react-icons/ri";
 
-import { useClasses } from "../../hooks/useClasses";
+import { getClasses } from "../../hooks/useClasses";
 import { SwipeButtonType } from "./type";
 
 import styles from "./SwipeButton.module.css";
@@ -48,7 +48,7 @@ export const SwipeButton: FC<SwipeButtonProps> = ({
     }
   };
 
-  const mods = useClasses(styles, "swipeButton", { disabled }, className);
+  const mods = getClasses(styles, "swipeButton", { disabled }, className);
 
   return (
     <button className={mods} data-text={type} disabled={disabled}>

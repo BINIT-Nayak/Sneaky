@@ -1,87 +1,80 @@
 .authModal__overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(25, 0, 25, 0.8);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  display: flex;
-  justify-content: center;
   align-items: center;
+  animation: fade-in 0.3s ease;
+  backdrop-filter: blur(8px);
+  background: rgb(25 0 25 / 80%);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  position: fixed;
   z-index: 1000;
-  animation: fadeIn 0.3s ease;
 }
 
 .authModal {
+  animation: slide-up 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  background: linear-gradient(135deg, var(--base-color5), var(--base-color4));
+  border: 1px solid rgb(255 255 255 / 20%);
+  border-radius: 24px;
+  box-shadow: 0 25px 50px rgb(25 0 25 / 50%);
+  max-width: 400px;
+  padding: 40px 30px;
   position: relative;
   width: 90%;
-  max-width: 400px;
-  background: linear-gradient(135deg, var(--base-color5), var(--base-color4));
-  border-radius: 24px;
-  padding: 40px 30px;
-  box-shadow: 0 25px 50px rgba(25, 0, 25, 0.5);
-  animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .authModal::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 24px;
-  padding: 2px;
   background: linear-gradient(135deg, var(--base-color2), var(--base-color3));
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  border-radius: 24px;
+  content: '';
+  inset: 0;
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
   mask-composite: exclude;
+  padding: 2px;
   pointer-events: none;
+  position: absolute;
 }
 
 .authModal__close {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(255, 255, 255, 0.2);
+  align-items: center;
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgb(255 255 255 / 20%);
+  border: none;
+  border: 1px solid rgb(255 255 255 / 30%);
+  border-radius: 50%;
   color: var(--base-color2);
   cursor: pointer;
   display: flex;
-  align-items: center;
+  height: 36px;
   justify-content: center;
+  position: absolute;
+  right: 15px;
+  top: 15px;
   transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  width: 36px;
 }
 
 .authModal__close:hover {
-  transform: rotate(90deg);
-  background: rgba(255, 255, 255, 0.3);
+  background: rgb(255 255 255 / 30%);
   color: var(--base-color3);
+  transform: rotate(90deg);
 }
 
 .authModal__header {
-  text-align: center;
   margin-bottom: 30px;
+  text-align: center;
 }
 
 .authModal__title {
+  color: var(--base-color6);
   font-family: "Imperial Script", cursive;
   font-size: 48px;
-  color: var(--base-color6);
   margin-bottom: 8px;
   text-shadow: 2px 2px 0 var(--base-color4);
 }
 
 .authModal__subtitle {
-  font-size: 18px;
   color: var(--base-color2);
+  font-size: 18px;
   font-weight: 500;
 }
 
@@ -99,26 +92,26 @@
 
 .authModal__field label {
   color: var(--base-color2);
-  font-weight: 500;
   font-size: 14px;
+  font-weight: 500;
   margin-left: 8px;
 }
 
 .authModal__field input {
-  padding: 14px 18px;
-  border-radius: 50px;
+  background: rgb(255 255 255 / 90%);
   border: 2px solid transparent;
-  background: rgba(255, 255, 255, 0.9);
-  font-size: 16px;
-  transition: all 0.3s ease;
+  border-radius: 50px;
+  box-shadow: 0 4px 10px rgb(0 0 0 / 5%);
   color: var(--base-color6);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  font-size: 16px;
+  padding: 14px 18px;
+  transition: all 0.3s ease;
 }
 
 .authModal__field input:focus {
-  outline: none;
   border-color: var(--base-color3);
-  box-shadow: 0 8px 20px rgba(133, 79, 108, 0.2);
+  box-shadow: 0 8px 20px rgb(133 79 108 / 20%);
+  outline: none;
   transform: translateY(-2px);
 }
 
@@ -128,28 +121,28 @@
 }
 
 .authModal__forgot {
-  text-align: right;
   margin-top: -8px;
+  text-align: right;
 }
 
 .authModal__forgot a {
   color: var(--base-color2);
   font-size: 14px;
+  position: relative;
   text-decoration: none;
   transition: color 0.3s ease;
-  position: relative;
 }
 
 .authModal__forgot a::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 100%;
-  height: 1px;
   background: var(--base-color3);
+  bottom: -2px;
+  content: '';
+  height: 1px;
+  left: 0;
+  position: absolute;
   transform: scaleX(0);
   transition: transform 0.3s ease;
+  width: 100%;
 }
 
 .authModal__forgot a:hover {
@@ -161,24 +154,24 @@
 }
 
 .authModal__submit {
-  width: 100%;
-  padding: 16px !important;
-  margin-top: 10px;
   background: linear-gradient(135deg, var(--base-color2), var(--base-color3)) !important;
+  margin-top: 10px;
+  padding: 16px !important;
+  width: 100%;
 }
 
 .authModal__toggle {
-  text-align: center;
-  margin-top: 20px;
   color: var(--base-color2);
+  margin-top: 20px;
+  text-align: center;
 }
 
 .authModal__toggle button {
   background: none;
   border: none;
   color: var(--base-color3);
-  font-weight: 600;
   cursor: pointer;
+  font-weight: 600;
   margin-left: 5px;
   text-decoration: underline;
   transition: color 0.3s ease;
@@ -189,35 +182,37 @@
 }
 
 .authModal__powered {
-  text-align: center;
-  margin-top: 30px;
-  font-size: 12px;
   color: var(--base-color3);
-  opacity: 0.7;
+  font-size: 12px;
   letter-spacing: 1px;
+  margin-top: 30px;
+  opacity: 0.7;
+  text-align: center;
 }
 
-@keyframes fadeIn {
+@keyframes fade-in {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
 }
 
-@keyframes slideUp {
+@keyframes slide-up {
   from {
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .authModal {
     padding: 30px 20px;
   }

@@ -1,19 +1,22 @@
+import { memo, useCallback } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { TiHome } from "react-icons/ti";
 import { RiShoppingCartFill } from "react-icons/ri";
 import { CgProfile } from "react-icons/cg";
 import { GiRoundStar } from "react-icons/gi";
-import { memo, useCallback } from "react";
+
+import { getClasses } from "../../hooks/useClasses";
+
 import styles from "./NavBar.module.css";
 
 export const NavBar = memo(() => {
   const navigate = useNavigate();
 
-  const cls = useCallback((isActive: boolean) => 
-    isActive
-      ? `${styles.navBar__item} ${styles["navBar__item_active"]}`
-      : styles.navBar__item, 
-  []);
+  const cls = useCallback(
+    (isActive: boolean) =>
+      getClasses(styles, "navBar__item", { active: isActive }),
+    [],
+  );
 
   const handleLogoClick = useCallback(() => {
     navigate("/");
@@ -22,28 +25,14 @@ export const NavBar = memo(() => {
   return (
     <div className={styles.navBar}>
       {/* Logo - Clickable to navigate home */}
-      <div 
-        className={styles.navBar__logo} 
+      <button
+        type="button"
+        className={styles.navBar__logo}
         onClick={handleLogoClick}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            handleLogoClick();
-          }
-        }}
         aria-label="Go to homepage"
       >
-        <img
-          src="../src/assets/favIcon.png"
-          alt="Sneaky"
-          className={styles.navBar__logoImage}
-          width="48"
-          height="48"
-          loading="eager"
-        />
         <span className={styles.navBar__logoText}>Sneaky</span>
-      </div>
+      </button>
 
       {/* Navigation Links */}
       <nav className={styles.navBar__nav}>
@@ -78,5 +67,3 @@ export const NavBar = memo(() => {
     </div>
   );
 });
-
-NavBar.displayName = "NavBar";

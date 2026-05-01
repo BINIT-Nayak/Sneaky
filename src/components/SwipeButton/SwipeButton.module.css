@@ -1,45 +1,44 @@
 .swipeButton {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  padding: 10px 10px;
-  border-radius: 50%;
-  border: none;
-  cursor: pointer;
-  color: var(--base-color5);
-  font-weight: 600;
-  letter-spacing: 0.6px;
-  overflow: hidden;
-  box-shadow:
-    0 6px 14px rgba(0, 0, 0, 0.25),
-    inset 0 2px 3px rgba(255, 255, 255, 0.3);
-  filter: drop-shadow(0 0 8px rgba(223, 182, 130, 0.25));
+  align-items: center;
   background: linear-gradient(
     180deg,
     var(--base-color5),
     var(--base-color3),
     var(--base-color2)
   );
-  opacity: 0.9;
+  border: none;
+  border-radius: 50%;
+  box-shadow:
+    0 6px 14px rgb(0 0 0 / 25%),
+    inset 0 2px 3px rgb(255 255 255 / 30%);
+  color: var(--base-color5);
+  cursor: pointer;
+  filter: drop-shadow(0 0 8px rgb(223 182 130 / 25%));
+  font-weight: 600;
+  height: 100%;
   justify-content: center;
-  align-items: center;
+  letter-spacing: 0.6px;
+  opacity: 0.9;
+  overflow: hidden;
+  padding: 10px;
+  position: relative;
+  width: 100%;
 }
 
 .swipeButton::after {
-  content: attr(data-text);
-  position: absolute;
-  inset: 1px;
-  border-radius: inherit;
-  background: linear-gradient(var(--base-color2), var(--base-color5));
-  transition: transform 0.3s ease;
-  color: var(--base-color2);
-  display: flex;
-  justify-content: center;
   align-items: center;
+  background: linear-gradient(var(--base-color2), var(--base-color5));
+  border-radius: inherit;
+  color: var(--base-color2);
+  content: attr(data-text);
+  display: flex;
+  inset: 1px;
+  justify-content: center;
+  position: absolute;
+  transition: transform 0.3s ease;
 }
 
 .swipeButton_disabled {
-  pointer-events: none;
   background: linear-gradient(
     180deg,
     var(--base-color6),
@@ -48,6 +47,7 @@
   );
   box-shadow: none;
   opacity: 0.5;
+  pointer-events: none;
 }
 
 .swipeButton__icon {
@@ -57,10 +57,9 @@
 @media (hover: hover) {
   .swipeButton:hover {
     box-shadow:
-      0px 2px 13px 5px rgba(0, 0, 0, 0.3),
-      inset 0 2px 4px rgba(255, 255, 255, 0.35);
-
-    filter: drop-shadow(0 0 10px rgba(223, 182, 130, 0.4));
+      0 2px 13px 5px rgb(0 0 0 / 30%),
+      inset 0 2px 4px rgb(255 255 255 / 35%);
+    filter: drop-shadow(0 0 10px rgb(223 182 130 / 40%));
   }
 
   .swipeButton:hover::after {
