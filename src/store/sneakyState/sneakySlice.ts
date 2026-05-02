@@ -5,6 +5,7 @@ import type { UIStateProps } from "../types";
 
 const initialState: UIStateProps = {
   isAuthModalOpen: false,
+  isLoggedIn: false,
 };
 
 export const sneakySlice = createSlice({
@@ -13,6 +14,9 @@ export const sneakySlice = createSlice({
   reducers: {
     setAuthModalOpen: (state, action: PayloadAction<boolean>) => {
       state.isAuthModalOpen = action.payload;
+    },
+    setIsLoggedIn: (state, action: PayloadAction<boolean>) => {
+      state.isLoggedIn = action.payload;
     },
   },
 });

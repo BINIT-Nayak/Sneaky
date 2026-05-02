@@ -1,11 +1,10 @@
-import { useCallback, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useMemo } from "react";
 import { Routes, Route } from "react-router-dom";
 
 import { AuthEntryLoginButton } from "./components/AuthEntryLoginButton/AuthEntryLoginButton";
 import { ResponsiveNav } from "./components/ResponsiveNav/ResponsiveNav";
 import { AuthContext } from "./context/AuthContext";
-import type { UserType } from "./context/AuthContext";
+import { useAuth } from "./hooks/useAuth";
 import styles from "./index.module.css";
 import { AuthModal } from "./pages/Auth/AuthModal";
 import { Cart } from "./pages/Cart/Cart";
@@ -14,83 +13,19 @@ import { LandingPage } from "./pages/LandingPage/LandingPage";
 import { Profile } from "./pages/Profile/Profile";
 import { Wishlist } from "./pages/WishList/Wishlist";
 import { useSneakyStateSlice } from "./store/sneakyState/sneakySelectors";
-import { sneakyStateActions } from "./store/sneakyState/sneakySlice";
-import type { AppDispatch } from "./store/sneakyStore";
-
-// Initialize state from localStorage for hydration
-const getInitialAuthState = () => {
-  const savedUser = localStorage.getItem("sneaky_user");
-  if (savedUser) {
-    try {
-      return {
-        user: JSON.parse(savedUser) as UserType,
-        isLoggedIn: true,
-      };
-    } catch {
-      console.warn("Failed to parse user from localStorage");
-      return { user: null, isLoggedIn: false };
-    }
-  }
-  return { user: null, isLoggedIn: false };
-};
 
 export const App = () => {
-  const dispatch = useDispatch<AppDispatch>();
+  const {
+    isLoggedIn,
+    user,
+    handleLogin,
+    handleSignUp,
+    handleLogout,
+    handleOpenAuth,
+    handleCloseAuth,
+  } = useAuth();
+
   const isAuthModalOpen = useSneakyStateSlice.getIsAuthModalOpen();
-  const { user: initialUser, isLoggedIn: initialIsLoggedIn } =
-    getInitialAuthState();
-  const [isLoggedIn, setIsLoggedIn] = useState(initialIsLoggedIn);
-  const [user, setUser] = useState<UserType | null>(initialUser);
-
-  const handleLogin = (email: string, _password: string) => {
-    // Validate inputs (password validation would be implemented with real authentication)
-    if (!email || !_password) {
-      console.warn("Email and password are required");
-      return;
-    }
-
-    const userData = {
-      email: email,
-    };
-
-    setUser(userData);
-    setIsLoggedIn(true);
-    localStorage.setItem("sneaky_user", JSON.stringify(userData));
-    dispatch(sneakyStateActions.setAuthModalOpen(false));
-  };
-
-  const handleSignUp = (name: string, email: string, _password: string) => {
-    // Validate inputs (password validation would be implemented with real authentication)
-    if (!name || !email || !_password) {
-      console.warn("Name, email, and password are required");
-      return;
-    }
-
-    const userData = {
-      name: name,
-      email: email,
-    };
-
-    setUser(userData);
-    setIsLoggedIn(true);
-    localStorage.setItem("sneaky_user", JSON.stringify(userData));
-    dispatch(sneakyStateActions.setAuthModalOpen(false));
-  };
-
-  const handleLogout = useCallback(() => {
-    setIsLoggedIn(false);
-    setUser(null);
-    localStorage.removeItem("sneaky_user");
-    // Note: We don't clear wishlist/cart on logout - they persist
-  }, []);
-
-  const handleOpenAuth = useCallback(() => {
-    dispatch(sneakyStateActions.setAuthModalOpen(true));
-  }, [dispatch]);
-
-  const handleCloseAuth = useCallback(() => {
-    dispatch(sneakyStateActions.setAuthModalOpen(false));
-  }, [dispatch]);
 
   const contextValue = useMemo(
     () => ({

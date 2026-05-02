@@ -18,3 +18,22 @@ export const useIsMobile = () => {
 
   return isMobile;
 };
+
+export const useIsTablet = () => {
+  const [isTablet, setIsTablet] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsTablet(window.innerWidth <= 1024 && window.innerWidth > 768);
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  return isTablet;
+};

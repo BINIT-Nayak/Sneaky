@@ -9,7 +9,6 @@ import { getClasses } from "../../hooks/useClasses";
 import styles from "./SwipeButton.module.css";
 import { SwipeButtonType } from "./type";
 
-
 export interface SwipeButtonProps {
   disabled?: boolean;
   className?: string;

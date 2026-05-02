@@ -14,39 +14,65 @@ export const LandingPage: FC = () => {
   const { onOpenAuth } = useContext(AuthContext);
   const particlesRef = useRef<HTMLDivElement>(null);
 
+  // Particle animation effect
   useEffect(() => {
-    if (!particlesRef.current) return;
+    const container = particlesRef.current;
+    if (!container) return;
 
-    const particles = particlesRef.current;
     const particleCount = 20;
 
-    for (let i = 0; i < particleCount; i++) {
-      const particle = document.createElement("div");
-      particle.className = styles.start__particle;
+    const particles = Array.from({ length: particleCount }).map(() => ({
+      x: Math.random(),
+      y: Math.random(),
+      vx: (Math.random() - 0.5) * 0.0009,
+      vy: (Math.random() - 0.5) * 0.0009,
+    }));
 
-      const size = Math.random() * 6 + 2;
-      particle.style.width = `${size}px`;
-      particle.style.height = `${size}px`;
-      particle.style.left = `${Math.random() * 100}%`;
-      particle.style.top = `${Math.random() * 100}%`;
-      particle.style.animationDelay = `${Math.random() * 5}s`;
-      particle.style.animationDuration = `${Math.random() * 10 + 5}s`;
+    const elements: HTMLDivElement[] = [];
 
-      particles.appendChild(particle);
-    }
+    // create elements
+    particles.forEach(() => {
+      const el = document.createElement("div");
+      el.className = styles.start__particle;
+      container.appendChild(el);
+      elements.push(el);
+    });
+
+    let frameId: number;
+
+    const animate = () => {
+      const width = container.clientWidth - 50;
+      const height = container.clientHeight - 50;
+
+      particles.forEach((p, i) => {
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // bounce within container (0 → 1 normalized space)
+        if (p.x <= 0 || p.x >= 1) p.vx *= -1;
+        if (p.y <= 0 || p.y >= 1) p.vy *= -1;
+
+        const el = elements[i];
+
+        el.style.transform = `translate(${p.x * width}px, ${p.y * height}px)`;
+      });
+
+      frameId = requestAnimationFrame(animate);
+    };
+
+    animate();
 
     return () => {
-      particles.innerHTML = "";
+      cancelAnimationFrame(frameId);
+      container.innerHTML = "";
     };
   }, []);
 
   const handleStartSwiping = () => {
-    // Direct home page - no login required
     navigate("/home");
   };
 
   const handleSignIn = () => {
-    // Open auth modal
     onOpenAuth();
   };
 

@@ -5,6 +5,7 @@ import { ButtonVariant } from "../../components/Button/type";
 import { SwipeButton } from "../../components/SwipeButton/SwipeButton";
 import { SwipeButtonType } from "../../components/SwipeButton/type";
 import { AuthContext } from "../../context/AuthContext";
+import { useIsMobile, useIsTablet } from "../../hooks/useGetDeviceType";
 import type { Product } from "../../samples/product";
 import { sampleProducts } from "../../samples/product";
 import { addToWishlist, addToCart } from "../../utils/storage";
@@ -13,7 +14,8 @@ import styles from "./Home.module.css";
 
 export const Home = () => {
   const { isLoggedIn, onOpenAuth } = useContext(AuthContext);
-  const cardRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
+  const isTablet = useIsTablet();
   const [products] = useState<Product[]>(sampleProducts);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAnimation, setShowAnimation] = useState(false);
@@ -21,6 +23,8 @@ export const Home = () => {
     null,
   );
   const [showToast, setShowToast] = useState<string | null>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const particlesRef = useRef<HTMLDivElement>(null);
 
   const currentProduct = products[currentIndex];
   const isFinished = currentIndex >= products.length;
@@ -87,6 +91,91 @@ export const Home = () => {
     }
   };
 
+  // Particle animation effect
+  useEffect(() => {
+    const container = particlesRef.current;
+    if (!container) return;
+
+    let mouseX = 0.5;
+    let mouseY = 0.5;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = container.getBoundingClientRect();
+      mouseX = (e.clientX - rect.left) / rect.width;
+      mouseY = (e.clientY - rect.top) / rect.height;
+    };
+
+    container.addEventListener("mousemove", handleMouseMove);
+
+    const particleCount = 6;
+
+    const particles = Array.from({ length: particleCount }).map(() => ({
+      x: Math.random(),
+      y: Math.random(),
+      vx: (Math.random() - 0.8) * 0.0005,
+      vy: (Math.random() - 0.8) * 0.0005,
+    }));
+
+    const elements: HTMLDivElement[] = [];
+
+    // create elements
+    particles.forEach(() => {
+      const el = document.createElement("div");
+      el.className = styles.start__particle;
+      container.appendChild(el);
+      elements.push(el);
+    });
+
+    let frameId: number;
+
+    const animate = () => {
+      const width = container.clientWidth - 50;
+      const height = container.clientHeight - 50;
+
+      particles.forEach((p, i) => {
+        // base movement
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // attraction toward cursor (desktop only)
+        if (!isMobile && !isTablet) {
+          const dx = mouseX - p.x;
+          const dy = mouseY - p.y;
+
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          const attractionRadius = 0.2; // adjust this
+          const strength = 0.002; // adjust this
+
+          if (distance < attractionRadius) {
+            p.vx += dx * strength;
+            p.vy += dy * strength;
+          }
+
+          // damping (prevents crazy speed)
+          p.vx *= 0.98;
+          p.vy *= 0.98;
+        }
+        // bounce
+        if (p.x <= 0 || p.x >= 1) p.vx *= -1;
+        if (p.y <= 0 || p.y >= 1) p.vy *= -1;
+
+        const el = elements[i];
+        el.style.transform = `translate(${p.x * width}px, ${p.y * height}px)`;
+      });
+
+      frameId = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    return () => {
+      cancelAnimationFrame(frameId);
+      container.removeEventListener("mousemove", handleMouseMove);
+      container.innerHTML = "";
+    };
+  }, [isMobile, isTablet]);
+
   if (isFinished) {
     return (
       <div className={styles.home}>
@@ -121,6 +210,7 @@ export const Home = () => {
 
   return (
     <div className={styles.home}>
+      <div className={styles.start__particles} ref={particlesRef} />
       {/* Toast Notification */}
       {showToast ? <div className={styles.home__toast}>{showToast}</div> : null}
 

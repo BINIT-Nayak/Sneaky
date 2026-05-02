@@ -292,6 +292,23 @@
   z-index: 1000;
 }
 
+/* Floating particles */
+.start__particles {
+  inset: 0;
+  overflow: hidden;
+  position: absolute;
+}
+
+.start__particle {
+  background: var(--base-color3);
+  border-radius: 50%;
+  height: 50px;
+  opacity: 0.3;
+  position: absolute;
+  width: 50px;
+  will-change: transform;
+}
+
 @keyframes slide-up {
   from {
     opacity: 0;

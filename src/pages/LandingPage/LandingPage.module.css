@@ -51,18 +51,17 @@
 .start__particles {
   inset: 0;
   overflow: hidden;
-  pointer-events: none;
   position: absolute;
 }
 
 .start__particle {
-  animation: start-float 8s ease-in-out infinite;
   background: var(--base-color4);
   border-radius: 50%;
   height: 4px;
-  opacity: 0.2;
+  opacity: 0.3;
   position: absolute;
   width: 4px;
+  will-change: transform;
 }
 
 .start__content {
@@ -379,25 +378,6 @@
 
   to {
     transform: rotate(360deg);
-  }
-}
-
-@keyframes start-float {
-  0%,
-  100% {
-    transform: translateY(0) translateX(0);
-  }
-
-  25% {
-    transform: translateY(-20px) translateX(10px);
-  }
-
-  50% {
-    transform: translateY(0) translateX(20px);
-  }
-
-  75% {
-    transform: translateY(20px) translateX(10px);
   }
 }
 

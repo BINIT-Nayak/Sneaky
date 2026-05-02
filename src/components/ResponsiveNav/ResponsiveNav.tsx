@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 
 import { TiThMenu } from "react-icons/ti";
 
-import { useIsMobile } from "../../hooks/useIsMobile";
+import { getClasses } from "../../hooks/useClasses";
+import { useIsMobile } from "../../hooks/useGetDeviceType";
 import { NavBar } from "../NavBar/NavBar";
 
 import styles from "./ResponsiveNav.module.css";
@@ -14,7 +15,6 @@ export const ResponsiveNav = () => {
   if (!isMobile) {
     return <NavBar />;
   }
-
   return <ResponsiveNavMobile />;
 };
 
@@ -29,12 +29,19 @@ const ResponsiveNavMobile = () => {
     };
   }, [open]);
 
+  const responsiveNavMod = getClasses(styles, "responsiveNav__trigger", {
+    hidden: open,
+  });
+  const responsivePanelMod = getClasses(styles, "responsiveNav__panel", {
+    open,
+  });
+
   return (
     <>
       {/* Hamburger trigger */}
       <button
         type="button"
-        className={`${styles.responsiveNav__trigger} ${open ? `${styles["responsiveNav__trigger_hidden"]}` : ""}`}
+        className={responsiveNavMod}
         onClick={() => setOpen(true)}
         aria-label="Open navigation"
       >
@@ -52,7 +59,7 @@ const ResponsiveNavMobile = () => {
 
       {/* Slide-over panel */}
       <div
-        className={`${styles.responsiveNav__panel} ${open ? `${styles["responsiveNav__panel_open"]}` : ""}`}
+        className={responsivePanelMod}
         role="dialog"
         aria-modal="true"
         aria-label="Navigation menu"

@@ -37,6 +37,7 @@ export const AuthModal: FC<AuthModalProps> = ({
     }
   };
 
+  //TODO: Think later should we add all login/signup logic here instead of passing it as props
   return (
     <div className={styles.authModal__overlay} onClick={onClose}>
       <div className={styles.authModal} onClick={(e) => e.stopPropagation()}>
@@ -90,11 +91,12 @@ export const AuthModal: FC<AuthModalProps> = ({
             />
           </div>
 
-          {isLoginMode ? (
+          {/* TODO: Add forgot password link and functionality after backend integration*/}
+          {/* {isLoginMode ? (
             <div className={styles.authModal__forgot}>
               <a href="#">Forgot password?</a>
             </div>
-          ) : null}
+          ) : null} */}
 
           <Button
             type="submit"
