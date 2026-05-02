@@ -1,5 +1,6 @@
 import type { FC } from "react";
 import { useState } from "react";
+
 import { FaTimes } from "react-icons/fa";
 
 import { Button } from "../../components/Button/Button";

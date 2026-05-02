@@ -1,4 +1,5 @@
 import { useState, useContext } from "react";
+
 import { FiTrash2, FiPlus, FiMinus, FiShoppingBag } from "react-icons/fi";
 
 import emptyCart from "../../assets/emptyList.png";

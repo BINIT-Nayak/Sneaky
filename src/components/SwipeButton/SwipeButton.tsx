@@ -1,13 +1,14 @@
 import type { FC } from "react";
 
-import { PiHeartStraightFill } from "react-icons/pi";
 import { ImCross } from "react-icons/im";
+import { PiHeartStraightFill } from "react-icons/pi";
 import { RiShoppingCartFill } from "react-icons/ri";
 
 import { getClasses } from "../../hooks/useClasses";
-import { SwipeButtonType } from "./type";
 
 import styles from "./SwipeButton.module.css";
+import { SwipeButtonType } from "./type";
+
 
 export interface SwipeButtonProps {
   disabled?: boolean;

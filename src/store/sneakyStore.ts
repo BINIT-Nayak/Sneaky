@@ -1,5 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { sneakySlice } from "./sneakySlice";
+
+import { sneakySlice } from "./sneakyState/sneakySlice";
 
 export const store = configureStore({
   reducer: {

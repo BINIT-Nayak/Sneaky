@@ -1,13 +1,13 @@
 import { useRef, useEffect, useState, useContext } from "react";
 
-import { AuthContext } from "../../context/AuthContext";
-import type { Product } from "../../samples/product";
-import { sampleProducts } from "../../samples/product";
-import { addToWishlist, addToCart } from "../../utils/storage";
 import { Button } from "../../components/Button/Button";
 import { ButtonVariant } from "../../components/Button/type";
 import { SwipeButton } from "../../components/SwipeButton/SwipeButton";
 import { SwipeButtonType } from "../../components/SwipeButton/type";
+import { AuthContext } from "../../context/AuthContext";
+import type { Product } from "../../samples/product";
+import { sampleProducts } from "../../samples/product";
+import { addToWishlist, addToCart } from "../../utils/storage";
 
 import styles from "./Home.module.css";
 

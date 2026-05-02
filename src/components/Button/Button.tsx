@@ -1,9 +1,9 @@
 import type { ButtonHTMLAttributes, ReactElement, ReactNode } from "react";
 
 import { getClasses } from "../../hooks/useClasses";
-import { ButtonVariant } from "./type";
 
 import styles from "./Button.module.css";
+import { ButtonVariant } from "./type";
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant: ButtonVariant;

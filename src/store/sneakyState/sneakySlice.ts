@@ -1,7 +1,7 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
 
-import type { UIStateProps } from "./types";
+import type { UIStateProps } from "../types";
 
 const initialState: UIStateProps = {
   isAuthModalOpen: false,

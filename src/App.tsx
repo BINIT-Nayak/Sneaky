@@ -1,22 +1,21 @@
 import { useCallback, useMemo, useState } from "react";
-import { Routes, Route } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import { Routes, Route } from "react-router-dom";
 
-import { ResponsiveNav } from "./components/ResponsiveNav/ResponsiveNav";
 import { AuthEntryLoginButton } from "./components/AuthEntryLoginButton/AuthEntryLoginButton";
-import { AuthModal } from "./pages/Auth/AuthModal";
-import { LandingPage } from "./pages/LandingPage/LandingPage";
-import { Home } from "./pages/Home/Home";
-import { Wishlist } from "./pages/WishList/Wishlist";
-import { Cart } from "./pages/Cart/Cart";
-import { Profile } from "./pages/Profile/Profile";
+import { ResponsiveNav } from "./components/ResponsiveNav/ResponsiveNav";
 import { AuthContext } from "./context/AuthContext";
 import type { UserType } from "./context/AuthContext";
-import { sneakyStateActions } from "./store/sneakySlice";
-import { useSneakyStateSlice } from "./store/sneakySelectors";
-import type { AppDispatch } from "./store/sneakyStore";
-
 import styles from "./index.module.css";
+import { AuthModal } from "./pages/Auth/AuthModal";
+import { Cart } from "./pages/Cart/Cart";
+import { Home } from "./pages/Home/Home";
+import { LandingPage } from "./pages/LandingPage/LandingPage";
+import { Profile } from "./pages/Profile/Profile";
+import { Wishlist } from "./pages/WishList/Wishlist";
+import { useSneakyStateSlice } from "./store/sneakyState/sneakySelectors";
+import { sneakyStateActions } from "./store/sneakyState/sneakySlice";
+import type { AppDispatch } from "./store/sneakyStore";
 
 // Initialize state from localStorage for hydration
 const getInitialAuthState = () => {

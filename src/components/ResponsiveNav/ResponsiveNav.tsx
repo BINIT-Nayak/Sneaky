@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
+
 import { TiThMenu } from "react-icons/ti";
 
-import { NavBar } from "../NavBar/NavBar";
 import { useIsMobile } from "../../hooks/useIsMobile";
+import { NavBar } from "../NavBar/NavBar";
 
 import styles from "./ResponsiveNav.module.css";
 

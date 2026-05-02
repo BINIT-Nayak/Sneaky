@@ -1,6 +1,7 @@
 import type { FC } from "react";
 import { useContext, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+
 import { FiHeart, FiShoppingCart } from "react-icons/fi";
 import { GiRoundStar } from "react-icons/gi";
 

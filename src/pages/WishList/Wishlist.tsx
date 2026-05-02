@@ -1,9 +1,9 @@
 import { useContext } from "react";
 
-import { AuthContext } from "../../context/AuthContext";
-import { getWishlist } from "../../utils/storage";
 import bellIcon from "../../assets/bell.png";
 import emptyList from "../../assets/emptyList.png";
+import { AuthContext } from "../../context/AuthContext";
+import { getWishlist } from "../../utils/storage";
 
 import styles from "./Wishlist.module.css";
 

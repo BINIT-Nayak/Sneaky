@@ -1,10 +1,12 @@
 import type { FC } from "react";
 import { useContext, useMemo } from "react";
+
 import { FiUser, FiHeart, FiShoppingBag, FiLogOut } from "react-icons/fi";
 
 import { AuthContext } from "../../context/AuthContext";
 import type { Product } from "../../samples/product";
 import { getWishlist, getCartItemCount } from "../../utils/storage";
+
 import styles from "./Profile.module.css";
 
 export const Profile: FC = () => {

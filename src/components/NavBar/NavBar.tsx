@@ -1,9 +1,10 @@
 import { memo, useCallback } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { TiHome } from "react-icons/ti";
-import { RiShoppingCartFill } from "react-icons/ri";
+
 import { CgProfile } from "react-icons/cg";
 import { GiRoundStar } from "react-icons/gi";
+import { RiShoppingCartFill } from "react-icons/ri";
+import { TiHome } from "react-icons/ti";
 
 import { getClasses } from "../../hooks/useClasses";
 
