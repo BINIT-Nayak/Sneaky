@@ -1,5 +1,6 @@
-import { useState, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Routes, Route } from "react-router-dom";
+import { useDispatch } from "react-redux";
 
 import { ResponsiveNav } from "./components/ResponsiveNav/ResponsiveNav";
 import { AuthEntryLoginButton } from "./components/AuthEntryLoginButton/AuthEntryLoginButton";
@@ -11,8 +12,11 @@ import { Cart } from "./pages/Cart/Cart";
 import { Profile } from "./pages/Profile/Profile";
 import { AuthContext } from "./context/AuthContext";
 import type { UserType } from "./context/AuthContext";
+import { sneakyStateActions } from "./store/sneakySlice";
+import { useSneakyStateSlice } from "./store/sneakySelectors";
+import type { AppDispatch } from "./store/sneakyStore";
 
-import "./index.css";
+import styles from "./index.module.css";
 
 // Initialize state from localStorage for hydration
 const getInitialAuthState = () => {
@@ -32,7 +36,8 @@ const getInitialAuthState = () => {
 };
 
 export const App = () => {
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
+  const isAuthModalOpen = useSneakyStateSlice.getIsAuthModalOpen();
   const { user: initialUser, isLoggedIn: initialIsLoggedIn } =
     getInitialAuthState();
   const [isLoggedIn, setIsLoggedIn] = useState(initialIsLoggedIn);
@@ -52,7 +57,7 @@ export const App = () => {
     setUser(userData);
     setIsLoggedIn(true);
     localStorage.setItem("sneaky_user", JSON.stringify(userData));
-    setIsAuthModalOpen(false);
+    dispatch(sneakyStateActions.setAuthModalOpen(false));
   };
 
   const handleSignUp = (name: string, email: string, _password: string) => {
@@ -70,23 +75,23 @@ export const App = () => {
     setUser(userData);
     setIsLoggedIn(true);
     localStorage.setItem("sneaky_user", JSON.stringify(userData));
-    setIsAuthModalOpen(false);
+    dispatch(sneakyStateActions.setAuthModalOpen(false));
   };
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     setIsLoggedIn(false);
     setUser(null);
     localStorage.removeItem("sneaky_user");
     // Note: We don't clear wishlist/cart on logout - they persist
-  };
+  }, []);
 
-  const handleOpenAuth = () => {
-    setIsAuthModalOpen(true);
-  };
+  const handleOpenAuth = useCallback(() => {
+    dispatch(sneakyStateActions.setAuthModalOpen(true));
+  }, [dispatch]);
 
-  const handleCloseAuth = () => {
-    setIsAuthModalOpen(false);
-  };
+  const handleCloseAuth = useCallback(() => {
+    dispatch(sneakyStateActions.setAuthModalOpen(false));
+  }, [dispatch]);
 
   const contextValue = useMemo(
     () => ({
@@ -95,20 +100,20 @@ export const App = () => {
       onLogout: handleLogout,
       user,
     }),
-    [isLoggedIn, user],
+    [handleOpenAuth, handleLogout, isLoggedIn, user],
   );
 
   return (
     <AuthContext.Provider value={contextValue}>
-      <div className="app">
+      <div className={styles.app}>
         <ResponsiveNav />
 
-        <main className="app__main">
+        <main className={styles.app__main}>
           {isLoggedIn === false ? (
             <AuthEntryLoginButton onOpenAuth={handleOpenAuth} />
           ) : null}
 
-          <div className="app__content">
+          <div className={styles.app__content}>
             <Routes>
               <Route path="/" element={<LandingPage />} />
               <Route path="/home" element={<Home />} />

@@ -51,7 +51,7 @@ export const AuthModal: FC<AuthModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className={styles.authModal__form}>
-          {!isLoginMode ? (
+          {isLoginMode === false ? (
             <div className={styles.authModal__field}>
               <label htmlFor="name">Name</label>
               <input
@@ -89,11 +89,11 @@ export const AuthModal: FC<AuthModalProps> = ({
             />
           </div>
 
-          {isLoginMode && (
+          {isLoginMode ? (
             <div className={styles.authModal__forgot}>
               <a href="#">Forgot password?</a>
             </div>
-          )}
+          ) : null}
 
           <Button
             type="submit"

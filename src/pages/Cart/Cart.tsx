@@ -3,7 +3,7 @@ import { FiTrash2, FiPlus, FiMinus, FiShoppingBag } from "react-icons/fi";
 
 import emptyCart from "../../assets/emptyList.png";
 import { AuthContext } from "../../context/AuthContext";
-import { type CartItem } from "../../utils/storage";
+import type { CartItem } from "../../utils/storage";
 import {
   getCart,
   removeFromCart,

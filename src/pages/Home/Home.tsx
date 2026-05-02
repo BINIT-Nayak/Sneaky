@@ -84,11 +84,6 @@ export const Home = () => {
     if (currentProduct) {
       addToCart(currentProduct);
       showToastMessage(`🛒 Added ${currentProduct.name} to cart!`);
-      const cartBtn = document.querySelector(`.${styles.home__actionBtn_cart}`);
-      cartBtn?.classList.add(styles["animate-pop"]);
-      setTimeout(() => {
-        cartBtn?.classList.remove(styles["animate-pop"]);
-      }, 300);
     }
   };
 
@@ -127,7 +122,7 @@ export const Home = () => {
   return (
     <div className={styles.home}>
       {/* Toast Notification */}
-      {showToast && <div className={styles.home__toast}>{showToast}</div>}
+      {showToast ? <div className={styles.home__toast}>{showToast}</div> : null}
 
       <div
         className={`${styles.home__card} ${showAnimation ? styles[`swipe_${swipeDirection}`] : ""}`}
@@ -169,21 +164,21 @@ export const Home = () => {
 
           <div className={styles.home__controls__actions}>
             <button
-              className={`${styles.home__actionBtn} ${styles["home__actionBtn_dislike"]}`}
+              className={`${styles.home__actionBtn} ${styles.home__actionBtn_dislike}`}
               onClick={onDislike}
               aria-label="Dislike"
             >
               <SwipeButton type={SwipeButtonType.DISLIKE} />
             </button>
             <button
-              className={`${styles.home__actionBtn} ${styles["home__actionBtn_cart"]}`}
+              className={`${styles.home__actionBtn} ${styles.home__actionBtn_cart}`}
               onClick={onAddToCart}
               aria-label="Add to Cart"
             >
               <SwipeButton type={SwipeButtonType.CART} />
             </button>
             <button
-              className={`${styles.home__actionBtn} ${styles["home__actionBtn_like"]}`}
+              className={`${styles.home__actionBtn} ${styles.home__actionBtn_like}`}
               onClick={onLike}
               aria-label="Like / Add to Wishlist"
             >
