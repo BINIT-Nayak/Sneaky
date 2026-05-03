@@ -1,10 +1,11 @@
 import type { FC } from "react";
-import { useContext, useEffect, useRef } from "react";
+import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { FiHeart, FiShoppingCart } from "react-icons/fi";
 import { GiRoundStar } from "react-icons/gi";
 
+import { FloatingParticles } from "../../components/FloatingParticles/FloatingParticles";
 import { AuthContext } from "../../context/AuthContext";
 
 import styles from "./LandingPage.module.css";
@@ -12,61 +13,6 @@ import styles from "./LandingPage.module.css";
 export const LandingPage: FC = () => {
   const navigate = useNavigate();
   const { onOpenAuth } = useContext(AuthContext);
-  const particlesRef = useRef<HTMLDivElement>(null);
-
-  // Particle animation effect
-  useEffect(() => {
-    const container = particlesRef.current;
-    if (!container) return;
-
-    const particleCount = 20;
-
-    const particles = Array.from({ length: particleCount }).map(() => ({
-      x: Math.random(),
-      y: Math.random(),
-      vx: (Math.random() - 0.5) * 0.0009,
-      vy: (Math.random() - 0.5) * 0.0009,
-    }));
-
-    const elements: HTMLDivElement[] = [];
-
-    // create elements
-    particles.forEach(() => {
-      const el = document.createElement("div");
-      el.className = styles.start__particle;
-      container.appendChild(el);
-      elements.push(el);
-    });
-
-    let frameId: number;
-
-    const animate = () => {
-      const width = container.clientWidth - 50;
-      const height = container.clientHeight - 50;
-
-      particles.forEach((p, i) => {
-        p.x += p.vx;
-        p.y += p.vy;
-
-        // bounce within container (0 → 1 normalized space)
-        if (p.x <= 0 || p.x >= 1) p.vx *= -1;
-        if (p.y <= 0 || p.y >= 1) p.vy *= -1;
-
-        const el = elements[i];
-
-        el.style.transform = `translate(${p.x * width}px, ${p.y * height}px)`;
-      });
-
-      frameId = requestAnimationFrame(animate);
-    };
-
-    animate();
-
-    return () => {
-      cancelAnimationFrame(frameId);
-      container.innerHTML = "";
-    };
-  }, []);
 
   const handleStartSwiping = () => {
     navigate("/home");
@@ -78,7 +24,7 @@ export const LandingPage: FC = () => {
 
   return (
     <div className={styles.start}>
-      <div className={styles.start__particles} ref={particlesRef} />
+      <FloatingParticles />
 
       <div className={styles.start__content}>
         {/* Brand */}

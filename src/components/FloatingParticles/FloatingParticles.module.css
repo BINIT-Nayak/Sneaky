@@ -1,0 +1,16 @@
+.floatingParticles {
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  position: absolute;
+}
+
+.floatingParticles__particle {
+  background: var(--particle-color);
+  border-radius: 50%;
+  height: var(--particle-size);
+  opacity: var(--particle-opacity);
+  position: absolute;
+  width: var(--particle-size);
+  will-change: transform;
+}

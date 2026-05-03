@@ -47,23 +47,6 @@
   position: absolute;
 }
 
-/* Floating particles */
-.start__particles {
-  inset: 0;
-  overflow: hidden;
-  position: absolute;
-}
-
-.start__particle {
-  background: var(--base-color4);
-  border-radius: 50%;
-  height: 4px;
-  opacity: 0.3;
-  position: absolute;
-  width: 4px;
-  will-change: transform;
-}
-
 .start__content {
   animation: start-content-enter 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
   max-width: 800px;
