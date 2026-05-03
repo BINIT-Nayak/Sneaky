@@ -10,6 +10,7 @@ import { useDispatch } from "react-redux";
 import { FloatingParticles } from "../../components/FloatingParticles/FloatingParticles";
 import { AuthContext } from "../../context/AuthContext";
 import { useIsMobile, useIsTablet } from "../../hooks/useGetDeviceType";
+import { sampleProducts } from "../../samples/product";
 import { fetchProducts } from "../../store/fetchAPI/fetchProducts";
 import { useSneakyStateSlice } from "../../store/sneakyState/sneakySelectors";
 import type { AppDispatch } from "../../store/sneakyStore";
@@ -25,7 +26,8 @@ export const Home = () => {
   const isTablet = useIsTablet();
 
   // Redux state
-  const products = useSneakyStateSlice.getProducts();
+  // const products = useSneakyStateSlice.getProducts();
+  const products= sampleProducts; // TODO: Remove this and uncomment above line when backend is ready
   const productsError = useSneakyStateSlice.getProductsError();
 
   // Local state
