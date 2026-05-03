@@ -2,14 +2,22 @@ import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
 import type { UserType } from "../context/AuthContext";
+import { authApi, type AuthResponse } from "../services/api";
 import { useSneakyStateSlice } from "../store/sneakyState/sneakySelectors";
 import { sneakyStateActions } from "../store/sneakyState/sneakySlice";
 import type { AppDispatch } from "../store/sneakyStore";
 
+const USER_STORAGE_KEY = "sneaky_user";
+const ACCESS_TOKEN_STORAGE_KEY = "sneaky_access_token";
+const REFRESH_TOKEN_STORAGE_KEY = "sneaky_refresh_token";
+
 // Initialize state from localStorage for hydration
 const getInitialAuthState = () => {
-  const savedUser = localStorage.getItem("sneaky_user");
-  if (savedUser) {
+  const savedUser = localStorage.getItem(USER_STORAGE_KEY);
+  const savedAccessToken = localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+  const savedRefreshToken = localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY);
+
+  if (savedUser && savedAccessToken && savedRefreshToken) {
     try {
       return {
         user: JSON.parse(savedUser) as UserType,
@@ -28,6 +36,8 @@ export const useAuth = () => {
   const { user: initialUser, isLoggedIn: initialIsLoggedIn } =
     getInitialAuthState();
   const [user, setUser] = useState<UserType | null>(initialUser);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(false);
   const isLoggedIn = useSneakyStateSlice.getIsLoggedIn();
 
   useEffect(() => {
@@ -36,65 +46,100 @@ export const useAuth = () => {
     }
   }, [dispatch, initialIsLoggedIn]);
 
-  const handleLogin = useCallback(
-    (email: string, _password: string) => {
-      // Validate inputs (password validation would be implemented with real authentication)
-      if (!email || !_password) {
-        console.warn("Email and password are required");
-        return;
-      }
-
-      const userData = {
-        email: email,
-      };
-
+  const saveAuthSession = useCallback(
+    (userData: UserType, authResponse: AuthResponse) => {
       setUser(userData);
-      localStorage.setItem("sneaky_user", JSON.stringify(userData));
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
+      localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, authResponse.accessToken);
+      localStorage.setItem(
+        REFRESH_TOKEN_STORAGE_KEY,
+        authResponse.refreshToken,
+      );
       dispatch(sneakyStateActions.setIsLoggedIn(true));
       dispatch(sneakyStateActions.setAuthModalOpen(false));
     },
     [dispatch],
+  );
+
+  const clearAuthSession = useCallback(() => {
+    setUser(null);
+    localStorage.removeItem(USER_STORAGE_KEY);
+    localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
+    dispatch(sneakyStateActions.setIsLoggedIn(false));
+  }, [dispatch]);
+
+  const handleLogin = useCallback(
+    async (email: string, password: string) => {
+      if (!email || !password) {
+        setAuthError("Email and password are required");
+        return;
+      }
+
+      setIsAuthLoading(true);
+      setAuthError(null);
+      try {
+        const authResponse = await authApi.login({ email, password });
+        saveAuthSession({ email }, authResponse);
+      } catch (err) {
+        const error = err instanceof Error ? err.message : "Unable to log in";
+        setAuthError(error);
+      } finally {
+        setIsAuthLoading(false);
+      }
+    },
+    [saveAuthSession],
   );
 
   const handleSignUp = useCallback(
-    (name: string, email: string, _password: string) => {
-      // Validate inputs (password validation would be implemented with real authentication)
-      if (!name || !email || !_password) {
-        console.warn("Name, email, and password are required");
+    async (name: string, email: string, password: string) => {
+      if (!name || !email || !password) {
+        setAuthError("Name, email, and password are required");
         return;
       }
 
-      const userData = {
-        name: name,
-        email: email,
-      };
+      setIsAuthLoading(true);
+      setAuthError(null);
+      try {
+        const authResponse = await authApi.signUp({ name, email, password });
+        saveAuthSession({ name, email }, authResponse);
+      } catch (err) {
+        const error = err instanceof Error ? err.message : "Unable to log in";
 
-      setUser(userData);
-      localStorage.setItem("sneaky_user", JSON.stringify(userData));
-      dispatch(sneakyStateActions.setIsLoggedIn(true));
-      dispatch(sneakyStateActions.setAuthModalOpen(false));
+        if (error === "Conflict")
+          setAuthError("User already exists. Please log in instead.");
+        else setAuthError(error);
+      } finally {
+        setIsAuthLoading(false);
+      }
     },
-    [dispatch],
+    [saveAuthSession],
   );
 
   const handleLogout = useCallback(() => {
-    setUser(null);
-    localStorage.removeItem("sneaky_user");
-    dispatch(sneakyStateActions.setIsLoggedIn(false));
+    const refreshToken = localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY);
+    clearAuthSession();
+    if (refreshToken) {
+      void authApi.logout(refreshToken).catch(() => undefined);
+    }
     // Note: We don't clear wishlist/cart on logout - they persist
-  }, [dispatch]);
+  }, [clearAuthSession]);
 
   const handleOpenAuth = useCallback(() => {
+    setAuthError(null);
     dispatch(sneakyStateActions.setAuthModalOpen(true));
   }, [dispatch]);
 
   const handleCloseAuth = useCallback(() => {
+    setAuthError(null);
     dispatch(sneakyStateActions.setAuthModalOpen(false));
   }, [dispatch]);
 
   return {
     isLoggedIn,
     user,
+    authError,
+    isAuthLoading,
     handleLogin,
     handleSignUp,
     handleLogout,

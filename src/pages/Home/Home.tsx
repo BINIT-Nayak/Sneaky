@@ -5,28 +5,27 @@ import {
   useContext,
   type TouchEvent,
 } from "react";
+import { useDispatch } from "react-redux";
 
 import { FloatingParticles } from "../../components/FloatingParticles/FloatingParticles";
 import { AuthContext } from "../../context/AuthContext";
 import { useIsMobile, useIsTablet } from "../../hooks/useGetDeviceType";
-import type { Product } from "../../samples/product";
-import { sampleProducts } from "../../samples/product";
-// import { fetchProducts } from "../../store/fetchAPI/fetchProducts";
+import { fetchProducts } from "../../store/fetchAPI/fetchProducts";
 import { useSneakyStateSlice } from "../../store/sneakyState/sneakySelectors";
+import type { AppDispatch } from "../../store/sneakyStore";
 
 import styles from "./Home.module.css";
 import { HomeContent } from "./HomeContent";
 import { useHomeActions } from "./useHomeActions";
 
 export const Home = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const { isLoggedIn, onOpenAuth } = useContext(AuthContext);
   const isMobile = useIsMobile();
   const isTablet = useIsTablet();
-  const [products] = useState<Product[]>(sampleProducts);
 
   // Redux state
-  // const products = useSneakyStateSlice.getProducts();
-  // const isLoadingProducts = useSneakyStateSlice.getProductsLoading();
+  const products = useSneakyStateSlice.getProducts();
   const productsError = useSneakyStateSlice.getProductsError();
 
   // Local state
@@ -53,9 +52,9 @@ export const Home = () => {
   });
 
   // Fetch products on mount
-  // useEffect(() => {
-  //   dispatch(fetchProducts());
-  // }, [dispatch]);
+  useEffect(() => {
+    dispatch(fetchProducts());
+  }, [dispatch]);
 
   //handles hover glow effect on product card
   useEffect(() => {

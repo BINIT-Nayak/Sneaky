@@ -11,8 +11,10 @@ import styles from "./AuthModal.module.css";
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLogin: (email: string, password: string) => void;
-  onSignUp: (name: string, email: string, password: string) => void;
+  onLogin: (email: string, password: string) => Promise<void>;
+  onSignUp: (name: string, email: string, password: string) => Promise<void>;
+  error: string | null;
+  isSubmitting: boolean;
 }
 
 export const AuthModal: FC<AuthModalProps> = ({
@@ -20,6 +22,8 @@ export const AuthModal: FC<AuthModalProps> = ({
   onClose,
   onLogin,
   onSignUp,
+  error,
+  isSubmitting,
 }) => {
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [name, setName] = useState("");
@@ -28,12 +32,12 @@ export const AuthModal: FC<AuthModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isLoginMode) {
-      onLogin(email, password);
+      await onLogin(email, password);
     } else {
-      onSignUp(name, email, password);
+      await onSignUp(name, email, password);
     }
   };
 
@@ -103,9 +107,16 @@ export const AuthModal: FC<AuthModalProps> = ({
             variant={ButtonVariant.DEFAULT}
             glow
             className={styles.authModal__submit}
+            disabled={isSubmitting}
           >
-            {isLoginMode ? "Sign In" : "Sign Up"}
+            {isSubmitting
+              ? "Please wait..."
+              : isLoginMode
+                ? "Sign In"
+                : "Sign Up"}
           </Button>
+
+          {error ? <p className={styles.authModal__error}>{error}</p> : null}
         </form>
 
         <div className={styles.authModal__toggle}>

@@ -23,6 +23,8 @@ export const App = () => {
     handleLogout,
     handleOpenAuth,
     handleCloseAuth,
+    authError,
+    isAuthLoading,
   } = useAuth();
 
   const isAuthModalOpen = useSneakyStateSlice.getIsAuthModalOpen();
@@ -64,6 +66,8 @@ export const App = () => {
         onClose={handleCloseAuth}
         onLogin={handleLogin}
         onSignUp={handleSignUp}
+        error={authError}
+        isSubmitting={isAuthLoading}
       />
     </AuthContext.Provider>
   );
