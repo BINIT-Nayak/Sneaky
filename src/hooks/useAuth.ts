@@ -2,7 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
 import type { UserType } from "../context/AuthContext";
-import { authApi, type AuthResponse } from "../services/api";
+import type { AuthResponse } from "../services/api";
+import { authApi, userApi } from "../services/api";
 import { useSneakyStateSlice } from "../store/sneakyState/sneakySelectors";
 import { sneakyStateActions } from "../store/sneakyState/sneakySlice";
 import type { AppDispatch } from "../store/sneakyStore";
@@ -40,12 +41,6 @@ export const useAuth = () => {
   const [isAuthLoading, setIsAuthLoading] = useState(false);
   const isLoggedIn = useSneakyStateSlice.getIsLoggedIn();
 
-  useEffect(() => {
-    if (initialIsLoggedIn) {
-      dispatch(sneakyStateActions.setIsLoggedIn(true));
-    }
-  }, [dispatch, initialIsLoggedIn]);
-
   const saveAuthSession = useCallback(
     (userData: UserType, authResponse: AuthResponse) => {
       setUser(userData);
@@ -69,6 +64,22 @@ export const useAuth = () => {
     dispatch(sneakyStateActions.setIsLoggedIn(false));
   }, [dispatch]);
 
+  const loadCurrentUser = useCallback(async () => {
+    const currentUser = await userApi.getMe();
+    setUser(currentUser);
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(currentUser));
+    dispatch(sneakyStateActions.setIsLoggedIn(true));
+    return currentUser;
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (!initialIsLoggedIn) return;
+
+    void loadCurrentUser().catch(() => {
+      clearAuthSession();
+    });
+  }, [clearAuthSession, initialIsLoggedIn, loadCurrentUser]);
+
   const handleLogin = useCallback(
     async (email: string, password: string) => {
       if (!email || !password) {
@@ -80,15 +91,25 @@ export const useAuth = () => {
       setAuthError(null);
       try {
         const authResponse = await authApi.login({ email, password });
-        saveAuthSession({ email }, authResponse);
+        localStorage.setItem(
+          ACCESS_TOKEN_STORAGE_KEY,
+          authResponse.accessToken,
+        );
+        localStorage.setItem(
+          REFRESH_TOKEN_STORAGE_KEY,
+          authResponse.refreshToken,
+        );
+        const currentUser = await userApi.getMe();
+        saveAuthSession(currentUser, authResponse);
       } catch (err) {
+        clearAuthSession();
         const error = err instanceof Error ? err.message : "Unable to log in";
         setAuthError(error);
       } finally {
         setIsAuthLoading(false);
       }
     },
-    [saveAuthSession],
+    [clearAuthSession, saveAuthSession],
   );
 
   const handleSignUp = useCallback(
@@ -102,18 +123,28 @@ export const useAuth = () => {
       setAuthError(null);
       try {
         const authResponse = await authApi.signUp({ name, email, password });
-        saveAuthSession({ name, email }, authResponse);
+        localStorage.setItem(
+          ACCESS_TOKEN_STORAGE_KEY,
+          authResponse.accessToken,
+        );
+        localStorage.setItem(
+          REFRESH_TOKEN_STORAGE_KEY,
+          authResponse.refreshToken,
+        );
+        const currentUser = await userApi.getMe();
+        saveAuthSession(currentUser, authResponse);
       } catch (err) {
+        clearAuthSession();
         const error = err instanceof Error ? err.message : "Unable to log in";
 
-        if (error === "Conflict")
+        if (error === "Conflict" || error.includes("409"))
           setAuthError("User already exists. Please log in instead.");
         else setAuthError(error);
       } finally {
         setIsAuthLoading(false);
       }
     },
-    [saveAuthSession],
+    [clearAuthSession, saveAuthSession],
   );
 
   const handleLogout = useCallback(() => {

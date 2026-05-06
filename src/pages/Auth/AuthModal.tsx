@@ -112,7 +112,7 @@ export const AuthModal: FC<AuthModalProps> = ({
             {isSubmitting
               ? "Please wait..."
               : isLoginMode
-                ? "Sign In"
+                ? "Log In"
                 : "Sign Up"}
           </Button>
 
@@ -125,7 +125,7 @@ export const AuthModal: FC<AuthModalProps> = ({
               ? "Don't have an account?"
               : "Already have an account?"}
             <button type="button" onClick={() => setIsLoginMode(!isLoginMode)}>
-              {isLoginMode ? "Sign Up" : "Sign In"}
+              {isLoginMode ? "Sign Up" : "Log In"}
             </button>
           </p>
         </div>

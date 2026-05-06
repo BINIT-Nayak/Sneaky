@@ -175,7 +175,7 @@
 .authModal__error {
   animation:
     toast-slide-up 0.3s ease,
-    fade-out 0.3s ease 1.7s forwards;
+    toast-fade-out 0.3s ease 1.7s forwards;
   background: linear-gradient(135deg, var(--base-color2), var(--base-color3));
   border: 1px solid rgb(223 182 130 / 30%);
   border-radius: 50px;

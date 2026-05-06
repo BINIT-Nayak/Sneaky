@@ -1,8 +1,10 @@
 import { createContext } from "react";
 
 export interface UserType {
+  userId: string;
   name?: string;
   email: string;
+  isGuest?: boolean;
 }
 
 export interface AuthContextType {
