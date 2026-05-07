@@ -20,31 +20,34 @@ This repository showcases practical development patterns, reusable components, a
 - 🔒 Secure and scalable architecture
 - 🧩 Reusable component structure
 - 🚀 Optimized performance
-- 🌙 Dark mode support *(if implemented)*
 - 🔧 Easy configuration and customization
 
 ---
 
 ## 🛠️ Tech Stack
 
-Update this section based on your actual project stack.
-
 ### Frontend
-- React.js / Next.js
-- TypeScript / JavaScript
-- Tailwind CSS / SCSS
-- Redux / Context API
+- ⚛️ React 18
+- 🟦 TypeScript
+- 🔀 React Router DOM
+- 🗂️ Redux Toolkit
+- 🔄 React Redux
+- 🎨 CSS / SCSS
+- 🎯 React Icons
 
-### Backend
-- Node.js
-- Express.js
-- MongoDB / PostgreSQL
+### Build & Development
+- ⚡ Vite
+- 📦 ES Modules
+- 🔍 ESLint
+- 🎨 Stylelint
+- 🧹 TypeScript ESLint
 
-### Tools & Utilities
-- Git & GitHub
-- ESLint & Prettier
-- Vite / Webpack
-- Axios / Fetch API
+### Testing
+- 🧪 Jest
+- 🧫 React Testing Library
+- 👤 User Event Testing
+- 🌐 JSDOM Environment
+- 🔧 ts-jest
 
 ---
 
@@ -53,18 +56,22 @@ Update this section based on your actual project stack.
 ```bash
 Sneaky/
 │
-├── public/              # Static assets
+├── public/                  # Static assets
 ├── src/
-│   ├── assets/          # Images, icons, fonts
-│   ├── components/      # Reusable UI components
-│   ├── pages/           # Application pages/routes
-│   ├── hooks/           # Custom hooks
-│   ├── services/        # API and external services
-│   ├── utils/           # Utility/helper functions
-│   ├── styles/          # Global styles
-│   └── App.js           # Main application entry
+│   ├── assets/              # Images, icons, fonts
+│   ├── components/          # Reusable UI components
+│   ├── pages/               # Application pages/routes
+│   ├── hooks/               # Custom React hooks
+│   ├── store/               # Redux store & slices
+│   ├── services/            # API services
+│   ├── styles/              # Global styles & SCSS
+│   ├── App.tsx              # Main application component
+│   └── main.tsx             # Application entry point
 │
+├── tests/                   # Unit & integration tests
 ├── package.json
+├── tsconfig.json
+├── vite.config.ts
 ├── README.md
 └── .gitignore
 
@@ -92,11 +99,8 @@ npm run dev
 Add project screenshots here.
 
 ## Roadmap
- - Add authentication
  - Improve animations
- - Add API integrations
  - Optimize mobile responsiveness
- - Add unit/integration tests
  - Docker support
 
 ## 🐛 Issues
