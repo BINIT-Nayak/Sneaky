@@ -1,8 +1,11 @@
 import type { Dispatch, SetStateAction } from "react";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
+import { useDispatch } from "react-redux";
 
-import type { Product } from "../../samples/product";
-import { addToCart, addToWishlist } from "../../utils/storage";
+import { addWishlistItem } from "../../store/fetchAPI/addWishlistItem";
+import type { AppDispatch } from "../../store/sneakyStore";
+import type { Product } from "../../store/types";
+import { addToCart } from "../../utils/storage";
 
 type SwipeDirection = "left" | "right" | null;
 
@@ -29,6 +32,9 @@ export const useHomeActions = ({
   setSwipeDirection,
   showAnimation,
 }: UseHomeActionsParams) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const [wishlistSubmitting, setWishlistSubmitting] = useState(false);
+
   const showToastMessage = useCallback(
     (message: string) => {
       setShowToast(message);
@@ -52,7 +58,7 @@ export const useHomeActions = ({
   );
 
   const onLike = useCallback(() => {
-    if (showAnimation) return;
+    if (showAnimation || wishlistSubmitting) return;
 
     if (!isLoggedIn) {
       onOpenAuth();
@@ -61,17 +67,35 @@ export const useHomeActions = ({
     }
 
     if (currentProduct) {
-      advanceProduct("right");
-      addToWishlist(currentProduct);
-      showToastMessage(`❤️ Added ${currentProduct.name} to wishlist!`);
+      setWishlistSubmitting(true);
+      void dispatch(addWishlistItem({ productId: currentProduct.id }))
+        .unwrap()
+        .then(() => {
+          advanceProduct("right");
+          showToastMessage(`❤️ Added ${currentProduct.name} to wishlist!`);
+        })
+        .catch((err) => {
+          const message =
+            typeof err === "string"
+              ? err
+              : err instanceof Error
+                ? err.message
+                : "Failed to add to wishlist";
+          showToastMessage(message);
+        })
+        .finally(() => {
+          setWishlistSubmitting(false);
+        });
     }
   }, [
     advanceProduct,
     currentProduct,
+    dispatch,
     isLoggedIn,
     onOpenAuth,
     showAnimation,
     showToastMessage,
+    wishlistSubmitting,
   ]);
 
   const onDislike = useCallback(() => {

@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
 
-import type { UIStateProps } from "../types";
+import type { AsyncStatus, UIStateProps } from "../types";
 
 export const useSneakyStateSlice = {
   getIsAuthModalOpen: (): boolean => {
@@ -35,6 +35,37 @@ export const useSneakyStateSlice = {
     return useSelector(
       ({ sneakyState }: { sneakyState: UIStateProps }) =>
         sneakyState.productsError,
+    );
+  },
+
+  getWishlist: () => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useSelector(
+      ({ sneakyState }: { sneakyState: UIStateProps }) => sneakyState.wishlist,
+    );
+  },
+
+  getWishlistLoading: (): boolean => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useSelector(
+      ({ sneakyState }: { sneakyState: UIStateProps }) =>
+        sneakyState.wishlistLoading,
+    );
+  },
+
+  getWishlistStatus: (): AsyncStatus => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useSelector(
+      ({ sneakyState }: { sneakyState: UIStateProps }) =>
+        sneakyState.wishlistStatus,
+    );
+  },
+
+  getWishlistError: (): string | null => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useSelector(
+      ({ sneakyState }: { sneakyState: UIStateProps }) =>
+        sneakyState.wishlistError,
     );
   },
 };

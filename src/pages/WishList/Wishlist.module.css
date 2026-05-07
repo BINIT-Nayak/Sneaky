@@ -92,6 +92,41 @@
   font-weight: 600;
 }
 
+.wishlist__deleteError {
+  background: rgb(255 255 255 / 8%);
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 8px;
+  color: var(--base-color4);
+  font-size: 14px;
+  margin-bottom: 16px;
+  padding: 10px 12px;
+}
+
+.wishlist__deleteBtn {
+  background: linear-gradient(135deg, var(--base-color2), var(--base-color3));
+  border: none;
+  border-radius: 8px;
+  color: var(--base-color5);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 10px;
+  min-height: 40px;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+  width: 100%;
+}
+
+.wishlist__deleteBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.wishlist__deleteBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
 @media (width <= 1024px) {
   .wishlistContainer {
     height: calc(100% - 20px);

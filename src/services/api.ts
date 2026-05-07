@@ -1,6 +1,3 @@
-import type { UserType } from "../context/AuthContext";
-import type { Product } from "../samples/product";
-
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
 const ACCESS_TOKEN_STORAGE_KEY = "sneaky_access_token";
 const REFRESH_TOKEN_STORAGE_KEY = "sneaky_refresh_token";
@@ -101,7 +98,12 @@ export const apiRequest = async <T>(
     return undefined as T;
   }
 
-  return (await response.json()) as T;
+  const responseText = await response.text();
+  if (!responseText) {
+    return undefined as T;
+  }
+
+  return JSON.parse(responseText) as T;
 };
 
 export const rawApiRequest = async <T>(
@@ -122,36 +124,4 @@ export const rawApiRequest = async <T>(
   }
 
   return (await response.json()) as T;
-};
-
-export const authApi = {
-  login: (payload: LoginPayload) =>
-    apiRequest<AuthResponse>("/api/auth/login", {
-      method: "POST",
-      body: payload,
-    }),
-  signUp: (payload: SignUpPayload) =>
-    apiRequest<AuthResponse>("/api/auth/register", {
-      method: "POST",
-      body: {
-        ...payload,
-        isGuest: payload.isGuest ?? false,
-      },
-    }),
-  logout: (refreshToken: string) =>
-    apiRequest<{ message: string }>("/api/auth/logout", {
-      method: "POST",
-      body: { refreshToken },
-    }),
-};
-
-export const userApi = {
-  getMe: () =>
-    apiRequest<UserType>("/api/users/me", {
-      auth: true,
-    }),
-};
-
-export const productsApi = {
-  getProducts: () => apiRequest<Product[]>("/api/products"),
 };

@@ -12,7 +12,7 @@ import styles from "./LandingPage.module.css";
 
 export const LandingPage: FC = () => {
   const navigate = useNavigate();
-  const { onOpenAuth } = useContext(AuthContext);
+  const { onOpenAuth, isLoggedIn } = useContext(AuthContext);
 
   const handleStartSwiping = () => {
     navigate("/home");
@@ -79,12 +79,14 @@ export const LandingPage: FC = () => {
           >
             Start Swiping
           </button>
-          <button
-            className={`${styles.start__btn} ${styles["start__btn_secondary"]}`}
-            onClick={handleSignIn}
-          >
-            Sign In
-          </button>
+          {isLoggedIn ? null : (
+            <button
+              className={`${styles.start__btn} ${styles["start__btn_secondary"]}`}
+              onClick={handleSignIn}
+            >
+              Sign In
+            </button>
+          )}
         </div>
 
         {/* Feature pills */}

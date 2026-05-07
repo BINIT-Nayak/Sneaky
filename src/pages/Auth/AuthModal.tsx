@@ -116,7 +116,11 @@ export const AuthModal: FC<AuthModalProps> = ({
                 : "Sign Up"}
           </Button>
 
-          {error ? <p className={styles.authModal__error}>{error}</p> : null}
+          {error ? (
+            <p className={styles.authModal__error} role="alert">
+              {error}
+            </p>
+          ) : null}
         </form>
 
         <div className={styles.authModal__toggle}>

@@ -111,17 +111,21 @@
 
 .home__image {
   animation: home-image-fade 0.6s ease both;
+  aspect-ratio: 4 / 5;
   border: 1px solid rgb(223 182 130 / 15%);
   border-radius: var(--border-radius-lg);
   box-shadow: 0 10px 30px rgb(0 0 0 / 40%);
   cursor: zoom-in;
   display: block;
+  height: clamp(320px, 52vh, 470px);
   margin-bottom: 16px;
   object-fit: cover;
+  object-position: center;
   position: relative;
   transition:
     border-color var(--transition-base),
-    box-shadow var(--transition-base);
+    box-shadow var(--transition-base),
+    transform var(--transition-base);
   width: 100%;
 }
 
@@ -304,6 +308,15 @@
   z-index: 1000;
 }
 
+.home__loading{
+  align-items: center;
+  display: flex;
+  font-size: 18px;
+  gap: 12px;
+  justify-content: center;
+  padding: 40px;
+}
+
 @keyframes slide-up {
   from {
     opacity: 0;
@@ -426,6 +439,10 @@
     height: 82vh;
   }
 
+  .home__image {
+    height: clamp(260px, 48vh, 390px);
+  }
+
   .home__actionBtn {
     font-size: 24px;
     height: 55px;
@@ -451,6 +468,11 @@
 @media (width <= 480px) {
   .home__card {
     border-radius: var(--border-radius-md);
+  }
+
+  .home__image {
+    aspect-ratio: 3 / 4;
+    height: clamp(230px, 46vh, 340px);
   }
 
   .home__controls {

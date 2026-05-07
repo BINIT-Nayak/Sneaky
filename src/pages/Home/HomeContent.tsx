@@ -4,7 +4,7 @@ import { Button } from "../../components/Button/Button";
 import { ButtonVariant } from "../../components/Button/type";
 import { SwipeButton } from "../../components/SwipeButton/SwipeButton";
 import { SwipeButtonType } from "../../components/SwipeButton/type";
-import type { Product } from "../../samples/product";
+import type { Product } from "../../store/types";
 
 import styles from "./Home.module.css";
 
@@ -41,7 +41,7 @@ export const HomeContent: FC<HomeContentProps> = ({
     return (
       <div className={styles.home__card}>
         <div className={styles.home__loading}>
-          <p>Error: {productsError}</p>
+          <p>{productsError}</p>
         </div>
       </div>
     );

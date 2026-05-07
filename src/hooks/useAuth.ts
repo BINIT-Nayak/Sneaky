@@ -3,10 +3,12 @@ import { useDispatch } from "react-redux";
 
 import type { UserType } from "../context/AuthContext";
 import type { AuthResponse } from "../services/api";
-import { authApi, userApi } from "../services/api";
+import { authApi } from "../services/authAPI";
+import { userApi } from "../services/userAPI";
 import { useSneakyStateSlice } from "../store/sneakyState/sneakySelectors";
 import { sneakyStateActions } from "../store/sneakyState/sneakySlice";
 import type { AppDispatch } from "../store/sneakyStore";
+import { getAuthErrorMessage } from "../utils/errorMessages";
 
 const USER_STORAGE_KEY = "sneaky_user";
 const ACCESS_TOKEN_STORAGE_KEY = "sneaky_access_token";
@@ -61,6 +63,7 @@ export const useAuth = () => {
     localStorage.removeItem(USER_STORAGE_KEY);
     localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
     localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
+    dispatch(sneakyStateActions.resetWishlistState());
     dispatch(sneakyStateActions.setIsLoggedIn(false));
   }, [dispatch]);
 
@@ -103,8 +106,9 @@ export const useAuth = () => {
         saveAuthSession(currentUser, authResponse);
       } catch (err) {
         clearAuthSession();
-        const error = err instanceof Error ? err.message : "Unable to log in";
-        setAuthError(error);
+        setAuthError(
+          getAuthErrorMessage(err, "We couldn't log you in. Please try again."),
+        );
       } finally {
         setIsAuthLoading(false);
       }
@@ -135,11 +139,12 @@ export const useAuth = () => {
         saveAuthSession(currentUser, authResponse);
       } catch (err) {
         clearAuthSession();
-        const error = err instanceof Error ? err.message : "Unable to log in";
-
-        if (error === "Conflict" || error.includes("409"))
-          setAuthError("User already exists. Please log in instead.");
-        else setAuthError(error);
+        setAuthError(
+          getAuthErrorMessage(
+            err,
+            "We couldn't create your account. Please try again.",
+          ),
+        );
       } finally {
         setIsAuthLoading(false);
       }

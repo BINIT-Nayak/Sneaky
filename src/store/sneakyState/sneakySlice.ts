@@ -1,16 +1,23 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
 
-import { sampleProducts } from "../../samples/product";
+import { getRejectedErrorMessage } from "../../utils/errorMessages";
+import { addWishlistItem } from "../fetchAPI/addWishlistItem";
+import { deleteWishlistItem } from "../fetchAPI/deleteWishlistItem";
 import { fetchProducts } from "../fetchAPI/fetchProducts";
+import { fetchWishlist } from "../fetchAPI/fetchWishlist";
 import type { UIStateProps } from "../types";
 
 const initialState: UIStateProps = {
   isAuthModalOpen: false,
   isLoggedIn: false,
-  products: sampleProducts,
+  products: [],
   productsLoading: false,
   productsError: null,
+  wishlist: [],
+  wishlistStatus: "idle",
+  wishlistLoading: false,
+  wishlistError: null,
 };
 
 export const sneakySlice = createSlice({
@@ -22,6 +29,12 @@ export const sneakySlice = createSlice({
     },
     setIsLoggedIn: (state, action: PayloadAction<boolean>) => {
       state.isLoggedIn = action.payload;
+    },
+    resetWishlistState: (state) => {
+      state.wishlist = [];
+      state.wishlistStatus = "idle";
+      state.wishlistLoading = false;
+      state.wishlistError = null;
     },
   },
   extraReducers: (builder) => {
@@ -37,7 +50,40 @@ export const sneakySlice = createSlice({
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.productsLoading = false;
-        state.productsError = action.payload as string;
+        state.productsError = getRejectedErrorMessage(
+          action.payload,
+          action.error.message,
+          "We couldn't load products. Please try again.",
+        );
+      })
+
+      .addCase(fetchWishlist.pending, (state) => {
+        state.wishlistStatus = "loading";
+        state.wishlistLoading = true;
+        state.wishlistError = null;
+      })
+      .addCase(fetchWishlist.fulfilled, (state, action) => {
+        state.wishlistStatus = "succeeded";
+        state.wishlistLoading = false;
+        state.wishlist = action.payload;
+        state.wishlistError = null;
+      })
+      .addCase(fetchWishlist.rejected, (state, action) => {
+        state.wishlistStatus = "failed";
+        state.wishlistLoading = false;
+        state.wishlistError = getRejectedErrorMessage(
+          action.payload,
+          action.error.message,
+          "We couldn't load your wishlist. Please try again.",
+        );
+      })
+      .addCase(addWishlistItem.fulfilled, (state) => {
+        state.wishlistStatus = "idle";
+      })
+      .addCase(deleteWishlistItem.fulfilled, (state, action) => {
+        state.wishlist = state.wishlist.filter(
+          (item) => item.productId !== action.payload,
+        );
       });
   },
 });
