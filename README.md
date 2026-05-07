@@ -103,6 +103,6 @@ Add project screenshots here.
 
 If you find a bug or want to request a feature, please reach out to me in linkedin: https://www.linkedin.com/in/binitnayak2002/
 
-⭐ Support
+## ⭐ Support
 
 If you like this project, consider giving it a ⭐ on GitHub!
