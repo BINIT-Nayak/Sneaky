@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { FiTrash2, FiPlus, FiMinus, FiShoppingBag } from "react-icons/fi";
 
 import emptyCart from "../../assets/emptyList.png";
+import { Toast } from "../../components/Toast/Toast";
 import { AuthContext } from "../../context/AuthContext";
 import { clearCartItems } from "../../store/fetchAPI/clearCartItems";
 import { deleteCartItem } from "../../store/fetchAPI/deleteCartItem";
@@ -22,6 +23,7 @@ export const Cart = () => {
   );
   const [isClearing, setIsClearing] = useState(false);
   const [cartActionError, setCartActionError] = useState<string | null>(null);
+  const [showToast, setShowToast] = useState<string | null>(null);
 
   const cart = useSneakyStateSlice.getCart();
   const cartLoading = useSneakyStateSlice.getCartLoading();
@@ -110,6 +112,13 @@ export const Cart = () => {
     }
   };
 
+  const checkout = () => {
+    if (cart.length === 0) return;
+
+    setShowToast("Checkout to payment Gateway/ merchant site coming soon!");
+    setTimeout(() => setShowToast(null), 3000);
+  };
+
   if (!isLoggedIn) {
     return (
       <div className={styles.cartContainer}>
@@ -164,12 +173,14 @@ export const Cart = () => {
   return (
     <div className={styles.cartContainer}>
       <div className={styles.cart}>
+        <Toast message={showToast} />
+
         <h2 className={styles.cart__title}>
           <FiShoppingBag /> My Cart ({itemCount} items)
         </h2>
-        {cartActionError && (
+        {cartActionError ? (
           <div className={styles.cart__error}>{cartActionError}</div>
-        )}
+        ) : null}
 
         <div className={styles.cart__content}>
           <div className={styles.cart__items}>
@@ -255,7 +266,7 @@ export const Cart = () => {
               <span>Total</span>
               <span>₹{total.toLocaleString()}</span>
             </div>
-            <button className={styles.cart__checkoutBtn}>
+            <button className={styles.cart__checkoutBtn} onClick={checkout}>
               Proceed to Checkout →
             </button>
             <button

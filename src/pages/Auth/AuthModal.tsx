@@ -5,6 +5,7 @@ import { FaTimes } from "react-icons/fa";
 
 import { Button } from "../../components/Button/Button";
 import { ButtonVariant } from "../../components/Button/type";
+import { Toast } from "../../components/Toast/Toast";
 import {
   isStrongPassword,
   PASSWORD_REQUIREMENT_MESSAGE,
@@ -139,11 +140,7 @@ export const AuthModal: FC<AuthModalProps> = ({
                 : "Sign Up"}
           </Button>
 
-          {localError || error ? (
-            <p className={styles.authModal__error} role="alert">
-              {localError ?? error}
-            </p>
-          ) : null}
+          <Toast message={localError ?? error} role="alert" />
         </form>
 
         <div className={styles.authModal__toggle}>

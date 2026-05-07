@@ -3,6 +3,7 @@ import { useRef, useEffect, useState, useContext } from "react";
 import { useDispatch } from "react-redux";
 
 import { FloatingParticles } from "../../components/FloatingParticles/FloatingParticles";
+import { Toast } from "../../components/Toast/Toast";
 import { AuthContext } from "../../context/AuthContext";
 import { useIsMobile, useIsTablet } from "../../hooks/useGetDeviceType";
 import { fetchProducts } from "../../store/fetchAPI/fetchProducts";
@@ -132,7 +133,7 @@ export const Home = () => {
         />
       ) : null}
 
-      {showToast ? <div className={styles.home__toast}>{showToast}</div> : null}
+      <Toast message={showToast} />
       <HomeContent
         cardRef={cardRef}
         currentProduct={currentProduct}
