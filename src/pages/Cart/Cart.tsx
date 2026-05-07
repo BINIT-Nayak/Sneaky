@@ -141,11 +141,7 @@ export const Cart = () => {
     return (
       <div className={styles.cartContainer}>
         <div className={styles.cartEmpty}>
-          <img
-            className={styles.cart__icon}
-            src={emptyCart}
-            alt="Cart error"
-          />
+          <img className={styles.cart__icon} src={emptyCart} alt="Cart error" />
           <div className={styles.cart__message}>{cartError}</div>
         </div>
       </div>

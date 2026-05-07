@@ -23,6 +23,7 @@ export const App = () => {
     handleLogout,
     handleOpenAuth,
     handleCloseAuth,
+    handleUserUpdate,
     authError,
     isAuthLoading,
   } = useAuth();
@@ -34,9 +35,10 @@ export const App = () => {
       isLoggedIn,
       onOpenAuth: handleOpenAuth,
       onLogout: handleLogout,
+      onUserUpdate: handleUserUpdate,
       user,
     }),
-    [handleOpenAuth, handleLogout, isLoggedIn, user],
+    [handleOpenAuth, handleLogout, handleUserUpdate, isLoggedIn, user],
   );
 
   return (

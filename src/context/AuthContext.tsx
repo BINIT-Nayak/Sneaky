@@ -11,6 +11,7 @@ export interface AuthContextType {
   isLoggedIn: boolean;
   onOpenAuth: () => void;
   onLogout: () => void;
+  onUserUpdate: (user: UserType) => void;
   user: UserType | null;
 }
 
@@ -18,5 +19,6 @@ export const AuthContext = createContext<AuthContextType>({
   isLoggedIn: false,
   onOpenAuth: () => {},
   onLogout: () => {},
+  onUserUpdate: () => {},
   user: null,
 });

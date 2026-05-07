@@ -68,6 +68,11 @@ export const useAuth = () => {
     dispatch(sneakyStateActions.setIsLoggedIn(false));
   }, [dispatch]);
 
+  const handleUserUpdate = useCallback((nextUser: UserType) => {
+    setUser(nextUser);
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(nextUser));
+  }, []);
+
   const loadCurrentUser = useCallback(async () => {
     const currentUser = await userApi.getMe();
     setUser(currentUser);
@@ -181,5 +186,6 @@ export const useAuth = () => {
     handleLogout,
     handleOpenAuth,
     handleCloseAuth,
+    handleUserUpdate,
   };
 };

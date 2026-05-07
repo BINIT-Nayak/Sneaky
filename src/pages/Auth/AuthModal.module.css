@@ -128,6 +128,13 @@
   opacity: 0.5;
 }
 
+.authModal__hint {
+  color: var(--base-color2);
+  font-size: 12px;
+  line-height: 1.35;
+  margin: 2px 8px 0;
+}
+
 .authModal__forgot {
   margin-top: -8px;
   text-align: right;

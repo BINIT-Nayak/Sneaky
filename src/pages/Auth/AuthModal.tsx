@@ -8,6 +8,15 @@ import { ButtonVariant } from "../../components/Button/type";
 
 import styles from "./AuthModal.module.css";
 
+const PASSWORD_REQUIREMENT_MESSAGE =
+  "Password must be at least 8 characters and include letters, numbers, and a special character";
+
+const isStrongPassword = (value: string) =>
+  value.length >= 8 &&
+  /[A-Za-z]/.test(value) &&
+  /\d/.test(value) &&
+  /[^A-Za-z0-9]/.test(value);
+
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -29,16 +38,29 @@ export const AuthModal: FC<AuthModalProps> = ({
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [localError, setLocalError] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLocalError(null);
+
     if (isLoginMode) {
       await onLogin(email, password);
     } else {
+      if (!isStrongPassword(password)) {
+        setLocalError(PASSWORD_REQUIREMENT_MESSAGE);
+        return;
+      }
+
       await onSignUp(name, email, password);
     }
+  };
+
+  const handleToggleMode = () => {
+    setIsLoginMode(!isLoginMode);
+    setLocalError(null);
   };
 
   //TODO: Think later should we add all login/signup logic here instead of passing it as props
@@ -93,6 +115,12 @@ export const AuthModal: FC<AuthModalProps> = ({
               placeholder="Enter your password"
               required
             />
+            {isLoginMode === false ? (
+              <p className={styles.authModal__hint}>
+                At least 8 characters with letters, numbers, and a special
+                character.
+              </p>
+            ) : null}
           </div>
 
           {/* TODO: Add forgot password link and functionality after backend integration*/}
@@ -116,9 +144,9 @@ export const AuthModal: FC<AuthModalProps> = ({
                 : "Sign Up"}
           </Button>
 
-          {error ? (
+          {localError || error ? (
             <p className={styles.authModal__error} role="alert">
-              {error}
+              {localError ?? error}
             </p>
           ) : null}
         </form>
@@ -128,7 +156,7 @@ export const AuthModal: FC<AuthModalProps> = ({
             {isLoginMode
               ? "Don't have an account?"
               : "Already have an account?"}
-            <button type="button" onClick={() => setIsLoginMode(!isLoginMode)}>
+            <button type="button" onClick={handleToggleMode}>
               {isLoginMode ? "Sign Up" : "Log In"}
             </button>
           </p>
