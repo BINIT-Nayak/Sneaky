@@ -5,17 +5,12 @@ import { FaTimes } from "react-icons/fa";
 
 import { Button } from "../../components/Button/Button";
 import { ButtonVariant } from "../../components/Button/type";
+import {
+  isStrongPassword,
+  PASSWORD_REQUIREMENT_MESSAGE,
+} from "../../utils/passwordValidation";
 
 import styles from "./AuthModal.module.css";
-
-const PASSWORD_REQUIREMENT_MESSAGE =
-  "Password must be at least 8 characters and include letters, numbers, and a special character";
-
-const isStrongPassword = (value: string) =>
-  value.length >= 8 &&
-  /[A-Za-z]/.test(value) &&
-  /\d/.test(value) &&
-  /[^A-Za-z0-9]/.test(value);
 
 interface AuthModalProps {
   isOpen: boolean;

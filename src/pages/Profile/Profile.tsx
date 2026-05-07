@@ -21,17 +21,12 @@ import { useSneakyStateSlice } from "../../store/sneakyState/sneakySelectors";
 import type { AppDispatch } from "../../store/sneakyStore";
 import type { IWishlistItem } from "../../store/types";
 import { getUserFriendlyErrorMessage } from "../../utils/errorMessages";
+import {
+  isStrongPassword,
+  PASSWORD_REQUIREMENT_MESSAGE,
+} from "../../utils/passwordValidation";
 
 import styles from "./Profile.module.css";
-
-const PASSWORD_REQUIREMENT_MESSAGE =
-  "Password must be at least 8 characters and include letters, numbers, and a special character";
-
-const isStrongPassword = (password: string) =>
-  password.length >= 8 &&
-  /[A-Za-z]/.test(password) &&
-  /\d/.test(password) &&
-  /[^A-Za-z0-9]/.test(password);
 
 export const Profile: FC = () => {
   const dispatch = useDispatch<AppDispatch>();
