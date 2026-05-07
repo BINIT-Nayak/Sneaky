@@ -64,6 +64,7 @@ export const useAuth = () => {
     localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
     localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
     dispatch(sneakyStateActions.resetWishlistState());
+    dispatch(sneakyStateActions.resetCartState());
     dispatch(sneakyStateActions.setIsLoggedIn(false));
   }, [dispatch]);
 
@@ -158,7 +159,6 @@ export const useAuth = () => {
     if (refreshToken) {
       void authApi.logout(refreshToken).catch(() => undefined);
     }
-    // Note: We don't clear wishlist/cart on logout - they persist
   }, [clearAuthSession]);
 
   const handleOpenAuth = useCallback(() => {

@@ -2,10 +2,10 @@ import type { Dispatch, SetStateAction } from "react";
 import { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
 
+import { addCartItem } from "../../store/fetchAPI/addCartItem";
 import { addWishlistItem } from "../../store/fetchAPI/addWishlistItem";
 import type { AppDispatch } from "../../store/sneakyStore";
 import type { Product } from "../../store/types";
-import { addToCart } from "../../utils/storage";
 
 type SwipeDirection = "left" | "right" | null;
 
@@ -34,6 +34,7 @@ export const useHomeActions = ({
 }: UseHomeActionsParams) => {
   const dispatch = useDispatch<AppDispatch>();
   const [wishlistSubmitting, setWishlistSubmitting] = useState(false);
+  const [cartSubmitting, setCartSubmitting] = useState(false);
 
   const showToastMessage = useCallback(
     (message: string) => {
@@ -105,7 +106,7 @@ export const useHomeActions = ({
   }, [advanceProduct, currentProduct, showAnimation]);
 
   const onAddToCart = useCallback(() => {
-    if (showAnimation) return;
+    if (showAnimation || cartSubmitting) return;
 
     if (!isLoggedIn) {
       onOpenAuth();
@@ -114,13 +115,31 @@ export const useHomeActions = ({
     }
 
     if (currentProduct) {
-      advanceProduct("right");
-      addToCart(currentProduct);
-      showToastMessage(`🛒 Added ${currentProduct.name} to cart!`);
+      setCartSubmitting(true);
+      void dispatch(addCartItem({ productId: currentProduct.id }))
+        .unwrap()
+        .then(() => {
+          advanceProduct("right");
+          showToastMessage(`🛒 Added ${currentProduct.name} to cart!`);
+        })
+        .catch((err) => {
+          const message =
+            typeof err === "string"
+              ? err
+              : err instanceof Error
+                ? err.message
+                : "Failed to add to cart";
+          showToastMessage(message);
+        })
+        .finally(() => {
+          setCartSubmitting(false);
+        });
     }
   }, [
     advanceProduct,
+    cartSubmitting,
     currentProduct,
+    dispatch,
     isLoggedIn,
     onOpenAuth,
     showAnimation,

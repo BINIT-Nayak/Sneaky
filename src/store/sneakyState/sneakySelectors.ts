@@ -68,4 +68,35 @@ export const useSneakyStateSlice = {
         sneakyState.wishlistError,
     );
   },
+
+  getCart: () => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useSelector(
+      ({ sneakyState }: { sneakyState: UIStateProps }) => sneakyState.cart,
+    );
+  },
+
+  getCartLoading: (): boolean => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useSelector(
+      ({ sneakyState }: { sneakyState: UIStateProps }) =>
+        sneakyState.cartLoading,
+    );
+  },
+
+  getCartStatus: (): AsyncStatus => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useSelector(
+      ({ sneakyState }: { sneakyState: UIStateProps }) =>
+        sneakyState.cartStatus,
+    );
+  },
+
+  getCartError: (): string | null => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useSelector(
+      ({ sneakyState }: { sneakyState: UIStateProps }) =>
+        sneakyState.cartError,
+    );
+  },
 };

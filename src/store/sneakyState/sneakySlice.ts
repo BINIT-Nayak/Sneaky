@@ -2,10 +2,15 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
 
 import { getRejectedErrorMessage } from "../../utils/errorMessages";
+import { addCartItem } from "../fetchAPI/addCartItem";
 import { addWishlistItem } from "../fetchAPI/addWishlistItem";
+import { clearCartItems } from "../fetchAPI/clearCartItems";
+import { deleteCartItem } from "../fetchAPI/deleteCartItem";
 import { deleteWishlistItem } from "../fetchAPI/deleteWishlistItem";
+import { fetchCart } from "../fetchAPI/fetchCart";
 import { fetchProducts } from "../fetchAPI/fetchProducts";
 import { fetchWishlist } from "../fetchAPI/fetchWishlist";
+import { updateCartQuantity } from "../fetchAPI/updateCartQuantity";
 import type { UIStateProps } from "../types";
 
 const initialState: UIStateProps = {
@@ -18,6 +23,10 @@ const initialState: UIStateProps = {
   wishlistStatus: "idle",
   wishlistLoading: false,
   wishlistError: null,
+  cart: [],
+  cartStatus: "idle",
+  cartLoading: false,
+  cartError: null,
 };
 
 export const sneakySlice = createSlice({
@@ -35,6 +44,12 @@ export const sneakySlice = createSlice({
       state.wishlistStatus = "idle";
       state.wishlistLoading = false;
       state.wishlistError = null;
+    },
+    resetCartState: (state) => {
+      state.cart = [];
+      state.cartStatus = "idle";
+      state.cartLoading = false;
+      state.cartError = null;
     },
   },
   extraReducers: (builder) => {
@@ -84,6 +99,58 @@ export const sneakySlice = createSlice({
         state.wishlist = state.wishlist.filter(
           (item) => item.productId !== action.payload,
         );
+      })
+
+      .addCase(fetchCart.pending, (state) => {
+        state.cartStatus = "loading";
+        state.cartLoading = true;
+        state.cartError = null;
+      })
+      .addCase(fetchCart.fulfilled, (state, action) => {
+        state.cartStatus = "succeeded";
+        state.cartLoading = false;
+        state.cart = action.payload;
+        state.cartError = null;
+      })
+      .addCase(fetchCart.rejected, (state, action) => {
+        state.cartStatus = "failed";
+        state.cartLoading = false;
+        state.cartError = getRejectedErrorMessage(
+          action.payload,
+          action.error.message,
+          "We couldn't load your cart. Please try again.",
+        );
+      })
+      .addCase(addCartItem.fulfilled, (state, action) => {
+        const nextItem = action.payload;
+        const index = state.cart.findIndex(
+          (item) => item.productId === nextItem.productId,
+        );
+
+        if (index >= 0) {
+          state.cart.splice(index, 1);
+        }
+
+        state.cart.unshift(nextItem);
+        state.cartStatus = "succeeded";
+      })
+      .addCase(updateCartQuantity.fulfilled, (state, action) => {
+        const nextItem = action.payload;
+        const index = state.cart.findIndex(
+          (item) => item.productId === nextItem.productId,
+        );
+
+        if (index >= 0) {
+          state.cart[index] = nextItem;
+        }
+      })
+      .addCase(deleteCartItem.fulfilled, (state, action) => {
+        state.cart = state.cart.filter(
+          (item) => item.productId !== action.payload,
+        );
+      })
+      .addCase(clearCartItems.fulfilled, (state) => {
+        state.cart = [];
       });
   },
 });

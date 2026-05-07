@@ -1,16 +1,29 @@
 import type { FC } from "react";
-import { useContext, useMemo } from "react";
+import { useContext, useEffect, useMemo } from "react";
+import { useDispatch } from "react-redux";
 
 import { FiUser, FiHeart, FiShoppingBag, FiLogOut } from "react-icons/fi";
 
 import { AuthContext } from "../../context/AuthContext";
+import { fetchCart } from "../../store/fetchAPI/fetchCart";
+import { useSneakyStateSlice } from "../../store/sneakyState/sneakySelectors";
+import type { AppDispatch } from "../../store/sneakyStore";
 import type { Product } from "../../store/types";
-import { getWishlist, getCartItemCount } from "../../utils/storage";
+import { getWishlist } from "../../utils/storage";
 
 import styles from "./Profile.module.css";
 
 export const Profile: FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const { isLoggedIn, user, onLogout, onOpenAuth } = useContext(AuthContext);
+  const cart = useSneakyStateSlice.getCart();
+  const cartStatus = useSneakyStateSlice.getCartStatus();
+
+  useEffect(() => {
+    if (!isLoggedIn || cartStatus !== "idle") return;
+
+    void dispatch(fetchCart());
+  }, [cartStatus, dispatch, isLoggedIn]);
 
   const userData = useMemo((): {
     wishlistCount: number;
@@ -28,9 +41,9 @@ export const Profile: FC = () => {
     return {
       wishlistCount: wishlist.length,
       recentWishlist: wishlist.slice(0, 4), // Get last 4 items
-      cartCount: getCartItemCount(),
+      cartCount: cart.reduce((count, item) => count + item.quantity, 0),
     };
-  }, [isLoggedIn]);
+  }, [cart, isLoggedIn]);
 
   if (!isLoggedIn) {
     return (
