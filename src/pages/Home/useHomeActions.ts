@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 
 import { addCartItem } from "../../store/fetchAPI/addCartItem";
@@ -8,6 +8,10 @@ import type { AppDispatch } from "../../store/sneakyStore";
 import type { Product } from "../../store/types";
 
 type SwipeDirection = "left" | "right" | null;
+export type ToastMessage = {
+  id: number;
+  message: string;
+};
 
 type UseHomeActionsParams = {
   currentProduct: Product | undefined;
@@ -15,7 +19,7 @@ type UseHomeActionsParams = {
   onOpenAuth: () => void;
   setCurrentIndex: Dispatch<SetStateAction<number>>;
   setShowAnimation: Dispatch<SetStateAction<boolean>>;
-  setShowToast: Dispatch<SetStateAction<string | null>>;
+  setShowToast: Dispatch<SetStateAction<ToastMessage | null>>;
   setSwipeDirection: Dispatch<SetStateAction<SwipeDirection>>;
   showAnimation: boolean;
 };
@@ -35,11 +39,30 @@ export const useHomeActions = ({
   const dispatch = useDispatch<AppDispatch>();
   const [wishlistSubmitting, setWishlistSubmitting] = useState(false);
   const [cartSubmitting, setCartSubmitting] = useState(false);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const toastIdRef = useRef(0);
+
+  useEffect(
+    () => () => {
+      if (toastTimerRef.current) {
+        clearTimeout(toastTimerRef.current);
+      }
+    },
+    [],
+  );
 
   const showToastMessage = useCallback(
     (message: string) => {
-      setShowToast(message);
-      setTimeout(() => setShowToast(null), 2000);
+      if (toastTimerRef.current) {
+        clearTimeout(toastTimerRef.current);
+      }
+
+      toastIdRef.current += 1;
+      setShowToast({ id: toastIdRef.current, message });
+      toastTimerRef.current = setTimeout(() => {
+        setShowToast(null);
+        toastTimerRef.current = null;
+      }, 2000);
     },
     [setShowToast],
   );

@@ -12,6 +12,7 @@ import type { AppDispatch } from "../../store/sneakyStore";
 
 import styles from "./Home.module.css";
 import { HomeContent } from "./HomeContent";
+import type { ToastMessage } from "./useHomeActions";
 import { useHomeActions } from "./useHomeActions";
 
 export const Home = () => {
@@ -30,7 +31,7 @@ export const Home = () => {
   const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | null>(
     null,
   );
-  const [showToast, setShowToast] = useState<string | null>(null);
+  const [showToast, setShowToast] = useState<ToastMessage | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
@@ -133,7 +134,7 @@ export const Home = () => {
         />
       ) : null}
 
-      <Toast message={showToast} />
+      <Toast key={showToast?.id} message={showToast?.message} />
       <HomeContent
         cardRef={cardRef}
         currentProduct={currentProduct}

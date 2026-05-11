@@ -1,5 +1,5 @@
-import type { AuthResponse, LoginPayload, SignUpPayload } from "./api";
 import { apiRequest } from "./api";
+import type { AuthResponse, LoginPayload, SignUpPayload } from "./authTypes";
 
 export const authApi = {
   login: (payload: LoginPayload) =>
@@ -15,9 +15,12 @@ export const authApi = {
         isGuest: payload.isGuest ?? false,
       },
     }),
-  logout: (refreshToken: string) =>
+  refresh: () =>
+    apiRequest<AuthResponse>("/api/auth/refresh", {
+      method: "POST",
+    }),
+  logout: () =>
     apiRequest<{ message: string }>("/api/auth/logout", {
       method: "POST",
-      body: { refreshToken },
     }),
 };

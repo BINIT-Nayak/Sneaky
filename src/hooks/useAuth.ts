@@ -2,25 +2,25 @@ import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
 import type { UserType } from "../context/AuthContext";
-import type { AuthResponse } from "../services/api";
 import { authApi } from "../services/authAPI";
+import {
+  AUTH_UNAUTHORIZED_EVENT,
+  clearStoredAuthSession,
+  setAccessToken,
+  USER_STORAGE_KEY,
+} from "../services/authSession";
+import type { AuthResponse } from "../services/authTypes";
 import { userApi } from "../services/userAPI";
 import { useSneakyStateSlice } from "../store/sneakyState/sneakySelectors";
 import { sneakyStateActions } from "../store/sneakyState/sneakySlice";
 import type { AppDispatch } from "../store/sneakyStore";
 import { getAuthErrorMessage } from "../utils/errorMessages";
 
-const USER_STORAGE_KEY = "sneaky_user";
-const ACCESS_TOKEN_STORAGE_KEY = "sneaky_access_token";
-const REFRESH_TOKEN_STORAGE_KEY = "sneaky_refresh_token";
-
 // Initialize state from localStorage for hydration
 const getInitialAuthState = () => {
   const savedUser = localStorage.getItem(USER_STORAGE_KEY);
-  const savedAccessToken = localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
-  const savedRefreshToken = localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY);
 
-  if (savedUser && savedAccessToken && savedRefreshToken) {
+  if (savedUser) {
     try {
       return {
         user: JSON.parse(savedUser) as UserType,
@@ -46,12 +46,8 @@ export const useAuth = () => {
   const saveAuthSession = useCallback(
     (userData: UserType, authResponse: AuthResponse) => {
       setUser(userData);
+      setAccessToken(authResponse.accessToken);
       localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
-      localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, authResponse.accessToken);
-      localStorage.setItem(
-        REFRESH_TOKEN_STORAGE_KEY,
-        authResponse.refreshToken,
-      );
       dispatch(sneakyStateActions.setIsLoggedIn(true));
       dispatch(sneakyStateActions.setAuthModalOpen(false));
     },
@@ -60,9 +56,7 @@ export const useAuth = () => {
 
   const clearAuthSession = useCallback(() => {
     setUser(null);
-    localStorage.removeItem(USER_STORAGE_KEY);
-    localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
+    clearStoredAuthSession();
     dispatch(sneakyStateActions.resetWishlistState());
     dispatch(sneakyStateActions.resetCartState());
     dispatch(sneakyStateActions.setIsLoggedIn(false));
@@ -74,6 +68,8 @@ export const useAuth = () => {
   }, []);
 
   const loadCurrentUser = useCallback(async () => {
+    const authResponse = await authApi.refresh();
+    setAccessToken(authResponse.accessToken);
     const currentUser = await userApi.getMe();
     setUser(currentUser);
     localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(currentUser));
@@ -89,6 +85,22 @@ export const useAuth = () => {
     });
   }, [clearAuthSession, initialIsLoggedIn, loadCurrentUser]);
 
+  useEffect(() => {
+    const handleUnauthorizedSession = () => {
+      clearAuthSession();
+      setAuthError("Your session expired. Please log in again.");
+      dispatch(sneakyStateActions.setAuthModalOpen(true));
+    };
+
+    window.addEventListener(AUTH_UNAUTHORIZED_EVENT, handleUnauthorizedSession);
+    return () => {
+      window.removeEventListener(
+        AUTH_UNAUTHORIZED_EVENT,
+        handleUnauthorizedSession,
+      );
+    };
+  }, [clearAuthSession, dispatch]);
+
   const handleLogin = useCallback(
     async (email: string, password: string) => {
       if (!email || !password) {
@@ -100,14 +112,7 @@ export const useAuth = () => {
       setAuthError(null);
       try {
         const authResponse = await authApi.login({ email, password });
-        localStorage.setItem(
-          ACCESS_TOKEN_STORAGE_KEY,
-          authResponse.accessToken,
-        );
-        localStorage.setItem(
-          REFRESH_TOKEN_STORAGE_KEY,
-          authResponse.refreshToken,
-        );
+        setAccessToken(authResponse.accessToken);
         const currentUser = await userApi.getMe();
         saveAuthSession(currentUser, authResponse);
       } catch (err) {
@@ -133,14 +138,7 @@ export const useAuth = () => {
       setAuthError(null);
       try {
         const authResponse = await authApi.signUp({ name, email, password });
-        localStorage.setItem(
-          ACCESS_TOKEN_STORAGE_KEY,
-          authResponse.accessToken,
-        );
-        localStorage.setItem(
-          REFRESH_TOKEN_STORAGE_KEY,
-          authResponse.refreshToken,
-        );
+        setAccessToken(authResponse.accessToken);
         const currentUser = await userApi.getMe();
         saveAuthSession(currentUser, authResponse);
       } catch (err) {
@@ -159,11 +157,8 @@ export const useAuth = () => {
   );
 
   const handleLogout = useCallback(() => {
-    const refreshToken = localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY);
     clearAuthSession();
-    if (refreshToken) {
-      void authApi.logout(refreshToken).catch(() => undefined);
-    }
+    void authApi.logout().catch(() => undefined);
   }, [clearAuthSession]);
 
   const handleOpenAuth = useCallback(() => {

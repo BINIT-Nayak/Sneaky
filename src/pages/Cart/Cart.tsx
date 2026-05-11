@@ -1,4 +1,11 @@
-import { useContext, useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useDispatch } from "react-redux";
 
 import { FiTrash2, FiPlus, FiMinus, FiShoppingBag } from "react-icons/fi";
@@ -15,6 +22,11 @@ import type { AppDispatch } from "../../store/sneakyStore";
 
 import styles from "./Cart.module.css";
 
+type ToastMessage = {
+  id: number;
+  message: string;
+};
+
 export const Cart = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { isLoggedIn, onOpenAuth } = useContext(AuthContext);
@@ -23,7 +35,9 @@ export const Cart = () => {
   );
   const [isClearing, setIsClearing] = useState(false);
   const [cartActionError, setCartActionError] = useState<string | null>(null);
-  const [showToast, setShowToast] = useState<string | null>(null);
+  const [showToast, setShowToast] = useState<ToastMessage | null>(null);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const toastIdRef = useRef(0);
 
   const cart = useSneakyStateSlice.getCart();
   const cartLoading = useSneakyStateSlice.getCartLoading();
@@ -35,6 +49,28 @@ export const Cart = () => {
 
     void dispatch(fetchCart());
   }, [cartStatus, dispatch, isLoggedIn]);
+
+  useEffect(
+    () => () => {
+      if (toastTimerRef.current) {
+        clearTimeout(toastTimerRef.current);
+      }
+    },
+    [],
+  );
+
+  const showToastMessage = useCallback((message: string) => {
+    if (toastTimerRef.current) {
+      clearTimeout(toastTimerRef.current);
+    }
+
+    toastIdRef.current += 1;
+    setShowToast({ id: toastIdRef.current, message });
+    toastTimerRef.current = setTimeout(() => {
+      setShowToast(null);
+      toastTimerRef.current = null;
+    }, 3000);
+  }, []);
 
   const itemCount = useMemo(
     () => cart.reduce((count, item) => count + item.quantity, 0),
@@ -115,8 +151,7 @@ export const Cart = () => {
   const checkout = () => {
     if (cart.length === 0) return;
 
-    setShowToast("Checkout to payment Gateway/ merchant site coming soon!");
-    setTimeout(() => setShowToast(null), 3000);
+    showToastMessage("Checkout to payment Gateway/ merchant site coming soon!");
   };
 
   if (!isLoggedIn) {
@@ -173,7 +208,7 @@ export const Cart = () => {
   return (
     <div className={styles.cartContainer}>
       <div className={styles.cart}>
-        <Toast message={showToast} />
+        <Toast key={showToast?.id} message={showToast?.message} />
 
         <h2 className={styles.cart__title}>
           <FiShoppingBag /> My Cart ({itemCount} items)
