@@ -20,6 +20,8 @@ const mapWishlistItem = (item: IWishlistItem) => ({
   image: item.imageUrl,
 });
 
+const WISHLIST_SKELETON_ITEMS = 6;
+
 export const Wishlist = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { isLoggedIn, onOpenAuth } = useContext(AuthContext);
@@ -84,9 +86,33 @@ export const Wishlist = () => {
   if (wishlistLoading) {
     return (
       <div className={styles.wishlistContainer}>
-        <div className={styles.wishlist__empty}>
-          <img className={styles.wishlist__icon} src={bellIcon} alt="Loading" />
-          <div className={styles.wishlist__message}>Loading wishlist...</div>
+        <div className={styles.wishlist} aria-label="Loading wishlist">
+          <div
+            className={`${styles.wishlist__skeleton} ${styles.wishlist__titleSkeleton}`}
+          />
+          <div className={styles.wishlist__grid}>
+            {Array.from({ length: WISHLIST_SKELETON_ITEMS }, (_, index) => (
+              <div key={index} className={styles.wishlist__item}>
+                <div
+                  className={`${styles.wishlist__skeleton} ${styles.wishlist__imageSkeleton}`}
+                />
+                <div className={styles.wishlist__itemInfo}>
+                  <div
+                    className={`${styles.wishlist__skeleton} ${styles.wishlist__lineSkeleton}`}
+                  />
+                  <div
+                    className={`${styles.wishlist__skeleton} ${styles.wishlist__lineSkeletonShort}`}
+                  />
+                  <div
+                    className={`${styles.wishlist__skeleton} ${styles.wishlist__priceSkeleton}`}
+                  />
+                  <div
+                    className={`${styles.wishlist__skeleton} ${styles.wishlist__buttonSkeleton}`}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );

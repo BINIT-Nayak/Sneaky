@@ -27,6 +27,8 @@ type ToastMessage = {
   message: string;
 };
 
+const CART_SKELETON_ITEMS = 4;
+
 export const Cart = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { isLoggedIn, onOpenAuth } = useContext(AuthContext);
@@ -173,9 +175,57 @@ export const Cart = () => {
   if (cartLoading) {
     return (
       <div className={styles.cartContainer}>
-        <div className={styles.cartEmpty}>
-          <img className={styles.cart__icon} src={emptyCart} alt="Loading" />
-          <div className={styles.cart__message}>Loading cart...</div>
+        <div className={styles.cart} aria-label="Loading cart">
+          <div
+            className={`${styles.cart__skeleton} ${styles.cart__titleSkeleton}`}
+          />
+          <div className={styles.cart__content}>
+            <div className={styles.cart__items}>
+              {Array.from({ length: CART_SKELETON_ITEMS }, (_, index) => (
+                <div key={index} className={styles.cart__item}>
+                  <div
+                    className={`${styles.cart__skeleton} ${styles.cart__imageSkeleton}`}
+                  />
+                  <div className={styles.cart__itemDetails}>
+                    <div
+                      className={`${styles.cart__skeleton} ${styles.cart__lineSkeleton}`}
+                    />
+                    <div
+                      className={`${styles.cart__skeleton} ${styles.cart__lineSkeletonShort}`}
+                    />
+                    <div
+                      className={`${styles.cart__skeleton} ${styles.cart__priceSkeleton}`}
+                    />
+                  </div>
+                  <div
+                    className={`${styles.cart__skeleton} ${styles.cart__quantitySkeleton}`}
+                  />
+                  <div
+                    className={`${styles.cart__skeleton} ${styles.cart__totalSkeleton}`}
+                  />
+                </div>
+              ))}
+            </div>
+
+            <div className={styles.cart__summary}>
+              <div
+                className={`${styles.cart__skeleton} ${styles.cart__summaryTitleSkeleton}`}
+              />
+              <div
+                className={`${styles.cart__skeleton} ${styles.cart__summaryLineSkeleton}`}
+              />
+              <div
+                className={`${styles.cart__skeleton} ${styles.cart__summaryLineSkeleton}`}
+              />
+              <div className={styles.cart__summaryDivider} />
+              <div
+                className={`${styles.cart__skeleton} ${styles.cart__summaryTotalSkeleton}`}
+              />
+              <div
+                className={`${styles.cart__skeleton} ${styles.cart__buttonSkeleton}`}
+              />
+            </div>
+          </div>
         </div>
       </div>
     );

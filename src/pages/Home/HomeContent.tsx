@@ -12,9 +12,13 @@ type HomeContentProps = {
   cardRef: RefObject<HTMLDivElement | null>;
   currentProduct: Product | undefined;
   isFinished: boolean;
+  isLoading: boolean;
+  isDetailsOpen: boolean;
   onAddToCart: () => void;
+  onCloseDetails: () => void;
   onDislike: () => void;
   onLike: () => void;
+  onOpenDetails: () => void;
   onStartOver: () => void;
   onTouchEnd: TouchEventHandler<HTMLDivElement>;
   onTouchStart: TouchEventHandler<HTMLDivElement>;
@@ -27,9 +31,13 @@ export const HomeContent: FC<HomeContentProps> = ({
   cardRef,
   currentProduct,
   isFinished,
+  isLoading,
+  isDetailsOpen,
   onAddToCart,
+  onCloseDetails,
   onDislike,
   onLike,
+  onOpenDetails,
   onStartOver,
   onTouchEnd,
   onTouchStart,
@@ -37,6 +45,52 @@ export const HomeContent: FC<HomeContentProps> = ({
   showAnimation,
   swipeDirection,
 }) => {
+  if (isLoading) {
+    return (
+      <div className={styles.home__card} aria-label="Loading products">
+        <div className={styles.home__feed}>
+          <div
+            className={`${styles.home__skeleton} ${styles.home__skeletonImage}`}
+          />
+          <div className={styles.home__productInfo}>
+            <div
+              className={`${styles.home__skeleton} ${styles.home__skeletonTitle}`}
+            />
+            <div
+              className={`${styles.home__skeleton} ${styles.home__skeletonText}`}
+            />
+            <div
+              className={`${styles.home__skeleton} ${styles.home__skeletonPrice}`}
+            />
+            <div
+              className={`${styles.home__skeleton} ${styles.home__skeletonLine}`}
+            />
+            <div
+              className={`${styles.home__skeleton} ${styles.home__skeletonLineShort}`}
+            />
+          </div>
+        </div>
+
+        <div className={styles.home__controls}>
+          <div
+            className={`${styles.home__skeleton} ${styles.home__skeletonDetail}`}
+          />
+          <div className={styles.home__controls__actions}>
+            <div
+              className={`${styles.home__skeleton} ${styles.home__skeletonAction}`}
+            />
+            <div
+              className={`${styles.home__skeleton} ${styles.home__skeletonActionLarge}`}
+            />
+            <div
+              className={`${styles.home__skeleton} ${styles.home__skeletonAction}`}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (productsError) {
     return (
       <div className={styles.home__card}>
@@ -104,6 +158,7 @@ export const HomeContent: FC<HomeContentProps> = ({
             variant={ButtonVariant.NEUMORPHIC}
             style={{ maxWidth: "280px", width: "100%" }}
             glow
+            onClick={onOpenDetails}
           >
             ✦ See Details ✦
           </Button>
@@ -133,6 +188,66 @@ export const HomeContent: FC<HomeContentProps> = ({
           </button>
         </div>
       </div>
+
+      {isDetailsOpen ? (
+        <div
+          className={styles.home__detailsOverlay}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="product-details-title"
+          onClick={onCloseDetails}
+        >
+          <div
+            className={styles.home__details}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              className={styles.home__detailsClose}
+              type="button"
+              onClick={onCloseDetails}
+              aria-label="Close product details"
+            >
+              ×
+            </button>
+            <img
+              src={currentProduct.image}
+              alt={currentProduct.name}
+              className={styles.home__detailsImage}
+            />
+            <div className={styles.home__detailsContent}>
+              <p className={styles.home__detailsCategory}>
+                {currentProduct.category}
+              </p>
+              <h2 id="product-details-title">{currentProduct.name}</h2>
+              <p className={styles.home__detailsBrand}>
+                {currentProduct.brand}
+              </p>
+              <p className={styles.home__detailsPrice}>
+                ₹{currentProduct.price.toLocaleString()}
+              </p>
+              <p className={styles.home__detailsDescription}>
+                {currentProduct.description}
+              </p>
+              <div className={styles.home__detailsActions}>
+                <Button
+                  variant={ButtonVariant.NEUMORPHIC}
+                  onClick={onLike}
+                  glow
+                >
+                  Save to Wishlist
+                </Button>
+                <Button
+                  variant={ButtonVariant.DEFAULT}
+                  onClick={onAddToCart}
+                  glow
+                >
+                  Add to Cart
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 };

@@ -297,6 +297,169 @@
   padding: 40px;
 }
 
+.home__skeleton {
+  animation: home-skeleton-shimmer 1.4s ease-in-out infinite;
+  background: linear-gradient(
+    90deg,
+    rgb(255 255 255 / 6%) 0%,
+    rgb(223 182 130 / 18%) 45%,
+    rgb(255 255 255 / 6%) 100%
+  );
+  background-size: 220% 100%;
+  border-radius: 8px;
+}
+
+.home__skeletonImage {
+  aspect-ratio: 4 / 5;
+  height: clamp(320px, 52vh, 470px);
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.home__skeletonTitle {
+  height: 26px;
+  margin-bottom: 12px;
+  width: 70%;
+}
+
+.home__skeletonText,
+.home__skeletonPrice {
+  height: 16px;
+  margin-bottom: 10px;
+  width: 42%;
+}
+
+.home__skeletonPrice {
+  width: 30%;
+}
+
+.home__skeletonLine,
+.home__skeletonLineShort {
+  height: 14px;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.home__skeletonLineShort {
+  width: 64%;
+}
+
+.home__skeletonDetail {
+  height: 44px;
+  margin: 0 auto;
+  max-width: 280px;
+  width: 100%;
+}
+
+.home__skeletonAction,
+.home__skeletonActionLarge {
+  border-radius: 50%;
+  height: 65px;
+  width: 65px;
+}
+
+.home__skeletonActionLarge {
+  height: 75px;
+  width: 75px;
+}
+
+.home__detailsOverlay {
+  align-items: center;
+  background: rgb(25 0 25 / 78%);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 18px;
+  position: absolute;
+  z-index: 5;
+}
+
+.home__details {
+  animation: home-card-enter 0.25s ease both;
+  background: linear-gradient(165deg, rgb(43 18 76 / 96%), rgb(25 0 25 / 98%));
+  border: 1px solid rgb(223 182 130 / 20%);
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 24px 60px rgb(0 0 0 / 45%);
+  max-height: 92%;
+  overflow: auto;
+  position: relative;
+  width: min(100%, 420px);
+}
+
+.home__detailsClose {
+  align-items: center;
+  background: rgb(25 0 25 / 70%);
+  border: 1px solid rgb(223 182 130 / 24%);
+  border-radius: 50%;
+  color: var(--base-color5);
+  cursor: pointer;
+  display: flex;
+  font-size: 26px;
+  height: 38px;
+  justify-content: center;
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  width: 38px;
+  z-index: 1;
+}
+
+.home__detailsImage {
+  aspect-ratio: 4 / 3;
+  display: block;
+  object-fit: cover;
+  width: 100%;
+}
+
+.home__detailsContent {
+  padding: 18px;
+}
+
+.home__detailsCategory,
+.home__detailsBrand,
+.home__detailsDescription {
+  color: var(--base-color4);
+}
+
+.home__detailsCategory {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin: 0 0 6px;
+  text-transform: uppercase;
+}
+
+.home__detailsContent h2 {
+  color: var(--base-color5);
+  font-size: 24px;
+  margin: 0 0 6px;
+}
+
+.home__detailsBrand {
+  font-size: 15px;
+  margin: 0 0 12px;
+}
+
+.home__detailsPrice {
+  color: var(--base-color5);
+  font-size: 22px;
+  font-weight: 800;
+  margin: 0 0 12px;
+}
+
+.home__detailsDescription {
+  font-size: 14px;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.home__detailsActions {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 18px;
+}
+
 @keyframes home-background-pulse {
   0%,
   100% {
@@ -344,6 +507,16 @@
   }
 }
 
+@keyframes home-skeleton-shimmer {
+  0% {
+    background-position: 120% 0;
+  }
+
+  100% {
+    background-position: -120% 0;
+  }
+}
+
 @keyframes swipe-left {
   from {
     opacity: 1;
@@ -383,6 +556,10 @@
     height: clamp(260px, 48vh, 390px);
   }
 
+  .home__skeletonImage {
+    height: clamp(260px, 48vh, 390px);
+  }
+
   .home__actionBtn {
     font-size: 24px;
     height: 55px;
@@ -391,6 +568,11 @@
 
   .home__actionBtn_cart {
     font-size: 28px;
+    height: 65px;
+    width: 65px;
+  }
+
+  .home__skeletonActionLarge {
     height: 65px;
     width: 65px;
   }
@@ -415,6 +597,11 @@
     height: clamp(230px, 46vh, 340px);
   }
 
+  .home__skeletonImage {
+    aspect-ratio: 3 / 4;
+    height: clamp(230px, 46vh, 340px);
+  }
+
   .home__controls {
     gap: 14px;
     padding: 45px 16px 20px;
@@ -434,5 +621,14 @@
     font-size: 26px;
     height: 60px;
     width: 60px;
+  }
+
+  .home__skeletonActionLarge {
+    height: 60px;
+    width: 60px;
+  }
+
+  .home__detailsActions {
+    grid-template-columns: 1fr;
   }
 }

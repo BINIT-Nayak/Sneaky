@@ -218,6 +218,92 @@
   margin-top: 10px;
 }
 
+.cart__skeleton {
+  animation: cart-skeleton-shimmer 1.4s ease-in-out infinite;
+  background: linear-gradient(
+    90deg,
+    rgb(255 255 255 / 6%) 0%,
+    rgb(223 182 130 / 18%) 45%,
+    rgb(255 255 255 / 6%) 100%
+  );
+  background-size: 220% 100%;
+  border-radius: 8px;
+}
+
+.cart__titleSkeleton {
+  height: 34px;
+  margin-bottom: 20px;
+  width: 230px;
+}
+
+.cart__imageSkeleton {
+  aspect-ratio: 1;
+  width: 92px;
+}
+
+.cart__lineSkeleton,
+.cart__lineSkeletonShort,
+.cart__priceSkeleton {
+  height: 15px;
+  margin-bottom: 10px;
+}
+
+.cart__lineSkeleton {
+  width: min(240px, 85%);
+}
+
+.cart__lineSkeletonShort {
+  width: 120px;
+}
+
+.cart__priceSkeleton {
+  width: 90px;
+}
+
+.cart__quantitySkeleton {
+  height: 36px;
+  width: 106px;
+}
+
+.cart__totalSkeleton {
+  height: 18px;
+  justify-self: end;
+  width: 86px;
+}
+
+.cart__summaryTitleSkeleton {
+  height: 22px;
+  margin-bottom: 20px;
+  width: 160px;
+}
+
+.cart__summaryLineSkeleton,
+.cart__summaryTotalSkeleton {
+  height: 16px;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.cart__summaryTotalSkeleton {
+  height: 20px;
+}
+
+.cart__buttonSkeleton {
+  height: 42px;
+  margin-top: 18px;
+  width: 100%;
+}
+
+@keyframes cart-skeleton-shimmer {
+  0% {
+    background-position: 120% 0;
+  }
+
+  100% {
+    background-position: -120% 0;
+  }
+}
+
 @media (width <= 1024px) {
   .cart__content,
   .cart__item {
@@ -232,7 +318,15 @@
     width: 100%;
   }
 
+  .cart__imageSkeleton {
+    width: 100%;
+  }
+
   .cart__itemTotal {
     text-align: left;
+  }
+
+  .cart__totalSkeleton {
+    justify-self: start;
   }
 }

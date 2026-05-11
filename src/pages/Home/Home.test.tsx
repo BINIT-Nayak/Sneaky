@@ -1,6 +1,6 @@
 import { useDispatch } from "react-redux";
 
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { AuthContext } from "../../context/AuthContext";
@@ -28,6 +28,7 @@ jest.mock("../../hooks/useGetDeviceType", () => ({
 jest.mock("../../store/sneakyState/sneakySelectors", () => ({
   useSneakyStateSlice: {
     getProducts: jest.fn(),
+    getProductsLoading: jest.fn(),
     getProductsError: jest.fn(),
   },
 }));
@@ -68,6 +69,7 @@ describe("Home", () => {
       unwrap: jest.fn().mockResolvedValue(undefined),
     })) as never);
     mockedSelectors.getProducts.mockReturnValue([product]);
+    mockedSelectors.getProductsLoading.mockReturnValue(false);
     mockedSelectors.getProductsError.mockReturnValue(null);
   });
 
@@ -107,6 +109,20 @@ describe("Home", () => {
     await userEvent.click(screen.getByRole("button", { name: "Add to Cart" }));
 
     await waitFor(() => expect(dispatch).toHaveBeenCalled());
+  });
+
+  it("opens product details from the home card", async () => {
+    renderHome();
+
+    await userEvent.click(screen.getByRole("button", { name: /see details/i }));
+
+    const dialog = screen.getByRole("dialog");
+
+    expect(dialog).toBeInTheDocument();
+    expect(
+      within(dialog).getByRole("heading", { name: "Air Max" }),
+    ).toBeInTheDocument();
+    expect(within(dialog).getByText("Sneakers")).toBeInTheDocument();
   });
 
   it("shows product finished and error states", () => {

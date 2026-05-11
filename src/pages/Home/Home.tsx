@@ -23,10 +23,12 @@ export const Home = () => {
 
   // Redux state
   const products = useSneakyStateSlice.getProducts();
+  const productsLoading = useSneakyStateSlice.getProductsLoading();
   const productsError = useSneakyStateSlice.getProductsError();
 
   // Local state
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [showAnimation, setShowAnimation] = useState(false);
   const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | null>(
     null,
@@ -36,7 +38,7 @@ export const Home = () => {
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const currentProduct = products[currentIndex];
-  const isFinished = currentIndex >= products.length;
+  const isFinished = !productsLoading && currentIndex >= products.length;
   const { onAddToCart, onDislike, onLike } = useHomeActions({
     currentProduct,
     isLoggedIn,
@@ -139,9 +141,13 @@ export const Home = () => {
         cardRef={cardRef}
         currentProduct={currentProduct}
         isFinished={isFinished}
+        isLoading={productsLoading}
+        isDetailsOpen={isDetailsOpen}
         onAddToCart={onAddToCart}
+        onCloseDetails={() => setIsDetailsOpen(false)}
         onDislike={onDislike}
         onLike={onLike}
+        onOpenDetails={() => setIsDetailsOpen(true)}
         onStartOver={() => setCurrentIndex(0)}
         onTouchEnd={handleTouchEnd}
         onTouchStart={handleTouchStart}
