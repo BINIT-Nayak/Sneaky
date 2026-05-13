@@ -1,18 +1,27 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
+
+import { FiShoppingBag, FiTrash2 } from "react-icons/fi";
 
 import bellIcon from "../../assets/bell.png";
 import emptyList from "../../assets/emptyList.png";
+import { Toast } from "../../components/Toast/Toast";
 import { AuthContext } from "../../context/AuthContext";
+import { addCartItem } from "../../store/fetchAPI/addCartItem";
 import { deleteWishlistItem } from "../../store/fetchAPI/deleteWishlistItem";
 import { fetchWishlist } from "../../store/fetchAPI/fetchWishlist";
 import { useSneakyStateSlice } from "../../store/sneakyState/sneakySelectors";
 import type { AppDispatch } from "../../store/sneakyStore";
 import type { IWishlistItem } from "../../store/types";
+import {
+  getSneakerDetails,
+  UNIQUE_PRODUCT_MESSAGE,
+} from "../../utils/productDetails";
 
 import styles from "./Wishlist.module.css";
 
 const mapWishlistItem = (item: IWishlistItem) => ({
+  details: getSneakerDetails(item),
   id: item.productId,
   name: item.name,
   brand: item.brandName,
@@ -22,18 +31,28 @@ const mapWishlistItem = (item: IWishlistItem) => ({
 
 const WISHLIST_SKELETON_ITEMS = 6;
 
+type ToastMessage = {
+  id: number;
+  message: string;
+};
+
 export const Wishlist = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { isLoggedIn, onOpenAuth } = useContext(AuthContext);
   const [removingProductId, setRemovingProductId] = useState<string | null>(
     null,
   );
+  const [addingProductId, setAddingProductId] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [showToast, setShowToast] = useState<ToastMessage | null>(null);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const toastIdRef = useRef(0);
 
   const wishlistItems = useSneakyStateSlice.getWishlist();
   const wishlistLoading = useSneakyStateSlice.getWishlistLoading();
   const wishlistStatus = useSneakyStateSlice.getWishlistStatus();
   const wishlistError = useSneakyStateSlice.getWishlistError();
+  const isWishlistLoading = wishlistLoading || wishlistStatus === "idle";
 
   useEffect(() => {
     if (!isLoggedIn || wishlistStatus !== "idle") return;
@@ -41,21 +60,70 @@ export const Wishlist = () => {
     void dispatch(fetchWishlist());
   }, [dispatch, isLoggedIn, wishlistStatus]);
 
+  useEffect(
+    () => () => {
+      if (toastTimerRef.current) {
+        clearTimeout(toastTimerRef.current);
+      }
+    },
+    [],
+  );
+
   const mappedItems = wishlistItems.map(mapWishlistItem);
 
+  const showToastMessage = (message: string) => {
+    if (toastTimerRef.current) {
+      clearTimeout(toastTimerRef.current);
+    }
+
+    toastIdRef.current += 1;
+    setShowToast({ id: toastIdRef.current, message });
+    toastTimerRef.current = setTimeout(() => {
+      setShowToast(null);
+      toastTimerRef.current = null;
+    }, 3000);
+  };
+
+  const getActionErrorMessage = (err: unknown, fallback: string) =>
+    typeof err === "string"
+      ? err
+      : err instanceof Error
+        ? err.message
+        : fallback;
+
+  const handleAddToCart = async (productId: string, productName: string) => {
+    if (addingProductId || removingProductId) return;
+
+    setAddingProductId(productId);
+    setDeleteError(null);
+
+    try {
+      await dispatch(addCartItem({ productId, quantity: 1 })).unwrap();
+      showToastMessage(`${productName} moved closer to checkout.`);
+    } catch (err) {
+      setDeleteError(
+        getActionErrorMessage(err, "We couldn't add this item to your cart."),
+      );
+    } finally {
+      setAddingProductId(null);
+    }
+  };
+
   const handleDeleteWishlistItem = async (productId: string) => {
-    if (removingProductId) return;
+    if (removingProductId || addingProductId) return;
 
     setRemovingProductId(productId);
     setDeleteError(null);
 
     try {
       await dispatch(deleteWishlistItem(productId)).unwrap();
+      showToastMessage("Removed from wishlist.");
     } catch (err) {
       setDeleteError(
-        typeof err === "string"
-          ? err
-          : "We couldn't remove this item from your wishlist. Please try again.",
+        getActionErrorMessage(
+          err,
+          "We couldn't remove this item from your wishlist. Please try again.",
+        ),
       );
     } finally {
       setRemovingProductId(null);
@@ -83,7 +151,7 @@ export const Wishlist = () => {
     );
   }
 
-  if (wishlistLoading) {
+  if (isWishlistLoading) {
     return (
       <div className={styles.wishlistContainer}>
         <div className={styles.wishlist} aria-label="Loading wishlist">
@@ -155,6 +223,8 @@ export const Wishlist = () => {
   return (
     <div className={styles.wishlistContainer}>
       <div className={styles.wishlist}>
+        <Toast key={showToast?.id} message={showToast?.message} />
+
         <h2 className={styles.wishlist__title}>My Wishlist</h2>
         {deleteError ? (
           <div className={styles.wishlist__deleteError}>{deleteError}</div>
@@ -173,14 +243,48 @@ export const Wishlist = () => {
                 <p className={styles.wishlist__itemPrice}>
                   ₹{item.price.toLocaleString()}
                 </p>
-                <button
-                  className={styles.wishlist__deleteBtn}
-                  disabled={removingProductId !== null}
-                  type="button"
-                  onClick={() => void handleDeleteWishlistItem(item.id)}
-                >
-                  {removingProductId === item.id ? "Removing..." : "Delete"}
-                </button>
+                <div className={styles.wishlist__details}>
+                  {item.details.stockStatus ? (
+                    <span>{item.details.stockStatus}</span>
+                  ) : null}
+                  {item.details.isUnique ? (
+                    <span>{UNIQUE_PRODUCT_MESSAGE}</span>
+                  ) : (
+                    <>
+                      <span>{item.details.sizes.join(", ")}</span>
+                      <span>
+                        Colors:{" "}
+                        {item.details.colors
+                          .map((color) => color.name)
+                          .join(", ")}
+                      </span>
+                    </>
+                  )}
+                </div>
+                <div className={styles.wishlist__actions}>
+                  <button
+                    className={styles.wishlist__cartBtn}
+                    disabled={
+                      addingProductId !== null || removingProductId !== null
+                    }
+                    type="button"
+                    onClick={() => void handleAddToCart(item.id, item.name)}
+                  >
+                    <FiShoppingBag />
+                    {addingProductId === item.id ? "Adding..." : "Add to Cart"}
+                  </button>
+                  <button
+                    className={styles.wishlist__deleteBtn}
+                    disabled={
+                      addingProductId !== null || removingProductId !== null
+                    }
+                    type="button"
+                    aria-label={`Delete ${item.name}`}
+                    onClick={() => void handleDeleteWishlistItem(item.id)}
+                  >
+                    <FiTrash2 />
+                  </button>
+                </div>
               </div>
             </div>
           ))}

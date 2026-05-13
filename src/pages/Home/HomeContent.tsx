@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import type { FC, RefObject, TouchEventHandler } from "react";
 
 import { Button } from "../../components/Button/Button";
@@ -5,6 +6,10 @@ import { ButtonVariant } from "../../components/Button/type";
 import { SwipeButton } from "../../components/SwipeButton/SwipeButton";
 import { SwipeButtonType } from "../../components/SwipeButton/type";
 import type { Product } from "../../store/types";
+import {
+  getSneakerDetails,
+  UNIQUE_PRODUCT_MESSAGE,
+} from "../../utils/productDetails";
 
 import styles from "./Home.module.css";
 
@@ -19,10 +24,12 @@ type HomeContentProps = {
   onDislike: () => void;
   onLike: () => void;
   onOpenDetails: () => void;
+  onOpenRecentlyViewed: (productId: string) => void;
   onStartOver: () => void;
   onTouchEnd: TouchEventHandler<HTMLDivElement>;
   onTouchStart: TouchEventHandler<HTMLDivElement>;
   productsError: string | null;
+  recentlyViewedProducts: Product[];
   showAnimation: boolean;
   swipeDirection: "left" | "right" | null;
 };
@@ -38,13 +45,35 @@ export const HomeContent: FC<HomeContentProps> = ({
   onDislike,
   onLike,
   onOpenDetails,
+  onOpenRecentlyViewed,
   onStartOver,
   onTouchEnd,
   onTouchStart,
   productsError,
+  recentlyViewedProducts,
   showAnimation,
   swipeDirection,
 }) => {
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
+  const [selectionProductId, setSelectionProductId] = useState<string | null>(
+    null,
+  );
+  const sneakerDetails = useMemo(
+    () => getSneakerDetails(currentProduct),
+    [currentProduct],
+  );
+  const defaultSize = sneakerDetails.sizes[2] ?? sneakerDetails.sizes[0] ?? "";
+  const defaultColor = sneakerDetails.colors[0]?.name ?? "";
+  const currentSelectedSize =
+    selectionProductId === currentProduct?.id
+      ? selectedSize
+      : defaultSize;
+  const currentSelectedColor =
+    selectionProductId === currentProduct?.id
+      ? selectedColor
+      : defaultColor;
+
   if (isLoading) {
     return (
       <div className={styles.home__card} aria-label="Loading products">
@@ -149,6 +178,31 @@ export const HomeContent: FC<HomeContentProps> = ({
           <p className={styles.home__productDesc}>
             {currentProduct.description}
           </p>
+
+          {recentlyViewedProducts.length > 0 ? (
+            <section
+              className={styles.home__recent}
+              aria-label="Recently viewed sneakers"
+            >
+              <div className={styles.home__recentHeader}>
+                <h4>Recently Viewed</h4>
+                <span>{recentlyViewedProducts.length}</span>
+              </div>
+              <div className={styles.home__recentList}>
+                {recentlyViewedProducts.map((product) => (
+                  <button
+                    key={product.id}
+                    className={styles.home__recentItem}
+                    type="button"
+                    onClick={() => onOpenRecentlyViewed(product.id)}
+                  >
+                    <img src={product.image} alt="" aria-hidden="true" />
+                    <span>{product.name}</span>
+                  </button>
+                ))}
+              </div>
+            </section>
+          ) : null}
         </div>
       </div>
 
@@ -228,6 +282,67 @@ export const HomeContent: FC<HomeContentProps> = ({
               <p className={styles.home__detailsDescription}>
                 {currentProduct.description}
               </p>
+              <div className={styles.home__detailsMeta}>
+                {sneakerDetails.stockStatus ? (
+                  <span>{sneakerDetails.stockStatus}</span>
+                ) : null}
+                {sneakerDetails.isUnique ? (
+                  <span>{UNIQUE_PRODUCT_MESSAGE}</span>
+                ) : (
+                  <span>Selected: {currentSelectedSize}</span>
+                )}
+              </div>
+              {!sneakerDetails.isUnique ? (
+                <>
+                  <div className={styles.home__optionGroup}>
+                    <h3>Size</h3>
+                    <div className={styles.home__sizeGrid}>
+                      {sneakerDetails.sizes.map((size) => (
+                        <button
+                          key={size}
+                          className={`${styles.home__sizeBtn} ${
+                            currentSelectedSize === size
+                              ? styles.home__sizeBtn_active
+                              : ""
+                          }`}
+                          type="button"
+                          aria-pressed={currentSelectedSize === size}
+                          onClick={() => {
+                            setSelectionProductId(currentProduct.id);
+                            setSelectedSize(size);
+                          }}
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className={styles.home__optionGroup}>
+                    <h3>Color</h3>
+                    <div className={styles.home__colorGrid}>
+                      {sneakerDetails.colors.map((color) => (
+                        <button
+                          key={color.name}
+                          className={`${styles.home__colorBtn} ${
+                            currentSelectedColor === color.name
+                              ? styles.home__colorBtn_active
+                              : ""
+                          }`}
+                          type="button"
+                          aria-label={color.name}
+                          aria-pressed={currentSelectedColor === color.name}
+                          onClick={() => {
+                            setSelectionProductId(currentProduct.id);
+                            setSelectedColor(color.name);
+                          }}
+                        >
+                          <span style={{ backgroundColor: color.value }} />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              ) : null}
               <div className={styles.home__detailsActions}>
                 <Button
                   variant={ButtonVariant.NEUMORPHIC}

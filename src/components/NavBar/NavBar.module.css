@@ -17,16 +17,14 @@
   overflow: auto hidden;
   padding: 32px 20px;
   position: fixed;
-  scrollbar-color: rgb(223 182 130 / 30%) transparent;
-  scrollbar-width: thin;
   top: 0;
   width: var(--nav-width);
   z-index: 100;
 }
 
 .navBar::-webkit-scrollbar {
-  opacity: 0;
-  pointer-events: none;
+  display: none;
+  height: 0;
   width: 0;
 }
 
@@ -439,22 +437,4 @@
   .navBar__logoText {
     animation: none;
   }
-}
-
-.navBar:hover::-webkit-scrollbar {
-  opacity: 0.5;
-  width: 4px;
-}
-
-.navBar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.navBar::-webkit-scrollbar-thumb {
-  background: rgb(223 182 130 / 30%);
-  border-radius: 10px;
-}
-
-.navBar::-webkit-scrollbar-thumb:hover {
-  background: rgb(223 182 130 / 50%);
 }

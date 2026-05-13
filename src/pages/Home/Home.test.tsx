@@ -44,6 +44,43 @@ const product = {
   description: "Comfortable sneakers",
   brand: "Nike",
   category: "Sneakers",
+  sizes: ["UK 6", "UK 7", "UK 8", "UK 9", "UK 10"],
+  colors: [
+    { name: "Black", value: "#17151d" },
+    { name: "Ivory", value: "#eee4cf" },
+    { name: "Clay", value: "#c27a58" },
+  ],
+  stockStatus: "In stock",
+};
+
+const secondProduct = {
+  id: "product-2",
+  name: "Forum Low",
+  price: 9999,
+  image: "forum.jpg",
+  description: "Retro court sneakers",
+  brand: "Adidas",
+  category: "Sneakers",
+};
+
+const thirdProduct = {
+  id: "product-3",
+  name: "Club C",
+  price: 8999,
+  image: "club-c.jpg",
+  description: "Clean leather sneakers",
+  brand: "Reebok",
+  category: "Sneakers",
+};
+
+const fourthProduct = {
+  id: "product-4",
+  name: "Gel Lyte",
+  price: 10999,
+  image: "gel.jpg",
+  description: "Cushioned runners",
+  brand: "Asics",
+  category: "Sneakers",
 };
 
 const renderHome = (isLoggedIn = true, onOpenAuth = jest.fn()) =>
@@ -65,6 +102,7 @@ const renderHome = (isLoggedIn = true, onOpenAuth = jest.fn()) =>
 
 describe("Home", () => {
   beforeEach(() => {
+    window.localStorage.clear();
     mockedUseDispatch.mockReturnValue(jest.fn(() => ({
       unwrap: jest.fn().mockResolvedValue(undefined),
     })) as never);
@@ -123,6 +161,68 @@ describe("Home", () => {
       within(dialog).getByRole("heading", { name: "Air Max" }),
     ).toBeInTheDocument();
     expect(within(dialog).getByText("Sneakers")).toBeInTheDocument();
+    expect(
+      within(dialog).getByText(/in stock|selling fast|only a few left/i),
+    ).toBeInTheDocument();
+    expect(
+      within(dialog).getByRole("button", { name: "UK 8" }),
+    ).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    expect(
+      within(dialog).getByRole("button", { name: "Black" }),
+    ).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+  });
+
+  it("adds to cart directly from the details modal", async () => {
+    const dispatch = jest.fn(() => ({
+      unwrap: jest.fn().mockResolvedValue(undefined),
+    }));
+    mockedUseDispatch.mockReturnValue(dispatch as never);
+
+    renderHome();
+    await userEvent.click(screen.getByRole("button", { name: /see details/i }));
+
+    const dialog = screen.getByRole("dialog");
+    await userEvent.click(within(dialog).getByRole("button", { name: "UK 10" }));
+    await userEvent.click(
+      within(dialog).getByRole("button", { name: "Add to Cart" }),
+    );
+
+    await waitFor(() => expect(dispatch).toHaveBeenCalled());
+  });
+
+  it("shows recently viewed products from localStorage", async () => {
+    window.localStorage.setItem(
+      "sneaky:recently-viewed-products",
+      JSON.stringify([secondProduct.id, thirdProduct.id, fourthProduct.id]),
+    );
+    mockedSelectors.getProducts.mockReturnValue([
+      product,
+      secondProduct,
+      thirdProduct,
+      fourthProduct,
+    ]);
+
+    renderHome();
+
+    expect(
+      screen.getByRole("region", { name: "Recently viewed sneakers" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Forum Low" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Club C" })).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Gel Lyte" }),
+    ).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Forum Low" }));
+
+    expect(screen.getByText("Retro court sneakers")).toBeInTheDocument();
   });
 
   it("shows product finished and error states", () => {

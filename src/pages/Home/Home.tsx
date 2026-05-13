@@ -15,6 +15,35 @@ import { HomeContent } from "./HomeContent";
 import type { ToastMessage } from "./useHomeActions";
 import { useHomeActions } from "./useHomeActions";
 
+const RECENTLY_VIEWED_STORAGE_KEY = "sneaky:recently-viewed-products";
+const RECENTLY_VIEWED_STORAGE_LIMIT = 3;
+const RECENTLY_VIEWED_VISIBLE_LIMIT = 2;
+
+const readRecentlyViewedIds = () => {
+  try {
+    const storedValue = window.localStorage.getItem(RECENTLY_VIEWED_STORAGE_KEY);
+    const parsedValue = storedValue ? JSON.parse(storedValue) : [];
+
+    return Array.isArray(parsedValue)
+      ? parsedValue.filter((id): id is string => typeof id === "string")
+          .slice(0, RECENTLY_VIEWED_STORAGE_LIMIT)
+      : [];
+  } catch {
+    return [];
+  }
+};
+
+const writeRecentlyViewedIds = (ids: string[]) => {
+  try {
+    window.localStorage.setItem(
+      RECENTLY_VIEWED_STORAGE_KEY,
+      JSON.stringify(ids),
+    );
+  } catch {
+    // localStorage can be unavailable in private browsing or test contexts.
+  }
+};
+
 export const Home = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { isLoggedIn, onOpenAuth } = useContext(AuthContext);
@@ -34,11 +63,19 @@ export const Home = () => {
     null,
   );
   const [showToast, setShowToast] = useState<ToastMessage | null>(null);
+  const [recentlyViewedIds, setRecentlyViewedIds] = useState<string[]>(() =>
+    readRecentlyViewedIds(),
+  );
   const cardRef = useRef<HTMLDivElement>(null);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const currentProduct = products[currentIndex];
   const isFinished = !productsLoading && currentIndex >= products.length;
+  const recentlyViewedProducts = recentlyViewedIds
+    .filter((productId) => productId !== currentProduct?.id)
+    .map((productId) => products.find((product) => product.id === productId))
+    .filter((product): product is (typeof products)[number] => Boolean(product))
+    .slice(0, RECENTLY_VIEWED_VISIBLE_LIMIT);
   const { onAddToCart, onDislike, onLike } = useHomeActions({
     currentProduct,
     isLoggedIn,
@@ -54,6 +91,20 @@ export const Home = () => {
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (!currentProduct) return;
+
+    setRecentlyViewedIds((previousIds) => {
+      const nextIds = [
+        currentProduct.id,
+        ...previousIds.filter((id) => id !== currentProduct.id),
+      ].slice(0, RECENTLY_VIEWED_STORAGE_LIMIT);
+
+      writeRecentlyViewedIds(nextIds);
+      return nextIds;
+    });
+  }, [currentProduct]);
 
   //handles hover glow effect on product card
   useEffect(() => {
@@ -148,10 +199,20 @@ export const Home = () => {
         onDislike={onDislike}
         onLike={onLike}
         onOpenDetails={() => setIsDetailsOpen(true)}
+        onOpenRecentlyViewed={(productId) => {
+          const nextIndex = products.findIndex(
+            (product) => product.id === productId,
+          );
+          if (nextIndex >= 0) {
+            setCurrentIndex(nextIndex);
+            setIsDetailsOpen(false);
+          }
+        }}
         onStartOver={() => setCurrentIndex(0)}
         onTouchEnd={handleTouchEnd}
         onTouchStart={handleTouchStart}
         productsError={productsError}
+        recentlyViewedProducts={recentlyViewedProducts}
         showAnimation={showAnimation}
         swipeDirection={swipeDirection}
       />

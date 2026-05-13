@@ -74,14 +74,49 @@ describe("Wishlist", () => {
         price: 12999,
         imageUrl: "image.jpg",
         brandName: "Nike",
+        sizes: ["UK 6", "UK 7", "UK 8", "UK 9", "UK 10"],
+        colors: [
+          { name: "Black", value: "#17151d" },
+          { name: "Ivory", value: "#eee4cf" },
+          { name: "Clay", value: "#c27a58" },
+        ],
+        stockStatus: "In stock",
       },
     ]);
 
     renderWishlist();
-    await userEvent.click(screen.getByRole("button", { name: "Delete" }));
+    await userEvent.click(
+      screen.getByRole("button", { name: /delete air max/i }),
+    );
 
     expect(screen.getByText("Air Max")).toBeInTheDocument();
     expect(screen.getByText("Nike")).toBeInTheDocument();
+    expect(screen.getByText("UK 6, UK 7, UK 8, UK 9, UK 10")).toBeInTheDocument();
+    expect(screen.getByText("Colors: Black, Ivory, Clay")).toBeInTheDocument();
+    await waitFor(() => expect(dispatch).toHaveBeenCalled());
+  });
+
+  it("adds wishlist items to the cart", async () => {
+    const dispatch = jest.fn(() => ({
+      unwrap: jest.fn().mockResolvedValue(undefined),
+    }));
+    mockedUseDispatch.mockReturnValue(dispatch as never);
+    mockedSelectors.getWishlist.mockReturnValue([
+      {
+        productId: "product-1",
+        name: "Air Max",
+        price: 12999,
+        imageUrl: "image.jpg",
+        brandName: "Nike",
+      },
+    ]);
+
+    renderWishlist();
+    await userEvent.click(
+      screen.getByRole("button", { name: /add to cart/i }),
+    );
+
+    expect(screen.getByText(/moved closer to checkout/i)).toBeInTheDocument();
     await waitFor(() => expect(dispatch).toHaveBeenCalled());
   });
 });

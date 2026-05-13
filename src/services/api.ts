@@ -44,11 +44,13 @@ const refreshAccessToken = async () => {
   return payload.accessToken;
 };
 
+const isAuthFailure = (status: number) => status === 401 || status === 403;
+
 export const apiRequest = async <T>(
   path: string,
   { auth = false, body, headers, ...options }: RequestOptions = {},
 ): Promise<T> => {
-  const accessToken = getAccessToken();
+  let accessToken = getAccessToken();
 
   const request = (token: string | null) =>
     fetch(`${API_BASE_URL}${path}`, {
@@ -62,17 +64,22 @@ export const apiRequest = async <T>(
       },
     });
 
+  if (auth && !accessToken) {
+    accessToken = await refreshAccessToken();
+  }
+
   let response = await request(accessToken);
 
-  if (response.status === 401 && auth) {
+  if (isAuthFailure(response.status) && auth) {
     const nextAccessToken = await refreshAccessToken();
     if (nextAccessToken) {
       response = await request(nextAccessToken);
     }
   }
 
-  if (response.status === 401 && auth) {
+  if (isAuthFailure(response.status) && auth) {
     notifyUnauthorizedSession();
+    throw new Error("Your session expired. Please log in again.");
   }
 
   if (!response.ok) {

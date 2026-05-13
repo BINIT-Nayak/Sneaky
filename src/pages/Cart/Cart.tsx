@@ -19,6 +19,10 @@ import { fetchCart } from "../../store/fetchAPI/fetchCart";
 import { updateCartQuantity } from "../../store/fetchAPI/updateCartQuantity";
 import { useSneakyStateSlice } from "../../store/sneakyState/sneakySelectors";
 import type { AppDispatch } from "../../store/sneakyStore";
+import {
+  getSneakerDetails,
+  UNIQUE_PRODUCT_MESSAGE,
+} from "../../utils/productDetails";
 
 import styles from "./Cart.module.css";
 
@@ -28,6 +32,10 @@ type ToastMessage = {
 };
 
 const CART_SKELETON_ITEMS = 4;
+const DELIVERY_FEE = 199;
+const FREE_DELIVERY_THRESHOLD = 10000;
+const SNEAKY_DISCOUNT_THRESHOLD = 20000;
+const SNEAKY_DISCOUNT_RATE = 0.1;
 
 export const Cart = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -45,6 +53,7 @@ export const Cart = () => {
   const cartLoading = useSneakyStateSlice.getCartLoading();
   const cartStatus = useSneakyStateSlice.getCartStatus();
   const cartError = useSneakyStateSlice.getCartError();
+  const isCartLoading = cartLoading || cartStatus === "idle";
 
   useEffect(() => {
     if (!isLoggedIn || cartStatus !== "idle") return;
@@ -82,6 +91,12 @@ export const Cart = () => {
     () => cart.reduce((sum, item) => sum + item.itemTotal, 0),
     [cart],
   );
+  const deliveryFee = total >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE;
+  const discount =
+    total >= SNEAKY_DISCOUNT_THRESHOLD
+      ? Math.round(total * SNEAKY_DISCOUNT_RATE)
+      : 0;
+  const finalTotal = Math.max(total + deliveryFee - discount, 0);
 
   const getActionErrorMessage = (err: unknown, fallback: string) =>
     typeof err === "string"
@@ -102,10 +117,12 @@ export const Cart = () => {
     try {
       if (newQuantity < 1) {
         await dispatch(deleteCartItem(productId)).unwrap();
+        showToastMessage("Removed from cart.");
       } else {
         await dispatch(
           updateCartQuantity({ productId, quantity: newQuantity }),
         ).unwrap();
+        showToastMessage("Cart quantity updated.");
       }
     } catch (err) {
       setCartActionError(
@@ -124,6 +141,7 @@ export const Cart = () => {
 
     try {
       await dispatch(deleteCartItem(productId)).unwrap();
+      showToastMessage("Removed from cart.");
     } catch (err) {
       setCartActionError(
         getActionErrorMessage(err, "We couldn't remove this item."),
@@ -134,13 +152,14 @@ export const Cart = () => {
   };
 
   const handleClearCart = async () => {
-    if (submittingProductId || isClearing) return;
+    if (isClearing) return;
 
     setIsClearing(true);
     setCartActionError(null);
 
     try {
       await dispatch(clearCartItems()).unwrap();
+      showToastMessage("Cart cleared.");
     } catch (err) {
       setCartActionError(
         getActionErrorMessage(err, "We couldn't clear your cart."),
@@ -172,7 +191,7 @@ export const Cart = () => {
     );
   }
 
-  if (cartLoading) {
+  if (isCartLoading) {
     return (
       <div className={styles.cartContainer}>
         <div className={styles.cart} aria-label="Loading cart">
@@ -269,69 +288,94 @@ export const Cart = () => {
 
         <div className={styles.cart__content}>
           <div className={styles.cart__items}>
-            {cart.map((item) => (
-              <div key={item.productId} className={styles.cart__item}>
-                <img
-                  src={item.imageUrl}
-                  alt={item.name}
-                  className={styles.cart__itemImage}
-                />
-                <div className={styles.cart__itemDetails}>
-                  <h3 className={styles.cart__itemTitle}>{item.name}</h3>
-                  <p className={styles.cart__itemBrand}>{item.brandName}</p>
-                  <p className={styles.cart__itemPrice}>
-                    ₹{item.price.toLocaleString()}
-                  </p>
-                </div>
-                <div className={styles.cart__itemActions}>
-                  <div className={styles.cart__quantity}>
+            {cart.map((item) => {
+              const sneakerDetails = getSneakerDetails(item);
+              const isItemSubmitting = submittingProductId === item.productId;
+              const areItemActionsDisabled = isItemSubmitting || isClearing;
+
+              return (
+                <div key={item.productId} className={styles.cart__item}>
+                  <img
+                    src={item.imageUrl}
+                    alt={item.name}
+                    className={styles.cart__itemImage}
+                  />
+                  <div className={styles.cart__itemDetails}>
+                    <h3 className={styles.cart__itemTitle}>{item.name}</h3>
+                    <p className={styles.cart__itemBrand}>{item.brandName}</p>
+                    <p className={styles.cart__itemPrice}>
+                      ₹{item.price.toLocaleString()}
+                    </p>
+                    <div className={styles.cart__itemMeta}>
+                      {sneakerDetails.stockStatus ? (
+                        <span>{sneakerDetails.stockStatus}</span>
+                      ) : null}
+                      {sneakerDetails.isUnique ? (
+                        <span>{UNIQUE_PRODUCT_MESSAGE}</span>
+                      ) : (
+                        <>
+                          <span>{sneakerDetails.sizes.join(", ")}</span>
+                          <span>
+                            Colors:{" "}
+                            {sneakerDetails.colors
+                              .map((color) => color.name)
+                              .join(", ")}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <div className={styles.cart__itemActions}>
+                    <div className={styles.cart__quantity}>
+                      <button
+                        className={styles.cart__quantityBtn}
+                        disabled={
+                          areItemActionsDisabled || item.quantity <= 1
+                        }
+                        aria-label={`Decrease ${item.name} quantity`}
+                        onClick={() => {
+                          void handleUpdateQuantity(
+                            item.productId,
+                            item.quantity - 1,
+                          );
+                        }}
+                      >
+                        <FiMinus />
+                      </button>
+                      <span className={styles.cart__quantityValue}>
+                        {item.quantity}
+                      </span>
+                      <button
+                        className={styles.cart__quantityBtn}
+                        disabled={areItemActionsDisabled}
+                        aria-label={`Increase ${item.name} quantity`}
+                        onClick={() => {
+                          void handleUpdateQuantity(
+                            item.productId,
+                            item.quantity + 1,
+                          );
+                        }}
+                      >
+                        <FiPlus />
+                      </button>
+                    </div>
                     <button
-                      className={styles.cart__quantityBtn}
-                      disabled={
-                        submittingProductId !== null ||
-                        isClearing ||
-                        item.quantity <= 1
-                      }
+                      className={styles.cart__removeBtn}
+                      disabled={areItemActionsDisabled}
+                      aria-label={`Remove ${item.name}`}
                       onClick={() => {
-                        void handleUpdateQuantity(
-                          item.productId,
-                          item.quantity - 1,
-                        );
+                        void handleRemove(item.productId);
                       }}
                     >
-                      <FiMinus />
-                    </button>
-                    <span className={styles.cart__quantityValue}>
-                      {item.quantity}
-                    </span>
-                    <button
-                      className={styles.cart__quantityBtn}
-                      disabled={submittingProductId !== null || isClearing}
-                      onClick={() => {
-                        void handleUpdateQuantity(
-                          item.productId,
-                          item.quantity + 1,
-                        );
-                      }}
-                    >
-                      <FiPlus />
+                      <FiTrash2 />
                     </button>
                   </div>
-                  <button
-                    className={styles.cart__removeBtn}
-                    disabled={submittingProductId !== null || isClearing}
-                    onClick={() => {
-                      void handleRemove(item.productId);
-                    }}
-                  >
-                    <FiTrash2 />
-                  </button>
+                  <div className={styles.cart__itemTotal}>
+                    ₹{item.itemTotal.toLocaleString()}
+                  </div>
                 </div>
-                <div className={styles.cart__itemTotal}>
-                  ₹{item.itemTotal.toLocaleString()}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className={styles.cart__summary}>
@@ -341,22 +385,37 @@ export const Cart = () => {
               <span>₹{total.toLocaleString()}</span>
             </div>
             <div className={styles.cart__summaryRow}>
-              <span>Shipping</span>
-              <span>Free</span>
+              <span>Delivery</span>
+              <span>
+                {deliveryFee === 0
+                  ? "Free"
+                  : `₹${deliveryFee.toLocaleString()}`}
+              </span>
+            </div>
+            <div className={styles.cart__summaryRow}>
+              <span>Sneaky discount</span>
+              <span>
+                {discount > 0 ? `-₹${discount.toLocaleString()}` : "₹0"}
+              </span>
+            </div>
+            <div className={styles.cart__summaryNote}>
+              Free delivery above ₹{FREE_DELIVERY_THRESHOLD.toLocaleString()}.
+              10% Sneaky discount above ₹
+              {SNEAKY_DISCOUNT_THRESHOLD.toLocaleString()}.
             </div>
             <div className={styles.cart__summaryDivider} />
             <div
               className={`${styles.cart__summaryRow} ${styles.cart__summaryTotal}`}
             >
               <span>Total</span>
-              <span>₹{total.toLocaleString()}</span>
+              <span>₹{finalTotal.toLocaleString()}</span>
             </div>
             <button className={styles.cart__checkoutBtn} onClick={checkout}>
               Proceed to Checkout →
             </button>
             <button
               className={styles.cart__clearBtn}
-              disabled={submittingProductId !== null || isClearing}
+              disabled={isClearing}
               onClick={() => {
                 void handleClearCart();
               }}
