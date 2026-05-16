@@ -119,4 +119,33 @@ describe("Wishlist", () => {
     expect(screen.getByText(/moved closer to checkout/i)).toBeInTheDocument();
     await waitFor(() => expect(dispatch).toHaveBeenCalled());
   });
+
+  it("clears all wishlist items", async () => {
+    const dispatch = jest.fn(() => ({
+      unwrap: jest.fn().mockResolvedValue(undefined),
+    }));
+    mockedUseDispatch.mockReturnValue(dispatch as never);
+    mockedSelectors.getWishlist.mockReturnValue([
+      {
+        productId: "product-1",
+        name: "Air Max",
+        price: 12999,
+        imageUrl: "image.jpg",
+        brandName: "Nike",
+      },
+      {
+        productId: "product-2",
+        name: "Classic Wave",
+        price: 8999,
+        imageUrl: "classic.jpg",
+        brandName: "New Balance",
+      },
+    ]);
+
+    renderWishlist();
+    await userEvent.click(screen.getByRole("button", { name: /clear all/i }));
+
+    expect(screen.getByText(/wishlist cleared/i)).toBeInTheDocument();
+    await waitFor(() => expect(dispatch).toHaveBeenCalled());
+  });
 });

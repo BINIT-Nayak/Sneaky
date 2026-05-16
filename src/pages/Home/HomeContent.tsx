@@ -170,6 +170,11 @@ export const HomeContent: FC<HomeContentProps> = ({
         />
 
         <div className={styles.home__productInfo}>
+          {currentProduct.category ? (
+            <p className={styles.home__productCategory}>
+              {currentProduct.category}
+            </p>
+          ) : null}
           <h3 className={styles.home__productName}>{currentProduct.name}</h3>
           <p className={styles.home__productBrand}>{currentProduct.brand}</p>
           <p className={styles.home__productPrice}>

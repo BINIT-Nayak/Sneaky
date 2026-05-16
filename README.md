@@ -19,6 +19,12 @@ This repository showcases practical development patterns, reusable components, a
 - 📱 Fully responsive across devices
 - 🔒 Secure and scalable architecture
 - 🧩 Reusable component structure
+- 🏠 Swipe-style home product feed
+- 🧠 Recommended product ordering from the backend
+- 🏷️ Product category badges on home cards
+- ❤️ Wishlist management with single-item delete and clear-all support
+- 🛒 Cart and wishlist API integration
+- 🕘 Recently viewed product shortcuts
 - 🚀 Optimized performance
 - 🔧 Easy configuration and customization
 
@@ -94,6 +100,33 @@ Start the development server:
 npm run dev
 ```
 
+Run tests:
+
+```bash
+npm test
+```
+
+## 🔌 Backend Integration
+
+The home feed loads products from:
+
+```http
+GET /api/products/recommended
+```
+
+This endpoint returns products already ranked by the Spring Boot recommendation service. The UI keeps rendering the normal `Product[]` shape, so the recommendation logic stays on the backend.
+
+Wishlist actions use authenticated API calls:
+
+```http
+GET /api/wishlist
+POST /api/wishlist
+DELETE /api/wishlist/{productId}
+DELETE /api/wishlist
+```
+
+`DELETE /api/wishlist` clears all wishlist items for the logged-in user.
+
 ## 📸 Screenshots
 
 Add project screenshots here.
@@ -102,6 +135,7 @@ Add project screenshots here.
  - Improve animations
  - Optimize mobile responsiveness
  - Docker support
+ - Track product impressions and dislikes from the home feed for sharper recommendations
 
 ## 🐛 Issues
 

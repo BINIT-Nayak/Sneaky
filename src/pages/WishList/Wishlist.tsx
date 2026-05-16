@@ -8,6 +8,7 @@ import emptyList from "../../assets/emptyList.png";
 import { Toast } from "../../components/Toast/Toast";
 import { AuthContext } from "../../context/AuthContext";
 import { addCartItem } from "../../store/fetchAPI/addCartItem";
+import { clearWishlistItems } from "../../store/fetchAPI/clearWishlistItems";
 import { deleteWishlistItem } from "../../store/fetchAPI/deleteWishlistItem";
 import { fetchWishlist } from "../../store/fetchAPI/fetchWishlist";
 import { useSneakyStateSlice } from "../../store/sneakyState/sneakySelectors";
@@ -43,6 +44,7 @@ export const Wishlist = () => {
     null,
   );
   const [addingProductId, setAddingProductId] = useState<string | null>(null);
+  const [isClearingWishlist, setIsClearingWishlist] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [showToast, setShowToast] = useState<ToastMessage | null>(null);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -92,7 +94,7 @@ export const Wishlist = () => {
         : fallback;
 
   const handleAddToCart = async (productId: string, productName: string) => {
-    if (addingProductId || removingProductId) return;
+    if (addingProductId || removingProductId || isClearingWishlist) return;
 
     setAddingProductId(productId);
     setDeleteError(null);
@@ -110,7 +112,7 @@ export const Wishlist = () => {
   };
 
   const handleDeleteWishlistItem = async (productId: string) => {
-    if (removingProductId || addingProductId) return;
+    if (removingProductId || addingProductId || isClearingWishlist) return;
 
     setRemovingProductId(productId);
     setDeleteError(null);
@@ -127,6 +129,27 @@ export const Wishlist = () => {
       );
     } finally {
       setRemovingProductId(null);
+    }
+  };
+
+  const handleClearWishlist = async () => {
+    if (removingProductId || addingProductId || isClearingWishlist) return;
+
+    setIsClearingWishlist(true);
+    setDeleteError(null);
+
+    try {
+      await dispatch(clearWishlistItems()).unwrap();
+      showToastMessage("Wishlist cleared.");
+    } catch (err) {
+      setDeleteError(
+        getActionErrorMessage(
+          err,
+          "We couldn't clear your wishlist. Please try again.",
+        ),
+      );
+    } finally {
+      setIsClearingWishlist(false);
     }
   };
 
@@ -225,7 +248,22 @@ export const Wishlist = () => {
       <div className={styles.wishlist}>
         <Toast key={showToast?.id} message={showToast?.message} />
 
-        <h2 className={styles.wishlist__title}>My Wishlist</h2>
+        <div className={styles.wishlist__header}>
+          <h2 className={styles.wishlist__title}>My Wishlist</h2>
+          <button
+            className={styles.wishlist__clearBtn}
+            disabled={
+              addingProductId !== null ||
+              removingProductId !== null ||
+              isClearingWishlist
+            }
+            type="button"
+            onClick={() => void handleClearWishlist()}
+          >
+            <FiTrash2 />
+            {isClearingWishlist ? "Clearing..." : "Clear All"}
+          </button>
+        </div>
         {deleteError ? (
           <div className={styles.wishlist__deleteError}>{deleteError}</div>
         ) : null}
@@ -265,7 +303,9 @@ export const Wishlist = () => {
                   <button
                     className={styles.wishlist__cartBtn}
                     disabled={
-                      addingProductId !== null || removingProductId !== null
+                      addingProductId !== null ||
+                      removingProductId !== null ||
+                      isClearingWishlist
                     }
                     type="button"
                     onClick={() => void handleAddToCart(item.id, item.name)}
@@ -276,7 +316,9 @@ export const Wishlist = () => {
                   <button
                     className={styles.wishlist__deleteBtn}
                     disabled={
-                      addingProductId !== null || removingProductId !== null
+                      addingProductId !== null ||
+                      removingProductId !== null ||
+                      isClearingWishlist
                     }
                     type="button"
                     aria-label={`Delete ${item.name}`}

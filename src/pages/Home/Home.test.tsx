@@ -121,6 +121,7 @@ describe("Home", () => {
 
     expect(screen.getByText("Air Max")).toBeInTheDocument();
     expect(screen.getByText("Nike")).toBeInTheDocument();
+    expect(screen.getByText("Sneakers")).toBeInTheDocument();
     expect(screen.getByText("Comfortable sneakers")).toBeInTheDocument();
     expect(dispatch).toHaveBeenCalled();
   });

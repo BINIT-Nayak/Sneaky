@@ -9,6 +9,7 @@ const makeThunk = (type: string) => {
 export const addCartItem = makeThunk("sneakyState/addCartItem");
 export const addWishlistItem = makeThunk("sneakyState/addWishlistItem");
 export const clearCartItems = makeThunk("sneakyState/clearCartItems");
+export const clearWishlistItems = makeThunk("sneakyState/clearWishlistItems");
 export const deleteCartItem = makeThunk("sneakyState/deleteCartItem");
 export const deleteWishlistItem = makeThunk("sneakyState/deleteWishlistItem");
 export const fetchCart = makeThunk("sneakyState/fetchCart");
