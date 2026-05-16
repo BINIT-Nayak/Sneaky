@@ -27,6 +27,8 @@ export interface Product {
   description: string;
   brand: string;
   category: string;
+  merchantName?: string;
+  merchantUrl?: string;
   sizes?: string[];
   colors?: SneakerColor[];
   stockStatus?: string;
@@ -61,6 +63,8 @@ export type ICartItem = {
   imageUrl: string;
   brandName: string;
   category?: string;
+  merchantName?: string;
+  merchantUrl?: string;
   quantity: number;
   itemTotal: number;
   sizes?: string[];

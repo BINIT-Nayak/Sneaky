@@ -44,6 +44,8 @@ const product = {
   description: "Comfortable sneakers",
   brand: "Nike",
   category: "Sneakers",
+  merchantName: "Nike Partner",
+  merchantUrl: "https://partners.sneaky.test/nike",
   sizes: ["UK 6", "UK 7", "UK 8", "UK 9", "UK 10"],
   colors: [
     { name: "Black", value: "#17151d" },
@@ -162,6 +164,10 @@ describe("Home", () => {
       within(dialog).getByRole("heading", { name: "Air Max" }),
     ).toBeInTheDocument();
     expect(within(dialog).getByText("Sneakers")).toBeInTheDocument();
+    expect(within(dialog).getByText("Nike Partner")).toHaveAttribute(
+      "href",
+      "https://partners.sneaky.test/nike",
+    );
     expect(
       within(dialog).getByText(/in stock|selling fast|only a few left/i),
     ).toBeInTheDocument();

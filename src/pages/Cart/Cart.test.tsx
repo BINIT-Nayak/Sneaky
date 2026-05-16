@@ -76,6 +76,8 @@ describe("Cart", () => {
         imageUrl: "image.jpg",
         brandName: "Nike",
         category: "Running",
+        merchantName: "Amazon",
+        merchantUrl: "https://www.amazon.in/s?k=sneakers",
         quantity: 2,
         itemTotal: 25998,
         sizes: ["UK 6", "UK 7", "UK 8", "UK 9", "UK 10"],
@@ -98,6 +100,10 @@ describe("Cart", () => {
     expect(screen.getByText("Delivery")).toBeInTheDocument();
     expect(screen.getByText("Sneaky discount")).toBeInTheDocument();
     expect(screen.getByText("Running")).toBeInTheDocument();
+    expect(screen.getAllByText("Amazon").length).toBeGreaterThan(0);
+    expect(
+      screen.getByRole("button", { name: /continue on amazon/i }),
+    ).toBeInTheDocument();
     expect(screen.getByText("UK 6, UK 7, UK 8, UK 9, UK 10")).toBeInTheDocument();
     expect(screen.getByText("Colors: Black, Ivory, Clay")).toBeInTheDocument();
     expect(screen.getAllByText("₹25,998").length).toBeGreaterThan(0);
@@ -123,6 +129,8 @@ describe("Cart", () => {
         imageUrl: "image.jpg",
         brandName: "Nike",
         category: "Running",
+        merchantName: "Amazon",
+        merchantUrl: "https://www.amazon.in/s?k=sneakers",
         quantity: 2,
         itemTotal: 25998,
       },
@@ -141,7 +149,7 @@ describe("Cart", () => {
     });
   });
 
-  it("shows checkout coming soon toast", async () => {
+  it("groups checkout buttons by merchant", () => {
     mockedSelectors.getCart.mockReturnValue([
       {
         productId: "product-1",
@@ -151,16 +159,82 @@ describe("Cart", () => {
         imageUrl: "image.jpg",
         brandName: "Nike",
         category: "Running",
+        merchantName: "Amazon",
+        merchantUrl: "https://www.amazon.in/s?k=sneakers",
+        quantity: 1,
+        itemTotal: 12999,
+      },
+      {
+        productId: "product-2",
+        name: "Classic Wave",
+        price: 8999,
+        currency: "INR",
+        imageUrl: "classic.jpg",
+        brandName: "New Balance",
+        category: "Lifestyle",
+        merchantName: "Amazon",
+        merchantUrl: "https://www.amazon.in/s?k=sneakers",
+        quantity: 2,
+        itemTotal: 17998,
+      },
+      {
+        productId: "product-3",
+        name: "Gel Lyte",
+        price: 10999,
+        currency: "INR",
+        imageUrl: "gel.jpg",
+        brandName: "Asics",
+        category: "Running",
+        merchantName: "Myntra",
+        merchantUrl: "https://www.myntra.com/sneakers",
+        quantity: 1,
+        itemTotal: 10999,
+      },
+    ]);
+
+    renderCart();
+
+    expect(
+      screen.getByRole("button", { name: /continue on amazon/i }),
+    ).toHaveTextContent("3 items");
+    expect(
+      screen.getByRole("button", { name: /continue on myntra/i }),
+    ).toHaveTextContent("1 item");
+    expect(
+      screen.queryByRole("button", { name: /proceed/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("opens the selected merchant", async () => {
+    const openSpy = jest.spyOn(window, "open").mockImplementation(jest.fn());
+
+    mockedSelectors.getCart.mockReturnValue([
+      {
+        productId: "product-1",
+        name: "Air Max",
+        price: 12999,
+        currency: "INR",
+        imageUrl: "image.jpg",
+        brandName: "Nike",
+        category: "Running",
+        merchantName: "Amazon",
+        merchantUrl: "https://www.amazon.in/s?k=sneakers",
         quantity: 1,
         itemTotal: 12999,
       },
     ]);
 
     renderCart();
-    await userEvent.click(screen.getByRole("button", { name: /proceed/i }));
+    await userEvent.click(
+      screen.getByRole("button", { name: /continue on amazon/i }),
+    );
 
-    expect(
-      screen.getByText(/checkout to payment gateway/i),
-    ).toBeInTheDocument();
+    expect(openSpy).toHaveBeenCalledWith(
+      "https://www.amazon.in/s?k=sneakers",
+      "_blank",
+      "noopener,noreferrer",
+    );
+
+    openSpy.mockRestore();
   });
 });

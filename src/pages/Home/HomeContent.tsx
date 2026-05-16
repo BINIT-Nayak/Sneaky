@@ -287,6 +287,20 @@ export const HomeContent: FC<HomeContentProps> = ({
               <p className={styles.home__detailsDescription}>
                 {currentProduct.description}
               </p>
+              <div className={styles.home__detailsMerchant}>
+                <span>Partner</span>
+                {currentProduct.merchantUrl ? (
+                  <a
+                    href={currentProduct.merchantUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {currentProduct.merchantName || "Partner Store"}
+                  </a>
+                ) : (
+                  <strong>{currentProduct.merchantName || "Partner Store"}</strong>
+                )}
+              </div>
               <div className={styles.home__detailsMeta}>
                 {sneakerDetails.stockStatus ? (
                   <span>{sneakerDetails.stockStatus}</span>

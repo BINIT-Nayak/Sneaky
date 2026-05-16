@@ -127,10 +127,16 @@
 }
 
 .cart__itemBrand,
+.cart__itemMerchant,
 .cart__itemPrice {
   color: var(--base-color4);
   font-size: 14px;
   margin: 0 0 4px;
+}
+
+.cart__itemMerchant {
+  color: var(--base-color5);
+  font-weight: 700;
 }
 
 .cart__itemPrice,
@@ -275,9 +281,36 @@
 }
 
 .cart__checkoutBtn {
+  align-items: stretch;
   background: linear-gradient(135deg, var(--base-color2), var(--base-color3));
   color: var(--base-color5);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  justify-content: center;
   margin-top: 8px;
+  padding: 10px 12px;
+  text-align: left;
+}
+
+.cart__checkoutBtn span {
+  align-items: center;
+  display: inline-flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.cart__checkoutBtn small {
+  color: rgb(255 255 255 / 78%);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.cart__merchantActions {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .cart__clearBtn {

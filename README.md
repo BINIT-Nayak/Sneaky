@@ -22,6 +22,7 @@ This repository showcases practical development patterns, reusable components, a
 - 🏠 Swipe-style home product feed
 - 🧠 Recommended product ordering from the backend
 - 🏷️ Product category badges on home cards
+- 🤝 Merchant partner links on product details and cart checkout groups
 - ❤️ Wishlist management with single-item delete and clear-all support
 - 🛒 Cart and wishlist API integration
 - 🕘 Recently viewed product shortcuts
@@ -115,6 +116,10 @@ GET /api/products/recommended
 ```
 
 This endpoint returns products already ranked by the Spring Boot recommendation service. The UI keeps rendering the normal `Product[]` shape, so the recommendation logic stays on the backend.
+
+Recommendations are personalized for logged-in users using wishlist, cart, recently viewed, passed products, category, brand, price range, merchant affinity, global popularity, and diversity reranking so the feed does not bunch similar products together.
+
+Cart checkout is merchant-based instead of payment-based inside Sneaky. The cart groups items by `merchantName` and shows one outbound button per partner store.
 
 Wishlist actions use authenticated API calls:
 

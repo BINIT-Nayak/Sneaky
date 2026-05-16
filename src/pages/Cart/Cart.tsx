@@ -8,7 +8,13 @@ import {
 } from "react";
 import { useDispatch } from "react-redux";
 
-import { FiTrash2, FiPlus, FiMinus, FiShoppingBag } from "react-icons/fi";
+import {
+  FiExternalLink,
+  FiMinus,
+  FiPlus,
+  FiShoppingBag,
+  FiTrash2,
+} from "react-icons/fi";
 
 import emptyCart from "../../assets/emptyList.png";
 import { Toast } from "../../components/Toast/Toast";
@@ -36,6 +42,8 @@ const DELIVERY_FEE = 199;
 const FREE_DELIVERY_THRESHOLD = 10000;
 const SNEAKY_DISCOUNT_THRESHOLD = 20000;
 const SNEAKY_DISCOUNT_RATE = 0.1;
+
+const DEFAULT_MERCHANT_NAME = "Partner Store";
 
 export const Cart = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -97,6 +105,35 @@ export const Cart = () => {
       ? Math.round(total * SNEAKY_DISCOUNT_RATE)
       : 0;
   const finalTotal = Math.max(total + deliveryFee - discount, 0);
+  const merchantGroups = useMemo(() => {
+    const groups = new Map<
+      string,
+      { itemCount: number; merchantName: string; merchantUrl?: string; total: number }
+    >();
+
+    cart.forEach((item) => {
+      const merchantName = item.merchantName || DEFAULT_MERCHANT_NAME;
+      const existingGroup = groups.get(merchantName);
+
+      if (existingGroup) {
+        existingGroup.itemCount += item.quantity;
+        existingGroup.total += item.itemTotal;
+        existingGroup.merchantUrl = existingGroup.merchantUrl || item.merchantUrl;
+        return;
+      }
+
+      groups.set(merchantName, {
+        itemCount: item.quantity,
+        merchantName,
+        merchantUrl: item.merchantUrl,
+        total: item.itemTotal,
+      });
+    });
+
+    return Array.from(groups.values()).sort((first, second) =>
+      first.merchantName.localeCompare(second.merchantName),
+    );
+  }, [cart]);
 
   const getActionErrorMessage = (err: unknown, fallback: string) =>
     typeof err === "string"
@@ -169,10 +206,13 @@ export const Cart = () => {
     }
   };
 
-  const checkout = () => {
-    if (cart.length === 0) return;
+  const checkoutWithMerchant = (merchantName: string, merchantUrl?: string) => {
+    if (!merchantUrl) {
+      setCartActionError(`No checkout link is available for ${merchantName}.`);
+      return;
+    }
 
-    showToastMessage("Checkout to payment Gateway/ merchant site coming soon!");
+    window.open(merchantUrl, "_blank", "noopener,noreferrer");
   };
 
   if (!isLoggedIn) {
@@ -307,6 +347,9 @@ export const Cart = () => {
                         {item.category}
                       </p>
                     ) : null}
+                    <p className={styles.cart__itemMerchant}>
+                      {item.merchantName || DEFAULT_MERCHANT_NAME}
+                    </p>
                     <p className={styles.cart__itemBrand}>{item.brandName}</p>
                     <p className={styles.cart__itemPrice}>
                       ₹{item.price.toLocaleString()}
@@ -384,7 +427,7 @@ export const Cart = () => {
           </div>
 
           <div className={styles.cart__summary}>
-            <h3 className={styles.cart__summaryTitle}>Order Summary</h3>
+            <h3 className={styles.cart__summaryTitle}>Store Checkout</h3>
             <div className={styles.cart__summaryRow}>
               <span>Subtotal ({itemCount} items)</span>
               <span>₹{total.toLocaleString()}</span>
@@ -415,9 +458,26 @@ export const Cart = () => {
               <span>Total</span>
               <span>₹{finalTotal.toLocaleString()}</span>
             </div>
-            <button className={styles.cart__checkoutBtn} onClick={checkout}>
-              Proceed to Checkout →
-            </button>
+            <div className={styles.cart__merchantActions}>
+              {merchantGroups.map((group) => (
+                <button
+                  className={styles.cart__checkoutBtn}
+                  key={group.merchantName}
+                  onClick={() => {
+                    checkoutWithMerchant(group.merchantName, group.merchantUrl);
+                  }}
+                  type="button"
+                >
+                  <span>
+                    <FiExternalLink /> Continue on {group.merchantName}
+                  </span>
+                  <small>
+                    {group.itemCount} {group.itemCount === 1 ? "item" : "items"} ·
+                    ₹{group.total.toLocaleString()}
+                  </small>
+                </button>
+              ))}
+            </div>
             <button
               className={styles.cart__clearBtn}
               disabled={isClearing}

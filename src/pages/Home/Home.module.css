@@ -577,6 +577,37 @@
   margin: 0;
 }
 
+.home__detailsMerchant {
+  align-items: center;
+  background: rgb(255 255 255 / 6%);
+  border: 1px solid rgb(223 182 130 / 14%);
+  border-radius: 8px;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  margin-top: 14px;
+  min-width: 0;
+  padding: 10px 12px;
+}
+
+.home__detailsMerchant span {
+  color: var(--base-color4);
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.home__detailsMerchant a,
+.home__detailsMerchant strong {
+  color: var(--base-color5);
+  font-size: 14px;
+  font-weight: 800;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
 .home__detailsMeta {
   display: grid;
   gap: 8px;
