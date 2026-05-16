@@ -162,24 +162,46 @@ export const HomeContent: FC<HomeContentProps> = ({
       onTouchEnd={onTouchEnd}
     >
       <div className={styles.home__feed}>
-        <img
-          src={currentProduct.image}
-          alt={currentProduct.name}
-          className={styles.home__image}
-          loading="lazy"
-        />
+        <div className={styles.home__imageStage}>
+          <img
+            src={currentProduct.image}
+            alt={currentProduct.name}
+            className={styles.home__image}
+            loading="lazy"
+          />
+          <div className={styles.home__imageGlow} aria-hidden="true" />
+          <div className={styles.home__floatingBadge}>Recommended</div>
+          <div className={styles.home__floatingPrice}>
+            ₹{currentProduct.price.toLocaleString()}
+          </div>
+        </div>
 
         <div className={styles.home__productInfo}>
-          {currentProduct.category ? (
-            <p className={styles.home__productCategory}>
-              {currentProduct.category}
+          <div className={styles.home__productTopline}>
+            {currentProduct.category ? (
+              <p className={styles.home__productCategory}>
+                {currentProduct.category}
+              </p>
+            ) : null}
+            {currentProduct.merchantName ? (
+              <p className={styles.home__productMerchant}>
+                {currentProduct.merchantName}
+              </p>
+            ) : null}
+          </div>
+          <div className={styles.home__productHeader}>
+            <div>
+              <h3 className={styles.home__productName}>
+                {currentProduct.name}
+              </h3>
+              <p className={styles.home__productBrand}>
+                {currentProduct.brand}
+              </p>
+            </div>
+            <p className={styles.home__productPrice}>
+              ₹{currentProduct.price.toLocaleString()}
             </p>
-          ) : null}
-          <h3 className={styles.home__productName}>{currentProduct.name}</h3>
-          <p className={styles.home__productBrand}>{currentProduct.brand}</p>
-          <p className={styles.home__productPrice}>
-            ₹{currentProduct.price.toLocaleString()}
-          </p>
+          </div>
           <p className={styles.home__productDesc}>
             {currentProduct.description}
           </p>

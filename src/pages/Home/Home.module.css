@@ -10,35 +10,51 @@
 }
 
 .home::before {
-  animation: home-background-pulse 8s ease-in-out infinite;
+  animation: home-background-pulse 9s ease-in-out infinite;
   background:
-    radial-gradient(
-      circle at 20% 30%,
-      rgb(133 79 108 / 20%) 0%,
-      transparent 40%
+    linear-gradient(
+      135deg,
+      rgb(14 15 28 / 96%) 0%,
+      rgb(37 17 48 / 92%) 52%,
+      rgb(17 43 50 / 94%) 100%
     ),
     radial-gradient(
-      circle at 80% 70%,
-      rgb(223 182 130 / 15%) 0%,
-      transparent 40%
+      circle at 16% 22%,
+      rgb(0 214 201 / 20%) 0%,
+      transparent 34%
     ),
-    radial-gradient(circle at 40% 80%, rgb(82 38 91 / 25%) 0%, transparent 50%);
+    radial-gradient(
+      circle at 84% 18%,
+      rgb(255 119 94 / 18%) 0%,
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 74% 82%,
+      rgb(223 182 130 / 16%) 0%,
+      transparent 40%
+    );
   content: "";
+  filter: blur(20px);
   inset: 0;
   pointer-events: none;
   position: absolute;
 }
 
 .home::after {
-  background: repeating-linear-gradient(
-    45deg,
-    transparent 0,
-    transparent 20px,
-    rgb(223 182 130 / 2%) 20px,
-    rgb(223 182 130 / 2%) 40px
-  );
+  background:
+    linear-gradient(rgb(255 255 255 / 4%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 4%) 1px, transparent 1px);
+  background-size: 44px 44px;
   content: "";
   inset: 0;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black 20%,
+    black 80%,
+    transparent
+  );
+  opacity: 0.35;
   pointer-events: none;
   position: absolute;
 }
@@ -46,17 +62,20 @@
 .home__card {
   animation: home-card-enter 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
   backdrop-filter: blur(10px);
-  background: linear-gradient(
-    165deg,
-    rgb(43 18 76 / 40%) 0%,
-    rgb(25 0 25 / 70%) 100%
-  );
-  border: 1px solid rgb(223 182 130 / 15%);
+  background:
+    linear-gradient(
+      150deg,
+      rgb(255 255 255 / 13%) 0%,
+      rgb(255 255 255 / 4%) 42%,
+      rgb(0 214 201 / 8%) 100%
+    ),
+    rgb(16 16 28 / 82%);
+  border: 1px solid rgb(255 255 255 / 16%);
   border-radius: var(--border-radius-xl);
   box-shadow:
-    0 30px 60px rgb(25 0 25 / 60%),
-    0 0 0 1px rgb(223 182 130 / 10%),
-    inset 0 1px 1px rgb(255 255 255 / 10%);
+    0 32px 80px rgb(0 0 0 / 54%),
+    0 0 50px rgb(0 214 201 / 8%),
+    inset 0 1px 1px rgb(255 255 255 / 18%);
   display: flex;
   flex-direction: column;
   height: 85vh;
@@ -84,7 +103,7 @@
 .home__card::before {
   background: radial-gradient(
     circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-    rgb(223 182 130 / 15%) 0%,
+    rgb(0 214 201 / 16%) 0%,
     transparent 60%
   );
   content: "";
@@ -103,7 +122,7 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 20px;
+  padding: 18px;
   scroll-behavior: smooth;
   scrollbar-width: none;
 }
@@ -112,18 +131,24 @@
   display: none;
 }
 
-.home__image {
+.home__imageStage {
   animation: home-image-fade 0.6s ease both;
   aspect-ratio: 4 / 5;
-  border: 1px solid rgb(223 182 130 / 15%);
+  background:
+    linear-gradient(135deg, rgb(0 214 201 / 10%), transparent 36%),
+    linear-gradient(315deg, rgb(255 119 94 / 10%), transparent 38%),
+    rgb(255 255 255 / 6%);
+  border: 1px solid rgb(255 255 255 / 16%);
   border-radius: var(--border-radius-lg);
-  box-shadow: 0 10px 30px rgb(0 0 0 / 40%);
-  cursor: zoom-in;
+  box-shadow:
+    0 20px 42px rgb(0 0 0 / 38%),
+    inset 0 1px 0 rgb(255 255 255 / 16%);
   display: block;
   height: clamp(280px, 44vh, 400px);
   margin-bottom: 16px;
-  object-fit: cover;
-  object-position: center;
+  overflow: hidden;
+  padding: 10px;
+  pointer-events: none;
   position: relative;
   transition:
     border-color var(--transition-base),
@@ -132,28 +157,78 @@
   width: 100%;
 }
 
-.home__image:nth-child(1) {
-  animation-delay: 0.1s;
-}
-
-.home__image:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.home__image:nth-child(3) {
-  animation-delay: 0.3s;
-}
-
-.home__image:hover {
-  border-color: var(--base-color4);
+.home__imageStage:hover {
+  border-color: rgb(0 214 201 / 42%);
   box-shadow:
-    0 20px 40px rgb(0 0 0 / 60%),
-    0 0 0 2px rgb(223 182 130 / 30%);
-  transform: scale(1.03) translateY(-5px);
+    0 26px 56px rgb(0 0 0 / 52%),
+    0 0 0 1px rgb(255 255 255 / 14%);
+  transform: translateY(-4px);
 }
 
-.home__image:last-child {
-  margin-bottom: 0;
+.home__imageStage:active {
+  transform: scale(0.985);
+}
+
+.home__image {
+  border-radius: calc(var(--border-radius-lg) - 6px);
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  position: relative;
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  width: 100%;
+  z-index: 1;
+}
+
+.home__imageStage:hover .home__image {
+  transform: scale(1.055);
+}
+
+.home__imageGlow {
+  background:
+    radial-gradient(circle at 28% 22%, rgb(0 214 201 / 14%), transparent 28%),
+    radial-gradient(circle at 80% 72%, rgb(255 119 94 / 14%), transparent 30%);
+  filter: blur(22px);
+  inset: 10px;
+  opacity: 0.65;
+  pointer-events: none;
+  position: absolute;
+  z-index: 0;
+}
+
+.home__floatingBadge,
+.home__floatingPrice {
+  align-items: center;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgb(255 255 255 / 20%);
+  border-radius: 999px;
+  box-shadow: 0 12px 28px rgb(0 0 0 / 24%);
+  display: inline-flex;
+  font-weight: 900;
+  min-height: 34px;
+  position: absolute;
+  z-index: 3;
+}
+
+.home__floatingBadge {
+  background: rgb(0 214 201 / 18%);
+  color: #d8fffb;
+  font-size: 11px;
+  left: 20px;
+  letter-spacing: 0.08em;
+  padding: 0 12px;
+  text-transform: uppercase;
+  top: 20px;
+}
+
+.home__floatingPrice {
+  background: rgb(15 17 28 / 76%);
+  bottom: 20px;
+  color: var(--base-color5);
+  font-size: 16px;
+  padding: 0 14px;
+  right: 20px;
 }
 
 .home__recent {
@@ -163,26 +238,54 @@
 }
 
 .home__productCategory {
-  background: rgb(223 182 130 / 12%);
-  border: 1px solid rgb(223 182 130 / 18%);
+  background: rgb(0 214 201 / 12%);
+  border: 1px solid rgb(0 214 201 / 24%);
   border-radius: 999px;
-  color: var(--base-color4);
+  color: #94fff6;
   display: inline-flex;
   font-size: 12px;
   font-weight: 800;
-  letter-spacing: 0.04em;
-  margin: 0 0 10px;
+  margin: 0;
   max-width: 100%;
   overflow-wrap: anywhere;
   padding: 6px 10px;
-  text-transform: uppercase;
+}
+
+.home__productTopline {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.home__productMerchant {
+  background: rgb(255 119 94 / 12%);
+  border: 1px solid rgb(255 119 94 / 24%);
+  border-radius: 999px;
+  color: #ffc4b7;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 800;
+  margin: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  padding: 6px 10px;
+}
+
+.home__productHeader {
+  align-items: flex-start;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  margin-bottom: 10px;
 }
 
 .home__productName {
   color: var(--base-color5);
-  font-size: 24px;
+  font-size: clamp(25px, 4vw, 34px);
   line-height: 1.15;
-  margin: 0 0 6px;
+  margin: 0 0 8px;
   overflow-wrap: anywhere;
 }
 
@@ -194,14 +297,17 @@
 }
 
 .home__productPrice {
-  color: var(--base-color5);
-  font-size: 22px;
+  background: linear-gradient(135deg, #fff, #c9fff9);
+  background-clip: text;
+  color: transparent;
+  font-size: 20px;
   font-weight: 800;
-  margin: 0 0 10px;
+  margin: 3px 0 0;
+  white-space: nowrap;
 }
 
 .home__productDesc {
-  color: var(--base-color4);
+  color: rgb(239 231 219 / 82%);
   font-size: 14px;
   line-height: 1.55;
   margin: 0;
@@ -285,10 +391,10 @@
   backdrop-filter: blur(5px);
   background: linear-gradient(
     0deg,
-    rgb(25 0 25 / 98%) 0%,
-    rgb(25 0 25 / 88%) 100%
+    rgb(12 14 25 / 98%) 0%,
+    rgb(18 20 34 / 88%) 100%
   );
-  border-top: 1px solid rgb(223 182 130 / 15%);
+  border-top: 1px solid rgb(255 255 255 / 12%);
   display: flex;
   flex: 0 0 auto;
   flex-direction: column;
@@ -318,7 +424,7 @@
   align-items: center;
   animation: home-button-pop 0.5s ease both;
   backdrop-filter: blur(10px);
-  background: rgb(25 0 25 / 40%);
+  background: rgb(255 255 255 / 8%);
   border: 2px solid transparent;
   border-radius: 50%;
   color: var(--base-color5);
@@ -366,8 +472,7 @@
 
 .home__actionBtn:hover {
   border-color: currentcolor;
-  box-shadow: 0 15px 30px currentcolor;
-  transform: scale(1.25) translateY(-8px);
+  transform: scale(1.16) translateY(-7px);
 }
 
 .home__actionBtn:hover::before {
@@ -379,7 +484,7 @@
 }
 
 .home__actionBtn_dislike {
-  border-color: rgb(255 107 107 / 30%);
+  border-color: rgb(255 107 107 / 34%);
   color: #ff6b6b;
 }
 
@@ -389,17 +494,21 @@
 }
 
 .home__actionBtn_cart {
-  background: rgb(223 182 130 / 10%);
-  border-color: rgb(223 182 130 / 30%);
-  color: var(--base-color4);
+  background:
+    linear-gradient(145deg, rgb(0 214 201 / 22%), rgb(223 182 130 / 14%)),
+    rgb(255 255 255 / 8%);
+  border-color: rgb(0 214 201 / 36%);
+  color: #aafff8;
   font-size: 32px;
   height: 75px;
   width: 75px;
 }
 
 .home__actionBtn_cart:hover {
-  background: rgb(223 182 130 / 20%);
-  box-shadow: 0 15px 30px rgb(223 182 130 / 40%);
+  background:
+    linear-gradient(145deg, rgb(0 214 201 / 28%), rgb(223 182 130 / 18%)),
+    rgb(255 255 255 / 10%);
+  box-shadow: 0 15px 30px rgb(0 214 201 / 28%);
 }
 
 .home__actionBtn_like {
@@ -412,7 +521,7 @@
   box-shadow: 0 15px 30px rgb(81 207 102 / 40%);
 }
 
-.home__loading{
+.home__loading {
   align-items: center;
   display: flex;
   font-size: 18px;
@@ -788,8 +897,28 @@
     height: 82vh;
   }
 
-  .home__image {
+  .home__imageStage {
     height: clamp(240px, 40vh, 340px);
+  }
+
+  .home__imageStage:hover {
+    border-color: rgb(255 255 255 / 16%);
+    box-shadow:
+      0 20px 42px rgb(0 0 0 / 38%),
+      inset 0 1px 0 rgb(255 255 255 / 16%);
+    transform: none;
+  }
+
+  .home__imageStage:active {
+    border-color: rgb(0 214 201 / 34%);
+    box-shadow:
+      0 18px 38px rgb(0 0 0 / 42%),
+      0 0 0 1px rgb(0 214 201 / 14%);
+    transform: scale(0.985);
+  }
+
+  .home__imageStage:hover .home__image {
+    transform: none;
   }
 
   .home__skeletonImage {
@@ -828,9 +957,35 @@
     border-radius: var(--border-radius-md);
   }
 
-  .home__image {
+  .home__imageStage {
     aspect-ratio: 3 / 4;
     height: clamp(210px, 36vh, 300px);
+    padding: 8px;
+  }
+
+  .home__floatingBadge,
+  .home__floatingPrice {
+    min-height: 30px;
+  }
+
+  .home__floatingBadge {
+    font-size: 10px;
+    left: 16px;
+    top: 16px;
+  }
+
+  .home__floatingPrice {
+    bottom: 16px;
+    font-size: 14px;
+    right: 16px;
+  }
+
+  .home__productHeader {
+    grid-template-columns: 1fr;
+  }
+
+  .home__productPrice {
+    margin-top: 0;
   }
 
   .home__skeletonImage {

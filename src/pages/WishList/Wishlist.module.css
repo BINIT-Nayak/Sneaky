@@ -15,9 +15,8 @@
 
 .wishlist__message {
   align-items: center;
-  color: var(--base-color4);
+  color: rgb(239 231 219 / 82%);
   display: flex;
-  font-family: "Courier New", Courier, monospace;
   font-size: 1.2rem;
   font-weight: 600;
   justify-content: center;
@@ -26,10 +25,12 @@
 }
 
 .wishlist__loginBtn {
-  background: linear-gradient(135deg, var(--base-color2), var(--base-color3));
-  border: none;
+  background:
+    linear-gradient(145deg, rgb(0 214 201 / 24%), rgb(223 182 130 / 16%)),
+    rgb(255 255 255 / 8%);
+  border: 1px solid rgb(0 214 201 / 30%);
   border-radius: 50px;
-  color: var(--base-color5);
+  color: #d8fffb;
   cursor: pointer;
   display: block;
   font-size: 16px;
@@ -40,7 +41,7 @@
 }
 
 .wishlist__loginBtn:hover {
-  box-shadow: 0 10px 20px rgb(133 79 108 / 30%);
+  box-shadow: 0 14px 28px rgb(0 214 201 / 22%);
   transform: translateY(-3px);
 }
 
@@ -78,6 +79,7 @@
 }
 
 .wishlist__itemImage {
+  background: rgb(255 255 255 / 6%);
   height: 200px;
   object-fit: cover;
   width: 100%;
@@ -88,36 +90,37 @@
 }
 
 .wishlist__itemInfo h3 {
+  color: var(--base-color5);
   font-size: 16px;
   margin-bottom: 4px;
   overflow-wrap: anywhere;
 }
 
 .wishlist__category {
-  background: rgb(223 182 130 / 12%);
-  border: 1px solid rgb(223 182 130 / 18%);
+  background: rgb(0 214 201 / 12%);
+  border: 1px solid rgb(0 214 201 / 24%);
   border-radius: 999px;
-  color: var(--base-color4);
+  color: #94fff6;
   display: inline-flex;
   font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.04em;
   margin: 2px 0 6px;
   max-width: 100%;
   overflow-wrap: anywhere;
   padding: 5px 8px;
-  text-transform: uppercase;
 }
 
 .wishlist__itemInfo p {
-  color: var(--base-color4);
+  color: rgb(239 231 219 / 78%);
   font-size: 14px;
   margin-bottom: 4px;
 }
 
 .wishlist__itemPrice {
-  color: var(--base-color5);
-  font-weight: 600;
+  background: linear-gradient(135deg, #fff, #c9fff9);
+  background-clip: text;
+  color: transparent;
+  font-weight: 800;
 }
 
 .wishlist__details {
@@ -127,10 +130,10 @@
 }
 
 .wishlist__details span {
-  background: rgb(255 255 255 / 6%);
-  border: 1px solid rgb(255 255 255 / 10%);
+  background: rgb(255 255 255 / 7%);
+  border: 1px solid rgb(255 255 255 / 12%);
   border-radius: 8px;
-  color: var(--base-color4);
+  color: rgb(239 231 219 / 82%);
   font-size: 12px;
   line-height: 1.35;
   overflow-wrap: anywhere;
@@ -138,10 +141,10 @@
 }
 
 .wishlist__deleteError {
-  background: rgb(255 255 255 / 8%);
-  border: 1px solid rgb(255 255 255 / 14%);
+  background: rgb(255 119 94 / 10%);
+  border: 1px solid rgb(255 119 94 / 24%);
   border-radius: 8px;
-  color: var(--base-color4);
+  color: #ffc4b7;
   font-size: 14px;
   margin-bottom: 16px;
   padding: 10px 12px;
@@ -158,10 +161,12 @@
 .wishlist__deleteBtn,
 .wishlist__clearBtn {
   align-items: center;
-  background: linear-gradient(135deg, var(--base-color2), var(--base-color3));
-  border: none;
+  background:
+    linear-gradient(145deg, rgb(0 214 201 / 22%), rgb(223 182 130 / 14%)),
+    rgb(255 255 255 / 8%);
+  border: 1px solid rgb(0 214 201 / 28%);
   border-radius: 8px;
-  color: var(--base-color5);
+  color: #d8fffb;
   cursor: pointer;
   display: inline-flex;
   font-size: 14px;
@@ -176,11 +181,15 @@
 }
 
 .wishlist__deleteBtn {
-  background: rgb(255 255 255 / 8%);
-  color: var(--base-color4);
+  background: rgb(255 119 94 / 10%);
+  border-color: rgb(255 119 94 / 24%);
+  color: #ffc4b7;
 }
 
 .wishlist__clearBtn {
+  background: rgb(255 119 94 / 10%);
+  border-color: rgb(255 119 94 / 24%);
+  color: #ffc4b7;
   flex: 0 0 auto;
   min-height: 40px;
   padding: 0 14px;
@@ -190,6 +199,7 @@
 .wishlist__cartBtn:hover:not(:disabled),
 .wishlist__deleteBtn:hover:not(:disabled),
 .wishlist__clearBtn:hover:not(:disabled) {
+  box-shadow: 0 14px 28px rgb(0 214 201 / 16%);
   transform: translateY(-2px);
 }
 
@@ -210,7 +220,7 @@
   background: linear-gradient(
     90deg,
     rgb(255 255 255 / 6%) 0%,
-    rgb(223 182 130 / 18%) 45%,
+    rgb(0 214 201 / 16%) 45%,
     rgb(255 255 255 / 6%) 100%
   );
   background-size: 220% 100%;
