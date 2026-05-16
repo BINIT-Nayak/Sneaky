@@ -43,6 +43,7 @@ export type IWishlistItem = {
   price: number;
   imageUrl: string;
   brandName: string;
+  category?: string;
   sizes?: string[];
   colors?: SneakerColor[];
   stockStatus?: string;
@@ -59,6 +60,7 @@ export type ICartItem = {
   currency: string;
   imageUrl: string;
   brandName: string;
+  category?: string;
   quantity: number;
   itemTotal: number;
   sizes?: string[];

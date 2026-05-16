@@ -66,20 +66,35 @@ export const Home = () => {
   const [recentlyViewedIds, setRecentlyViewedIds] = useState<string[]>(() =>
     readRecentlyViewedIds(),
   );
+  const [swipedProductIds, setSwipedProductIds] = useState<string[]>([]);
   const cardRef = useRef<HTMLDivElement>(null);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
-  const currentProduct = products[currentIndex];
-  const isFinished = !productsLoading && currentIndex >= products.length;
+  const feedProducts = products.filter(
+    (product) => !swipedProductIds.includes(product.id),
+  );
+  const currentProduct = feedProducts[currentIndex];
+  const isFinished = !productsLoading && currentIndex >= feedProducts.length;
   const recentlyViewedProducts = recentlyViewedIds
     .filter((productId) => productId !== currentProduct?.id)
-    .map((productId) => products.find((product) => product.id === productId))
-    .filter((product): product is (typeof products)[number] => Boolean(product))
+    .map((productId) =>
+      products.find((product) => product.id === productId),
+    )
+    .filter(
+      (product): product is (typeof products)[number] => Boolean(product),
+    )
     .slice(0, RECENTLY_VIEWED_VISIBLE_LIMIT);
   const { onAddToCart, onDislike, onLike } = useHomeActions({
     currentProduct,
     isLoggedIn,
     onOpenAuth,
+    onProductSwiped: (product) => {
+      setSwipedProductIds((previousIds) =>
+        previousIds.includes(product.id)
+          ? previousIds
+          : [...previousIds, product.id],
+      );
+    },
     setCurrentIndex,
     setShowAnimation,
     setShowToast,
@@ -200,7 +215,7 @@ export const Home = () => {
         onLike={onLike}
         onOpenDetails={() => setIsDetailsOpen(true)}
         onOpenRecentlyViewed={(productId) => {
-          const nextIndex = products.findIndex(
+          const nextIndex = feedProducts.findIndex(
             (product) => product.id === productId,
           );
           if (nextIndex >= 0) {
@@ -208,7 +223,10 @@ export const Home = () => {
             setIsDetailsOpen(false);
           }
         }}
-        onStartOver={() => setCurrentIndex(0)}
+        onStartOver={() => {
+          setSwipedProductIds([]);
+          setCurrentIndex(0);
+        }}
         onTouchEnd={handleTouchEnd}
         onTouchStart={handleTouchStart}
         productsError={productsError}

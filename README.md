@@ -127,6 +127,12 @@ DELETE /api/wishlist
 
 `DELETE /api/wishlist` clears all wishlist items for the logged-in user.
 
+Home dislike feedback is recorded for logged-in users through:
+
+```http
+POST /api/product-analytics/products/{productId}/pass
+```
+
 ## 📸 Screenshots
 
 Add project screenshots here.
@@ -135,7 +141,7 @@ Add project screenshots here.
  - Improve animations
  - Optimize mobile responsiveness
  - Docker support
- - Track product impressions and dislikes from the home feed for sharper recommendations
+ - Track anonymous session preferences for guest recommendations
 
 ## 🐛 Issues
 

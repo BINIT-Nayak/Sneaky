@@ -74,6 +74,7 @@ describe("Wishlist", () => {
         price: 12999,
         imageUrl: "image.jpg",
         brandName: "Nike",
+        category: "Running",
         sizes: ["UK 6", "UK 7", "UK 8", "UK 9", "UK 10"],
         colors: [
           { name: "Black", value: "#17151d" },
@@ -91,6 +92,7 @@ describe("Wishlist", () => {
 
     expect(screen.getByText("Air Max")).toBeInTheDocument();
     expect(screen.getByText("Nike")).toBeInTheDocument();
+    expect(screen.getByText("Running")).toBeInTheDocument();
     expect(screen.getByText("UK 6, UK 7, UK 8, UK 9, UK 10")).toBeInTheDocument();
     expect(screen.getByText("Colors: Black, Ivory, Clay")).toBeInTheDocument();
     await waitFor(() => expect(dispatch).toHaveBeenCalled());
@@ -108,6 +110,7 @@ describe("Wishlist", () => {
         price: 12999,
         imageUrl: "image.jpg",
         brandName: "Nike",
+        category: "Running",
       },
     ]);
 
@@ -132,6 +135,7 @@ describe("Wishlist", () => {
         price: 12999,
         imageUrl: "image.jpg",
         brandName: "Nike",
+        category: "Running",
       },
       {
         productId: "product-2",
@@ -139,6 +143,7 @@ describe("Wishlist", () => {
         price: 8999,
         imageUrl: "classic.jpg",
         brandName: "New Balance",
+        category: "Lifestyle",
       },
     ]);
 

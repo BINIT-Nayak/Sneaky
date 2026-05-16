@@ -26,6 +26,7 @@ const mapWishlistItem = (item: IWishlistItem) => ({
   id: item.productId,
   name: item.name,
   brand: item.brandName,
+  category: item.category,
   price: item.price,
   image: item.imageUrl,
 });
@@ -277,6 +278,9 @@ export const Wishlist = () => {
               />
               <div className={styles.wishlist__itemInfo}>
                 <h3>{item.name}</h3>
+                {item.category ? (
+                  <p className={styles.wishlist__category}>{item.category}</p>
+                ) : null}
                 <p>{item.brand}</p>
                 <p className={styles.wishlist__itemPrice}>
                   ₹{item.price.toLocaleString()}

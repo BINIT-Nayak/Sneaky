@@ -302,6 +302,11 @@ export const Cart = () => {
                   />
                   <div className={styles.cart__itemDetails}>
                     <h3 className={styles.cart__itemTitle}>{item.name}</h3>
+                    {item.category ? (
+                      <p className={styles.cart__itemCategory}>
+                        {item.category}
+                      </p>
+                    ) : null}
                     <p className={styles.cart__itemBrand}>{item.brandName}</p>
                     <p className={styles.cart__itemPrice}>
                       ₹{item.price.toLocaleString()}

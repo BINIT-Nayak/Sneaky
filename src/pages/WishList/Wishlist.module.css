@@ -93,6 +93,22 @@
   overflow-wrap: anywhere;
 }
 
+.wishlist__category {
+  background: rgb(223 182 130 / 12%);
+  border: 1px solid rgb(223 182 130 / 18%);
+  border-radius: 999px;
+  color: var(--base-color4);
+  display: inline-flex;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  margin: 2px 0 6px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  padding: 5px 8px;
+  text-transform: uppercase;
+}
+
 .wishlist__itemInfo p {
   color: var(--base-color4);
   font-size: 14px;

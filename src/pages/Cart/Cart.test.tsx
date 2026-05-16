@@ -75,6 +75,7 @@ describe("Cart", () => {
         currency: "INR",
         imageUrl: "image.jpg",
         brandName: "Nike",
+        category: "Running",
         quantity: 2,
         itemTotal: 25998,
         sizes: ["UK 6", "UK 7", "UK 8", "UK 9", "UK 10"],
@@ -96,6 +97,7 @@ describe("Cart", () => {
     expect(screen.getByText("Subtotal (2 items)")).toBeInTheDocument();
     expect(screen.getByText("Delivery")).toBeInTheDocument();
     expect(screen.getByText("Sneaky discount")).toBeInTheDocument();
+    expect(screen.getByText("Running")).toBeInTheDocument();
     expect(screen.getByText("UK 6, UK 7, UK 8, UK 9, UK 10")).toBeInTheDocument();
     expect(screen.getByText("Colors: Black, Ivory, Clay")).toBeInTheDocument();
     expect(screen.getAllByText("₹25,998").length).toBeGreaterThan(0);
@@ -120,6 +122,7 @@ describe("Cart", () => {
         currency: "INR",
         imageUrl: "image.jpg",
         brandName: "Nike",
+        category: "Running",
         quantity: 2,
         itemTotal: 25998,
       },
@@ -147,6 +150,7 @@ describe("Cart", () => {
         currency: "INR",
         imageUrl: "image.jpg",
         brandName: "Nike",
+        category: "Running",
         quantity: 1,
         itemTotal: 12999,
       },
