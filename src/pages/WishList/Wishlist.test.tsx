@@ -98,7 +98,7 @@ describe("Wishlist", () => {
     await waitFor(() => expect(dispatch).toHaveBeenCalled());
   });
 
-  it("adds wishlist items to the cart", async () => {
+  it("moves wishlist items to the cart", async () => {
     const dispatch = jest.fn(() => ({
       unwrap: jest.fn().mockResolvedValue(undefined),
     }));
@@ -119,8 +119,8 @@ describe("Wishlist", () => {
       screen.getByRole("button", { name: /add to cart/i }),
     );
 
-    expect(screen.getByText(/moved closer to checkout/i)).toBeInTheDocument();
-    await waitFor(() => expect(dispatch).toHaveBeenCalled());
+    expect(screen.getByText(/moved to cart/i)).toBeInTheDocument();
+    await waitFor(() => expect(dispatch).toHaveBeenCalledTimes(2));
   });
 
   it("clears all wishlist items", async () => {

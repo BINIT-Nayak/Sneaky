@@ -102,10 +102,14 @@ export const Wishlist = () => {
 
     try {
       await dispatch(addCartItem({ productId, quantity: 1 })).unwrap();
-      showToastMessage(`${productName} moved closer to checkout.`);
+      await dispatch(deleteWishlistItem(productId)).unwrap();
+      showToastMessage(`${productName} moved to cart.`);
     } catch (err) {
       setDeleteError(
-        getActionErrorMessage(err, "We couldn't add this item to your cart."),
+        getActionErrorMessage(
+          err,
+          "We couldn't move this item to your cart.",
+        ),
       );
     } finally {
       setAddingProductId(null);
