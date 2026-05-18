@@ -10,6 +10,7 @@ import styles from "./Home.module.css";
 
 type HomeContentProps = {
   cardRef: RefObject<HTMLDivElement | null>;
+  isAdmin?: boolean;
   currentProduct: Product | undefined;
   isFinished: boolean;
   onAddToCart: () => void;
@@ -25,6 +26,7 @@ type HomeContentProps = {
 
 export const HomeContent: FC<HomeContentProps> = ({
   cardRef,
+  isAdmin,
   currentProduct,
   isFinished,
   onAddToCart,
@@ -108,6 +110,17 @@ export const HomeContent: FC<HomeContentProps> = ({
             ✦ See Details ✦
           </Button>
         </div>
+
+        {isAdmin && (
+          <div className={styles.home__adminActions}>
+            <Button 
+              variant={ButtonVariant.DEFAULT} 
+              onClick={() => console.log("Edit product:", currentProduct.id)}
+            >
+              Admin: Edit Product
+            </Button>
+          </div>
+        )}
 
         <div className={styles.home__controls__actions}>
           <button

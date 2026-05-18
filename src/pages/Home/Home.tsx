@@ -16,7 +16,7 @@ import { useHomeActions } from "./useHomeActions";
 
 export const Home = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { isLoggedIn, onOpenAuth } = useContext(AuthContext);
+  const { isLoggedIn, onOpenAuth, user } = useContext(AuthContext);
   const isMobile = useIsMobile();
   const isTablet = useIsTablet();
 
@@ -34,6 +34,7 @@ export const Home = () => {
   const cardRef = useRef<HTMLDivElement>(null);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
+  const isAdmin = user?.role?.toLowerCase() === "admin";
   const currentProduct = products[currentIndex];
   const isFinished = currentIndex >= products.length;
   const { onAddToCart, onDislike, onLike } = useHomeActions({
@@ -137,6 +138,7 @@ export const Home = () => {
       <HomeContent
         cardRef={cardRef}
         currentProduct={currentProduct}
+        isAdmin={isAdmin}
         isFinished={isFinished}
         onAddToCart={onAddToCart}
         onDislike={onDislike}
