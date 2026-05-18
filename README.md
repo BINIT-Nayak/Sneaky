@@ -84,7 +84,9 @@ Make sure you have installed:
 
 - Node.js (v18+ recommended)
 - npm or yarn
+- redux
 - Git
+
 
 ▶️ Running the Project
 
@@ -94,18 +96,11 @@ Start the development server:
 npm run dev
 ```
 
-## 📸 Screenshots
-
-Add project screenshots here.
 
 ## Roadmap
  - Improve animations
  - Optimize mobile responsiveness
  - Docker support
-
-## 🐛 Issues
-
-If you find a bug or want to request a feature, please reach out to me in linkedin: https://www.linkedin.com/in/binitnayak2002/
 
 ## ⭐ Support
 
