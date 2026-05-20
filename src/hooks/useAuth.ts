@@ -75,11 +75,16 @@ export const useAuth = () => {
 
   const loadCurrentUser = useCallback(async () => {
     const currentUser = await userApi.getMe();
-    setUser(currentUser);
-    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(currentUser));
+    const nextUser = {
+      ...currentUser,
+      role: currentUser.role ?? user?.role,
+    };
+
+    setUser(nextUser);
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(nextUser));
     dispatch(sneakyStateActions.setIsLoggedIn(true));
-    return currentUser;
-  }, [dispatch]);
+    return nextUser;
+  }, [dispatch, user?.role]);
 
   useEffect(() => {
     if (!initialIsLoggedIn) return;
@@ -109,7 +114,13 @@ export const useAuth = () => {
           authResponse.refreshToken,
         );
         const currentUser = await userApi.getMe();
-        saveAuthSession(currentUser, authResponse);
+        saveAuthSession(
+          {
+            ...currentUser,
+            role: authResponse.role ?? currentUser.role,
+          },
+          authResponse,
+        );
       } catch (err) {
         clearAuthSession();
         setAuthError(
@@ -142,7 +153,13 @@ export const useAuth = () => {
           authResponse.refreshToken,
         );
         const currentUser = await userApi.getMe();
-        saveAuthSession(currentUser, authResponse);
+        saveAuthSession(
+          {
+            ...currentUser,
+            role: authResponse.role ?? currentUser.role,
+          },
+          authResponse,
+        );
       } catch (err) {
         clearAuthSession();
         setAuthError(

@@ -10,6 +10,10 @@ type RequestOptions = Omit<RequestInit, "body"> & {
 export type AuthResponse = {
   accessToken: string;
   refreshToken: string;
+  userId?: string;
+  name?: string;
+  email?: string;
+  role?: string;
 };
 
 export type RefreshResponse = {

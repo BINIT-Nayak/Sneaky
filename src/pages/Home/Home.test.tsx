@@ -54,7 +54,7 @@ const renderHome = (isLoggedIn = true, onOpenAuth = jest.fn()) =>
         onLogout: jest.fn(),
         onUserUpdate: jest.fn(),
         user: isLoggedIn
-          ? { userId: "user-1", email: "mina@example.com", name: "Mina" }
+          ? { userId: "user-1", email: "mina@example.com", name: "Mina", role: "user" }
           : null,
       }}
     >
@@ -124,7 +124,7 @@ describe("Home", () => {
           onOpenAuth: jest.fn(),
           onLogout: jest.fn(),
           onUserUpdate: jest.fn(),
-          user: { userId: "user-1", email: "mina@example.com", name: "Mina" },
+          user: { userId: "user-1", email: "mina@example.com", name: "Mina", role: "user" },
         }}
       >
         <Home />
