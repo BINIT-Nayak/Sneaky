@@ -170,7 +170,9 @@ export const HomeContent: FC<HomeContentProps> = ({
             loading="lazy"
           />
           <div className={styles.home__imageGlow} aria-hidden="true" />
-          <div className={styles.home__floatingBadge}>Recommended</div>
+          {currentProduct.recommended ? (
+            <div className={styles.home__floatingBadge}>Recommended</div>
+          ) : null}
           <div className={styles.home__floatingPrice}>
             ₹{currentProduct.price.toLocaleString()}
           </div>

@@ -32,6 +32,7 @@ export interface Product {
   sizes?: string[];
   colors?: SneakerColor[];
   stockStatus?: string;
+  recommended?: boolean;
 }
 
 export type SneakerColor = {
