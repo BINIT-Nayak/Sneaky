@@ -1,11 +1,12 @@
-import { useMemo } from "react";
-import { Routes, Route } from "react-router-dom";
+import { useEffect, useMemo, useRef } from "react";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 
 import { AuthEntryLoginButton } from "./components/AuthEntryLoginButton/AuthEntryLoginButton";
 import { ResponsiveNav } from "./components/ResponsiveNav/ResponsiveNav";
 import { AuthContext } from "./context/AuthContext";
 import { useAuth } from "./hooks/useAuth";
 import styles from "./index.module.css";
+import { Admin } from "./pages/Admin/Admin";
 import { AuthModal } from "./pages/Auth/AuthModal";
 import { Cart } from "./pages/Cart/Cart";
 import { Home } from "./pages/Home/Home";
@@ -13,8 +14,12 @@ import { LandingPage } from "./pages/LandingPage/LandingPage";
 import { Profile } from "./pages/Profile/Profile";
 import { Wishlist } from "./pages/WishList/Wishlist";
 import { useSneakyStateSlice } from "./store/sneakyState/sneakySelectors";
+import { isAdminRole } from "./utils/roles";
 
 export const App = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const wasLoggedIn = useRef(false);
   const {
     isLoggedIn,
     user,
@@ -29,6 +34,21 @@ export const App = () => {
   } = useAuth();
 
   const isAuthModalOpen = useSneakyStateSlice.getIsAuthModalOpen();
+  const isAdmin = isAdminRole(user?.role);
+
+  useEffect(() => {
+    if (isLoggedIn && isAdmin && !wasLoggedIn.current) {
+      navigate("/admin", { replace: true });
+    }
+
+    wasLoggedIn.current = isLoggedIn;
+  }, [isAdmin, isLoggedIn, navigate]);
+
+  useEffect(() => {
+    if (isLoggedIn && isAdmin && location.pathname === "/profile") {
+      navigate("/admin", { replace: true });
+    }
+  }, [isAdmin, isLoggedIn, location.pathname, navigate]);
 
   const contextValue = useMemo(
     () => ({
@@ -58,6 +78,7 @@ export const App = () => {
               <Route path="/wishlist" element={<Wishlist />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/admin" element={<Admin />} />
             </Routes>
           </div>
         </main>

@@ -77,14 +77,14 @@ export const useAuth = () => {
     const currentUser = await userApi.getMe();
     const nextUser = {
       ...currentUser,
-      role: currentUser.role ?? user?.role,
+      role: currentUser.role,
     };
 
     setUser(nextUser);
     localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(nextUser));
     dispatch(sneakyStateActions.setIsLoggedIn(true));
     return nextUser;
-  }, [dispatch, user?.role]);
+  }, [dispatch]);
 
   useEffect(() => {
     if (!initialIsLoggedIn) return;
