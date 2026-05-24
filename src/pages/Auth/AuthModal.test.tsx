@@ -23,6 +23,21 @@ const setup = () => {
 };
 
 describe("AuthModal", () => {
+  it("toggles password visibility", async () => {
+    const { user } = setup();
+    const passwordInput = screen.getByLabelText("Password");
+
+    expect(passwordInput).toHaveAttribute("type", "password");
+
+    await user.click(screen.getByRole("button", { name: "Show password" }));
+
+    expect(passwordInput).toHaveAttribute("type", "text");
+
+    await user.click(screen.getByRole("button", { name: "Hide password" }));
+
+    expect(passwordInput).toHaveAttribute("type", "password");
+  });
+
   it("rejects weak passwords during sign up before calling the API handler", async () => {
     const { onSignUp, user } = setup();
 

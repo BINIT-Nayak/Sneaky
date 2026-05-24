@@ -1,7 +1,8 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 
-import { FiShoppingBag, FiTrash2 } from "react-icons/fi";
+import { FiHeart, FiShoppingBag, FiTrash2 } from "react-icons/fi";
+import { Link } from "react-router-dom";
 
 import bellIcon from "../../assets/bell.png";
 import emptyList from "../../assets/emptyList.png";
@@ -166,11 +167,19 @@ export const Wishlist = () => {
           <img
             className={styles.wishlist__icon}
             src={emptyList}
-            alt="Empty list icon"
+            alt=""
+            aria-hidden="true"
           />
-          <div className={styles.wishlist__message}>
-            Your wishlist is waiting. Log in to continue.
-          </div>
+          <FiHeart
+            className={styles.wishlist__emptySymbol}
+            aria-hidden="true"
+          />
+          <h2 className={styles.wishlist__emptyTitle}>
+            Your wishlist is waiting
+          </h2>
+          <p className={styles.wishlist__message}>
+            Log in to continue saving the pairs you like.
+          </p>
           <button className={styles.wishlist__loginBtn} onClick={onOpenAuth}>
             Sign In
           </button>
@@ -221,9 +230,17 @@ export const Wishlist = () => {
           <img
             className={styles.wishlist__icon}
             src={bellIcon}
-            alt="Wishlist error"
+            alt=""
+            aria-hidden="true"
           />
-          <div className={styles.wishlist__message}>{wishlistError}</div>
+          <FiHeart
+            className={styles.wishlist__emptySymbol}
+            aria-hidden="true"
+          />
+          <h2 className={styles.wishlist__emptyTitle}>
+            Wishlist could not load
+          </h2>
+          <p className={styles.wishlist__message}>{wishlistError}</p>
         </div>
       </div>
     );
@@ -237,12 +254,21 @@ export const Wishlist = () => {
           <img
             className={styles.wishlist__icon}
             src={bellIcon}
-            alt="Bell icon"
+            alt=""
+            aria-hidden="true"
           />
-          <div className={styles.wishlist__message}>
+          <FiHeart
+            className={styles.wishlist__emptySymbol}
+            aria-hidden="true"
+          />
+          <h2 className={styles.wishlist__emptyTitle}>Nothing saved yet</h2>
+          <p className={styles.wishlist__message}>
             Your wishlist is empty—for now. Start liking products to save them
             here
-          </div>
+          </p>
+          <Link className={styles.wishlist__browseBtn} to="/">
+            Browse Products
+          </Link>
         </div>
       </div>
     );

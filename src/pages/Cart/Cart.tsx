@@ -13,8 +13,10 @@ import {
   FiMinus,
   FiPlus,
   FiShoppingBag,
+  FiShoppingCart,
   FiTrash2,
 } from "react-icons/fi";
+import { Link } from "react-router-dom";
 
 import emptyCart from "../../assets/emptyList.png";
 import { Toast } from "../../components/Toast/Toast";
@@ -219,10 +221,20 @@ export const Cart = () => {
     return (
       <div className={styles.cartContainer}>
         <div className={styles.cartEmpty}>
-          <img className={styles.cart__icon} src={emptyCart} alt="Empty cart" />
-          <div className={styles.cart__message}>
-            Please log in to view your cart
-          </div>
+          <img
+            className={styles.cart__icon}
+            src={emptyCart}
+            alt=""
+            aria-hidden="true"
+          />
+          <FiShoppingCart
+            className={styles.cart__emptySymbol}
+            aria-hidden="true"
+          />
+          <h2 className={styles.cart__emptyTitle}>Your cart is waiting</h2>
+          <p className={styles.cart__message}>
+            Please log in to view your cart and keep your sneaker picks synced.
+          </p>
           <button className={styles.cart__loginBtn} onClick={onOpenAuth}>
             Sign In
           </button>
@@ -294,8 +306,18 @@ export const Cart = () => {
     return (
       <div className={styles.cartContainer}>
         <div className={styles.cartEmpty}>
-          <img className={styles.cart__icon} src={emptyCart} alt="Cart error" />
-          <div className={styles.cart__message}>{cartError}</div>
+          <img
+            className={styles.cart__icon}
+            src={emptyCart}
+            alt=""
+            aria-hidden="true"
+          />
+          <FiShoppingCart
+            className={styles.cart__emptySymbol}
+            aria-hidden="true"
+          />
+          <h2 className={styles.cart__emptyTitle}>Cart could not load</h2>
+          <p className={styles.cart__message}>{cartError}</p>
         </div>
       </div>
     );
@@ -305,10 +327,23 @@ export const Cart = () => {
     return (
       <div className={styles.cartContainer}>
         <div className={styles.cartEmpty}>
-          <img className={styles.cart__icon} src={emptyCart} alt="Empty cart" />
-          <div className={styles.cart__message}>
-            Your cart is empty. Start swiping to add items!
-          </div>
+          <img
+            className={styles.cart__icon}
+            src={emptyCart}
+            alt=""
+            aria-hidden="true"
+          />
+          <FiShoppingCart
+            className={styles.cart__emptySymbol}
+            aria-hidden="true"
+          />
+          <h2 className={styles.cart__emptyTitle}>Your cart is empty</h2>
+          <p className={styles.cart__message}>
+            Add a pair when one feels checkout-worthy.
+          </p>
+          <Link className={styles.cart__browseBtn} to="/">
+            Browse Products
+          </Link>
         </div>
       </div>
     );

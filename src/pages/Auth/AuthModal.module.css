@@ -123,6 +123,46 @@
   transform: translateY(-2px);
 }
 
+.authModal__passwordField {
+  position: relative;
+}
+
+.authModal__passwordField input {
+  padding-right: 52px;
+  width: 100%;
+}
+
+.authModal__passwordToggle {
+  align-items: center;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: var(--base-color3);
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 20px;
+  height: 38px;
+  justify-content: center;
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+  width: 38px;
+}
+
+.authModal__passwordToggle:hover {
+  background: rgb(133 79 108 / 12%);
+  color: var(--base-color2);
+}
+
+.authModal__passwordToggle:focus-visible {
+  outline: 2px solid var(--base-color3);
+  outline-offset: 2px;
+}
+
 .authModal__field input::placeholder {
   color: var(--base-color3);
   opacity: 0.5;
