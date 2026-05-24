@@ -9,6 +9,7 @@ import { useIsMobile, useIsTablet } from "../../hooks/useGetDeviceType";
 import { fetchProducts } from "../../store/fetchAPI/fetchProducts";
 import { useSneakyStateSlice } from "../../store/sneakyState/sneakySelectors";
 import type { AppDispatch } from "../../store/sneakyStore";
+import { isAdminRole } from "../../utils/roles";
 
 import styles from "./Home.module.css";
 import { HomeContent } from "./HomeContent";
@@ -34,7 +35,7 @@ export const Home = () => {
   const cardRef = useRef<HTMLDivElement>(null);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
-  const isAdmin = user?.role?.toLowerCase() === "admin";
+  const isAdmin = isAdminRole(user?.role);
   const currentProduct = products[currentIndex];
   const isFinished = currentIndex >= products.length;
   const { onAddToCart, onDislike, onLike } = useHomeActions({
