@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 
+import bellIcon from "./assets/bell.png";
+import emptyList from "./assets/emptyList.png";
 import { AuthEntryLoginButton } from "./components/AuthEntryLoginButton/AuthEntryLoginButton";
 import { ResponsiveNav } from "./components/ResponsiveNav/ResponsiveNav";
 import { AuthContext } from "./context/AuthContext";
@@ -64,6 +66,11 @@ export const App = () => {
   return (
     <AuthContext.Provider value={contextValue}>
       <div className={styles.app}>
+        <div className={styles.app__assetPreloader} aria-hidden="true">
+          <img src={bellIcon} alt="" decoding="async" />
+          <img src={emptyList} alt="" decoding="async" />
+        </div>
+
         <ResponsiveNav />
 
         <main className={styles.app__main}>

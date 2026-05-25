@@ -8,10 +8,10 @@ import bellIcon from "../../assets/bell.png";
 import emptyList from "../../assets/emptyList.png";
 import { Toast } from "../../components/Toast/Toast";
 import { AuthContext } from "../../context/AuthContext";
-import { addCartItem } from "../../store/fetchAPI/addCartItem";
 import { clearWishlistItems } from "../../store/fetchAPI/clearWishlistItems";
 import { deleteWishlistItem } from "../../store/fetchAPI/deleteWishlistItem";
 import { fetchWishlist } from "../../store/fetchAPI/fetchWishlist";
+import { moveWishlistItemToCart } from "../../store/fetchAPI/moveWishlistItemToCart";
 import { useSneakyStateSlice } from "../../store/sneakyState/sneakySelectors";
 import type { AppDispatch } from "../../store/sneakyStore";
 import type { IWishlistItem } from "../../store/types";
@@ -102,8 +102,7 @@ export const Wishlist = () => {
     setDeleteError(null);
 
     try {
-      await dispatch(addCartItem({ productId, quantity: 1 })).unwrap();
-      await dispatch(deleteWishlistItem(productId)).unwrap();
+      await dispatch(moveWishlistItemToCart(productId)).unwrap();
       showToastMessage(`${productName} moved to cart.`);
     } catch (err) {
       setDeleteError(

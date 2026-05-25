@@ -319,13 +319,12 @@
 }
 
 .admin__emptyState {
-  align-items: center;
   display: grid;
   gap: 12px;
-  justify-items: center;
   margin: auto;
   max-width: 420px;
   padding: 40px;
+  place-items: center;
   text-align: center;
 }
 

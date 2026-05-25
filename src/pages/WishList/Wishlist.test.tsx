@@ -120,7 +120,7 @@ describe("Wishlist", () => {
     );
 
     expect(screen.getByText(/moved to cart/i)).toBeInTheDocument();
-    await waitFor(() => expect(dispatch).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(dispatch).toHaveBeenCalledTimes(1));
   });
 
   it("clears all wishlist items", async () => {

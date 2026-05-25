@@ -106,6 +106,24 @@
   z-index: 0;
 }
 
+.app__assetPreloader {
+  height: 1px;
+  left: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  width: 1px;
+  z-index: -1;
+}
+
+.app__assetPreloader img {
+  display: block;
+  height: 1px;
+  width: 1px;
+}
+
 .app__main {
   display: flex;
   flex-direction: column;

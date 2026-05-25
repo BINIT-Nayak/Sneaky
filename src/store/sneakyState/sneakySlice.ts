@@ -11,6 +11,7 @@ import { deleteWishlistItem } from "../fetchAPI/deleteWishlistItem";
 import { fetchCart } from "../fetchAPI/fetchCart";
 import { fetchProducts } from "../fetchAPI/fetchProducts";
 import { fetchWishlist } from "../fetchAPI/fetchWishlist";
+import { moveWishlistItemToCart } from "../fetchAPI/moveWishlistItemToCart";
 import { updateCartQuantity } from "../fetchAPI/updateCartQuantity";
 import type { UIStateProps } from "../types";
 
@@ -103,6 +104,23 @@ export const sneakySlice = createSlice({
       })
       .addCase(clearWishlistItems.fulfilled, (state) => {
         state.wishlist = [];
+      })
+      .addCase(moveWishlistItemToCart.fulfilled, (state, action) => {
+        const { cartItem, productId } = action.payload;
+        const index = state.cart.findIndex(
+          (item) => item.productId === cartItem.productId,
+        );
+
+        state.wishlist = state.wishlist.filter(
+          (item) => item.productId !== productId,
+        );
+
+        if (index >= 0) {
+          state.cart.splice(index, 1);
+        }
+
+        state.cart.unshift(cartItem);
+        state.cartStatus = "succeeded";
       })
 
       .addCase(fetchCart.pending, (state) => {
