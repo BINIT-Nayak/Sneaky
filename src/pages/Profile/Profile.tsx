@@ -12,6 +12,7 @@ import {
   FiSave,
   FiX,
 } from "react-icons/fi";
+import { Navigate } from "react-router-dom";
 
 import { AuthContext } from "../../context/AuthContext";
 import { userApi } from "../../services/userAPI";
@@ -25,6 +26,7 @@ import {
   isStrongPassword,
   PASSWORD_REQUIREMENT_MESSAGE,
 } from "../../utils/passwordValidation";
+import { isAdminRole } from "../../utils/roles";
 
 import styles from "./Profile.module.css";
 
@@ -47,6 +49,7 @@ export const Profile: FC = () => {
   const wishlistStatus = useSneakyStateSlice.getWishlistStatus();
   const wishlistLoading = useSneakyStateSlice.getWishlistLoading();
   const wishlistError = useSneakyStateSlice.getWishlistError();
+  const isAdmin = isAdminRole(user?.role);
 
   useEffect(() => {
     if (!isLoggedIn || cartStatus !== "idle") return;
@@ -169,6 +172,10 @@ export const Profile: FC = () => {
         </div>
       </div>
     );
+  }
+
+  if (isAdmin) {
+    return <Navigate to="/admin" replace />;
   }
 
   return (

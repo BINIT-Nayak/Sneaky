@@ -1,5 +1,6 @@
 export type AuthResponse = {
   accessToken: string;
+  role?: string;
 };
 
 export type RefreshResponse = {

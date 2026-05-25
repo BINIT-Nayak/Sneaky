@@ -5,6 +5,7 @@ export interface UserType {
   name?: string;
   email: string;
   isGuest?: boolean;
+  role?: string;
 }
 
 export interface AuthContextType {

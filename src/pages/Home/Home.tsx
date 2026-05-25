@@ -9,6 +9,7 @@ import { useIsMobile, useIsTablet } from "../../hooks/useGetDeviceType";
 import { fetchProducts } from "../../store/fetchAPI/fetchProducts";
 import { useSneakyStateSlice } from "../../store/sneakyState/sneakySelectors";
 import type { AppDispatch } from "../../store/sneakyStore";
+import { isAdminRole } from "../../utils/roles";
 
 import styles from "./Home.module.css";
 import { HomeContent } from "./HomeContent";
@@ -17,7 +18,7 @@ import { useHomeActions } from "./useHomeActions";
 
 export const Home = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { isLoggedIn, onOpenAuth } = useContext(AuthContext);
+  const { isLoggedIn, onOpenAuth, user } = useContext(AuthContext);
   const isMobile = useIsMobile();
   const isTablet = useIsTablet();
 
@@ -35,6 +36,7 @@ export const Home = () => {
   const cardRef = useRef<HTMLDivElement>(null);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
+  const isAdmin = isAdminRole(user?.role);
   const currentProduct = products[currentIndex];
   const isFinished = currentIndex >= products.length;
   const { onAddToCart, onDislike, onLike } = useHomeActions({
@@ -138,6 +140,7 @@ export const Home = () => {
       <HomeContent
         cardRef={cardRef}
         currentProduct={currentProduct}
+        isAdmin={isAdmin}
         isFinished={isFinished}
         onAddToCart={onAddToCart}
         onDislike={onDislike}

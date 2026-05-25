@@ -71,10 +71,15 @@ export const useAuth = () => {
     const authResponse = await authApi.refresh();
     setAccessToken(authResponse.accessToken);
     const currentUser = await userApi.getMe();
-    setUser(currentUser);
-    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(currentUser));
+    const nextUser = {
+      ...currentUser,
+      role: currentUser.role,
+    };
+
+    setUser(nextUser);
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(nextUser));
     dispatch(sneakyStateActions.setIsLoggedIn(true));
-    return currentUser;
+    return nextUser;
   }, [dispatch]);
 
   useEffect(() => {
@@ -114,7 +119,13 @@ export const useAuth = () => {
         const authResponse = await authApi.login({ email, password });
         setAccessToken(authResponse.accessToken);
         const currentUser = await userApi.getMe();
-        saveAuthSession(currentUser, authResponse);
+        saveAuthSession(
+          {
+            ...currentUser,
+            role: authResponse.role ?? currentUser.role,
+          },
+          authResponse,
+        );
       } catch (err) {
         clearAuthSession();
         setAuthError(
@@ -140,7 +151,13 @@ export const useAuth = () => {
         const authResponse = await authApi.signUp({ name, email, password });
         setAccessToken(authResponse.accessToken);
         const currentUser = await userApi.getMe();
-        saveAuthSession(currentUser, authResponse);
+        saveAuthSession(
+          {
+            ...currentUser,
+            role: authResponse.role ?? currentUser.role,
+          },
+          authResponse,
+        );
       } catch (err) {
         clearAuthSession();
         setAuthError(
