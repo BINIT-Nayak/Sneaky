@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import type { FC, RefObject, TouchEventHandler } from "react";
 
 import { Button } from "../../components/Button/Button";
@@ -5,6 +6,10 @@ import { ButtonVariant } from "../../components/Button/type";
 import { SwipeButton } from "../../components/SwipeButton/SwipeButton";
 import { SwipeButtonType } from "../../components/SwipeButton/type";
 import type { Product } from "../../store/types";
+import {
+  getSneakerDetails,
+  UNIQUE_PRODUCT_MESSAGE,
+} from "../../utils/productDetails";
 
 import styles from "./Home.module.css";
 
@@ -13,13 +18,19 @@ type HomeContentProps = {
   isAdmin?: boolean;
   currentProduct: Product | undefined;
   isFinished: boolean;
+  isLoading: boolean;
+  isDetailsOpen: boolean;
   onAddToCart: () => void;
+  onCloseDetails: () => void;
   onDislike: () => void;
   onLike: () => void;
+  onOpenDetails: () => void;
+  onOpenRecentlyViewed: (productId: string) => void;
   onStartOver: () => void;
   onTouchEnd: TouchEventHandler<HTMLDivElement>;
   onTouchStart: TouchEventHandler<HTMLDivElement>;
   productsError: string | null;
+  recentlyViewedProducts: Product[];
   showAnimation: boolean;
   swipeDirection: "left" | "right" | null;
 };
@@ -29,16 +40,88 @@ export const HomeContent: FC<HomeContentProps> = ({
   isAdmin,
   currentProduct,
   isFinished,
+  isLoading,
+  isDetailsOpen,
   onAddToCart,
+  onCloseDetails,
   onDislike,
   onLike,
+  onOpenDetails,
+  onOpenRecentlyViewed,
   onStartOver,
   onTouchEnd,
   onTouchStart,
   productsError,
+  recentlyViewedProducts,
   showAnimation,
   swipeDirection,
 }) => {
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
+  const [selectionProductId, setSelectionProductId] = useState<string | null>(
+    null,
+  );
+  const sneakerDetails = useMemo(
+    () => getSneakerDetails(currentProduct),
+    [currentProduct],
+  );
+  const defaultSize = sneakerDetails.sizes[2] ?? sneakerDetails.sizes[0] ?? "";
+  const defaultColor = sneakerDetails.colors[0]?.name ?? "";
+  const currentSelectedSize =
+    selectionProductId === currentProduct?.id
+      ? selectedSize
+      : defaultSize;
+  const currentSelectedColor =
+    selectionProductId === currentProduct?.id
+      ? selectedColor
+      : defaultColor;
+
+  if (isLoading) {
+    return (
+      <div className={styles.home__card} aria-label="Loading products">
+        <div className={styles.home__feed}>
+          <div
+            className={`${styles.home__skeleton} ${styles.home__skeletonImage}`}
+          />
+          <div className={styles.home__productInfo}>
+            <div
+              className={`${styles.home__skeleton} ${styles.home__skeletonTitle}`}
+            />
+            <div
+              className={`${styles.home__skeleton} ${styles.home__skeletonText}`}
+            />
+            <div
+              className={`${styles.home__skeleton} ${styles.home__skeletonPrice}`}
+            />
+            <div
+              className={`${styles.home__skeleton} ${styles.home__skeletonLine}`}
+            />
+            <div
+              className={`${styles.home__skeleton} ${styles.home__skeletonLineShort}`}
+            />
+          </div>
+        </div>
+
+        <div className={styles.home__controls}>
+          <div
+            className={`${styles.home__skeleton} ${styles.home__skeletonDetail}`}
+          />
+          <div className={styles.home__controls__actions}>
+            <div
+              className={`${styles.home__skeleton} ${styles.home__skeletonAction}`}
+            />
+            <div
+              className={`${styles.home__skeleton} ${styles.home__skeletonActionLarge}`}
+            />
+            <div
+              className={`${styles.home__skeleton} ${styles.home__skeletonAction}`}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (productsError) {
     return (
       <div className={styles.home__card}>
@@ -81,22 +164,76 @@ export const HomeContent: FC<HomeContentProps> = ({
       onTouchEnd={onTouchEnd}
     >
       <div className={styles.home__feed}>
-        <img
-          src={currentProduct.image}
-          alt={currentProduct.name}
-          className={styles.home__image}
-          loading="lazy"
-        />
+        <div className={styles.home__imageStage}>
+          <img
+            src={currentProduct.image}
+            alt={currentProduct.name}
+            className={styles.home__image}
+            loading="lazy"
+          />
+          <div className={styles.home__imageGlow} aria-hidden="true" />
+          {currentProduct.recommended ? (
+            <div className={styles.home__floatingBadge}>Recommended</div>
+          ) : null}
+          <div className={styles.home__floatingPrice}>
+            ₹{currentProduct.price.toLocaleString()}
+          </div>
+        </div>
 
         <div className={styles.home__productInfo}>
-          <h3 className={styles.home__productName}>{currentProduct.name}</h3>
-          <p className={styles.home__productBrand}>{currentProduct.brand}</p>
-          <p className={styles.home__productPrice}>
-            ₹{currentProduct.price.toLocaleString()}
-          </p>
+          <div className={styles.home__productTopline}>
+            {currentProduct.category ? (
+              <p className={styles.home__productCategory}>
+                {currentProduct.category}
+              </p>
+            ) : null}
+            {currentProduct.merchantName ? (
+              <p className={styles.home__productMerchant}>
+                {currentProduct.merchantName}
+              </p>
+            ) : null}
+          </div>
+          <div className={styles.home__productHeader}>
+            <div>
+              <h3 className={styles.home__productName}>
+                {currentProduct.name}
+              </h3>
+              <p className={styles.home__productBrand}>
+                {currentProduct.brand}
+              </p>
+            </div>
+            <p className={styles.home__productPrice}>
+              ₹{currentProduct.price.toLocaleString()}
+            </p>
+          </div>
           <p className={styles.home__productDesc}>
             {currentProduct.description}
           </p>
+
+          {recentlyViewedProducts.length > 0 ? (
+            <section
+              className={styles.home__recent}
+              aria-label="Recently viewed sneakers"
+            >
+              <div className={styles.home__recentHeader}>
+                <h4>Recently Viewed</h4>
+                <span>{recentlyViewedProducts.length}</span>
+              </div>
+              <div className={styles.home__recentList}>
+                {recentlyViewedProducts.map((product) => (
+                  <button
+                    key={product.id}
+                    className={styles.home__recentItem}
+                    type="button"
+                    onClick={() => onOpenRecentlyViewed(product.id)}
+                  >
+                    <img src={product.image} alt="" aria-hidden="true" />
+                    <span>{product.name}</span>
+                  </button>
+                ))}
+              </div>
+            </section>
+          ) : null}
         </div>
       </div>
 
@@ -106,6 +243,7 @@ export const HomeContent: FC<HomeContentProps> = ({
             variant={ButtonVariant.NEUMORPHIC}
             style={{ maxWidth: "280px", width: "100%" }}
             glow
+            onClick={onOpenDetails}
           >
             ✦ See Details ✦
           </Button>
@@ -146,6 +284,141 @@ export const HomeContent: FC<HomeContentProps> = ({
           </button>
         </div>
       </div>
+
+      {isDetailsOpen ? (
+        <div
+          className={styles.home__detailsOverlay}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="product-details-title"
+          onClick={onCloseDetails}
+        >
+          <div
+            className={styles.home__details}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              className={styles.home__detailsClose}
+              type="button"
+              onClick={onCloseDetails}
+              aria-label="Close product details"
+            >
+              ×
+            </button>
+            <img
+              src={currentProduct.image}
+              alt={currentProduct.name}
+              className={styles.home__detailsImage}
+            />
+            <div className={styles.home__detailsContent}>
+              <p className={styles.home__detailsCategory}>
+                {currentProduct.category}
+              </p>
+              <h2 id="product-details-title">{currentProduct.name}</h2>
+              <p className={styles.home__detailsBrand}>
+                {currentProduct.brand}
+              </p>
+              <p className={styles.home__detailsPrice}>
+                ₹{currentProduct.price.toLocaleString()}
+              </p>
+              <p className={styles.home__detailsDescription}>
+                {currentProduct.description}
+              </p>
+              <div className={styles.home__detailsMerchant}>
+                <span>Partner</span>
+                {currentProduct.merchantUrl ? (
+                  <a
+                    href={currentProduct.merchantUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {currentProduct.merchantName || "Partner Store"}
+                  </a>
+                ) : (
+                  <strong>{currentProduct.merchantName || "Partner Store"}</strong>
+                )}
+              </div>
+              <div className={styles.home__detailsMeta}>
+                {sneakerDetails.stockStatus ? (
+                  <span>{sneakerDetails.stockStatus}</span>
+                ) : null}
+                {sneakerDetails.isUnique ? (
+                  <span>{UNIQUE_PRODUCT_MESSAGE}</span>
+                ) : (
+                  <span>Selected: {currentSelectedSize}</span>
+                )}
+              </div>
+              {!sneakerDetails.isUnique ? (
+                <>
+                  <div className={styles.home__optionGroup}>
+                    <h3>Size</h3>
+                    <div className={styles.home__sizeGrid}>
+                      {sneakerDetails.sizes.map((size) => (
+                        <button
+                          key={size}
+                          className={`${styles.home__sizeBtn} ${
+                            currentSelectedSize === size
+                              ? styles.home__sizeBtn_active
+                              : ""
+                          }`}
+                          type="button"
+                          aria-pressed={currentSelectedSize === size}
+                          onClick={() => {
+                            setSelectionProductId(currentProduct.id);
+                            setSelectedSize(size);
+                          }}
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className={styles.home__optionGroup}>
+                    <h3>Color</h3>
+                    <div className={styles.home__colorGrid}>
+                      {sneakerDetails.colors.map((color) => (
+                        <button
+                          key={color.name}
+                          className={`${styles.home__colorBtn} ${
+                            currentSelectedColor === color.name
+                              ? styles.home__colorBtn_active
+                              : ""
+                          }`}
+                          type="button"
+                          aria-label={color.name}
+                          aria-pressed={currentSelectedColor === color.name}
+                          onClick={() => {
+                            setSelectionProductId(currentProduct.id);
+                            setSelectedColor(color.name);
+                          }}
+                        >
+                          <span style={{ backgroundColor: color.value }} />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              ) : null}
+              <div className={styles.home__detailsActions}>
+                <Button
+                  variant={ButtonVariant.NEUMORPHIC}
+                  onClick={onLike}
+                  glow
+                >
+                  Save to Wishlist
+                </Button>
+                <Button
+                  variant={ButtonVariant.DEFAULT}
+                  onClick={onAddToCart}
+                  glow
+                >
+                  Add to Cart
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 };

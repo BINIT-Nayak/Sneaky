@@ -4,6 +4,8 @@ import { useDispatch } from "react-redux";
 
 import { addCartItem } from "../../store/fetchAPI/addCartItem";
 import { addWishlistItem } from "../../store/fetchAPI/addWishlistItem";
+import { fetchProducts } from "../../store/fetchAPI/fetchProducts";
+import { recordProductPass } from "../../store/fetchAPI/recordProductPass";
 import type { AppDispatch } from "../../store/sneakyStore";
 import type { Product } from "../../store/types";
 
@@ -17,6 +19,7 @@ type UseHomeActionsParams = {
   currentProduct: Product | undefined;
   isLoggedIn: boolean;
   onOpenAuth: () => void;
+  onProductSwiped?: (product: Product) => void;
   setCurrentIndex: Dispatch<SetStateAction<number>>;
   setShowAnimation: Dispatch<SetStateAction<boolean>>;
   setShowToast: Dispatch<SetStateAction<ToastMessage | null>>;
@@ -30,6 +33,7 @@ export const useHomeActions = ({
   currentProduct,
   isLoggedIn,
   onOpenAuth,
+  onProductSwiped,
   setCurrentIndex,
   setShowAnimation,
   setShowToast,
@@ -68,17 +72,22 @@ export const useHomeActions = ({
   );
 
   const advanceProduct = useCallback(
-    (direction: Exclude<SwipeDirection, null>) => {
+    (direction: Exclude<SwipeDirection, null>, product: Product) => {
       setSwipeDirection(direction);
       setShowAnimation(true);
 
       setTimeout(() => {
-        setCurrentIndex((prev) => prev + 1);
+        onProductSwiped?.(product);
+        if (onProductSwiped) {
+          setCurrentIndex(0);
+        } else {
+          setCurrentIndex((prev) => prev + 1);
+        }
         setShowAnimation(false);
         setSwipeDirection(null);
       }, SWIPE_ANIMATION_DURATION);
     },
-    [setCurrentIndex, setShowAnimation, setSwipeDirection],
+    [onProductSwiped, setCurrentIndex, setShowAnimation, setSwipeDirection],
   );
 
   const onLike = useCallback(() => {
@@ -95,8 +104,9 @@ export const useHomeActions = ({
       void dispatch(addWishlistItem({ productId: currentProduct.id }))
         .unwrap()
         .then(() => {
-          advanceProduct("right");
+          advanceProduct("right", currentProduct);
           showToastMessage(`❤️ Added ${currentProduct.name} to wishlist!`);
+          void dispatch(fetchProducts());
         })
         .catch((err) => {
           const message =
@@ -125,8 +135,16 @@ export const useHomeActions = ({
   const onDislike = useCallback(() => {
     if (showAnimation || !currentProduct) return;
 
-    advanceProduct("left");
-  }, [advanceProduct, currentProduct, showAnimation]);
+    if (isLoggedIn) {
+      void dispatch(recordProductPass(currentProduct.id))
+        .unwrap()
+        .then(() => {
+          void dispatch(fetchProducts());
+        });
+    }
+
+    advanceProduct("left", currentProduct);
+  }, [advanceProduct, currentProduct, dispatch, isLoggedIn, showAnimation]);
 
   const onAddToCart = useCallback(() => {
     if (showAnimation || cartSubmitting) return;
@@ -142,8 +160,9 @@ export const useHomeActions = ({
       void dispatch(addCartItem({ productId: currentProduct.id }))
         .unwrap()
         .then(() => {
-          advanceProduct("right");
+          advanceProduct("right", currentProduct);
           showToastMessage(`🛒 Added ${currentProduct.name} to cart!`);
+          void dispatch(fetchProducts());
         })
         .catch((err) => {
           const message =

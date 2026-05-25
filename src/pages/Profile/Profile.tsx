@@ -11,6 +11,9 @@ import {
   FiEdit2,
   FiSave,
   FiX,
+  FiMail,
+  FiShield,
+  FiClock,
 } from "react-icons/fi";
 import { Navigate } from "react-router-dom";
 
@@ -29,6 +32,19 @@ import {
 import { isAdminRole } from "../../utils/roles";
 
 import styles from "./Profile.module.css";
+
+const getInitials = (name?: string | null, email?: string | null) => {
+  const source = name?.trim() || email?.trim() || "User";
+  const words = source
+    .split(/[\s@._-]+/)
+    .map((word) => word.trim())
+    .filter(Boolean);
+
+  return words
+    .slice(0, 2)
+    .map((word) => word[0]?.toUpperCase())
+    .join("");
+};
 
 export const Profile: FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -184,7 +200,7 @@ export const Profile: FC = () => {
         {/* Profile Header */}
         <div className={styles.profile__header}>
           <div className={styles.profile__avatar}>
-            <FiUser />
+            <span>{getInitials(user?.name, user?.email)}</span>
           </div>
 
           {isEditing ? (
@@ -261,9 +277,24 @@ export const Profile: FC = () => {
               </div>
             </form>
           ) : (
-            <>
+            <div className={styles.profile__display}>
+              <p className={styles.profile__eyebrow}>Sneaky account</p>
               <h2 className={styles.profile__name}>{user?.name || "User"}</h2>
               <p className={styles.profile__email}>{user?.email}</p>
+              <div className={styles.profile__metaGrid}>
+                <div className={styles.profile__metaItem}>
+                  <FiMail />
+                  <span>{user?.email || "Email connected"}</span>
+                </div>
+                <div className={styles.profile__metaItem}>
+                  <FiShield />
+                  <span>Secure profile</span>
+                </div>
+                <div className={styles.profile__metaItem}>
+                  <FiClock />
+                  <span>Recommendations tuned from your activity</span>
+                </div>
+              </div>
               <div className={styles.profile__actions}>
                 <button
                   className={styles.profile__editBtn}
@@ -279,7 +310,7 @@ export const Profile: FC = () => {
                   <FiLogOut /> Logout
                 </button>
               </div>
-            </>
+            </div>
           )}
 
           {profileError ? (
@@ -293,14 +324,18 @@ export const Profile: FC = () => {
         {/* Stats Cards */}
         <div className={styles.profile__stats}>
           <div className={styles.profile__statCard}>
-            <FiHeart className={styles.profile__statIcon} />
+            <div className={styles.profile__statIconWrap}>
+              <FiHeart className={styles.profile__statIcon} />
+            </div>
             <div className={styles.profile__statValue}>
               {userData.wishlistCount}
             </div>
             <div className={styles.profile__statLabel}>Wishlist Items</div>
           </div>
           <div className={styles.profile__statCard}>
-            <FiShoppingBag className={styles.profile__statIcon} />
+            <div className={styles.profile__statIconWrap}>
+              <FiShoppingBag className={styles.profile__statIcon} />
+            </div>
             <div className={styles.profile__statValue}>
               {userData.cartCount}
             </div>

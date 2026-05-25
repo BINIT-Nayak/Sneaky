@@ -12,6 +12,9 @@ const getRawMessage = (error: unknown): string | null => {
   return null;
 };
 
+const includesAny = (message: string, patterns: string[]) =>
+  patterns.some((pattern) => message.includes(pattern));
+
 export const getUserFriendlyErrorMessage = (
   error: unknown,
   fallback: string,
@@ -21,43 +24,38 @@ export const getUserFriendlyErrorMessage = (
 
   const message = rawMessage.toLowerCase();
 
-  if (
-    message.includes("failed to fetch") ||
-    message.includes("networkerror") ||
-    message.includes("load failed")
-  ) {
-    return "We can't reach the server right now. Please check your connection and try again.";
-  }
+  switch (true) {
+    case includesAny(message, [
+      "failed to fetch",
+      "networkerror",
+      "load failed",
+    ]):
+      return "We can't reach the server right now. Please check your connection and try again.";
 
-  if (
-    message.includes("401") ||
-    message.includes("unauthorized") ||
-    message.includes("not authenticated")
-  ) {
-    return "Please sign in again to continue.";
-  }
+    case includesAny(message, ["401", "unauthorized", "not authenticated"]):
+      return "Please sign in again to continue.";
 
-  if (message.includes("403") || message.includes("forbidden")) {
-    return "You don't have permission to do that.";
-  }
+    case includesAny(message, ["403", "forbidden"]):
+      return "You don't have permission to do that.";
 
-  if (message.includes("product not found")) {
-    return "This product is no longer available.";
-  }
+    case message.includes("product not found"):
+      return "This product is no longer available.";
 
-  if (message.includes("404")) {
-    return "We couldn't find what you were looking for.";
-  }
+    case message.includes("404"):
+      return "We couldn't find what you were looking for.";
 
-  if (message.includes("409") || message.includes("conflict")) {
-    return "This item is already up to date.";
-  }
+    case includesAny(message, ["409", "conflict"]):
+      return "This item is already up to date.";
 
-  if (message.includes("500") || message.includes("503")) {
-    return "Something went wrong on our side. Please try again in a moment.";
-  }
+    case includesAny(message, ["429", "too many requests"]):
+      return "Too many requests. Please wait a moment and try again.";
 
-  return rawMessage;
+    case includesAny(message, ["500", "503"]):
+      return "Something went wrong on our side. Please try again in a moment.";
+
+    default:
+      return rawMessage;
+  }
 };
 
 export const getRejectedErrorMessage = (
@@ -75,37 +73,39 @@ export const getAuthErrorMessage = (
 
   const message = rawMessage.toLowerCase();
 
-  if (
-    message.includes("invalid credentials") ||
-    message.includes("bad credentials")
-  ) {
-    return "The email or password you entered is incorrect.";
-  }
+  switch (true) {
+    case includesAny(message, ["invalid credentials", "bad credentials"]):
+      return "The email or password you entered is incorrect.";
 
-  if (
-    message.includes("user already exists") ||
-    message.includes("email already in use") ||
-    message.includes("409") ||
-    message.includes("conflict")
-  ) {
-    return "An account with this email already exists. Please log in instead.";
-  }
+    case includesAny(message, [
+      "user already exists",
+      "email already in use",
+      "409",
+      "conflict",
+    ]):
+      return "An account with this email already exists. Please log in instead.";
 
-  if (
-    message.includes("failed to fetch") ||
-    message.includes("networkerror") ||
-    message.includes("load failed")
-  ) {
-    return "We can't reach Sneaky right now. Please check your connection and try again.";
-  }
+    case includesAny(message, [
+      "failed to fetch",
+      "networkerror",
+      "load failed",
+    ]):
+      return "We can't reach Sneaky right now. Please check your connection and try again.";
 
-  if (message.includes("401") || message.includes("unauthorized")) {
-    return "Your session expired. Please log in again.";
-  }
+    case includesAny(message, ["401", "unauthorized"]):
+      return "Your session expired. Please log in again.";
 
-  if (message.includes("500") || message.includes("503")) {
-    return "Sneaky is having trouble signing you in. Please try again in a moment.";
-  }
+    case includesAny(message, [
+      "429",
+      "too many requests",
+      "too many login attempts",
+    ]):
+      return "Too many login attempts. Try again after 5 minutes.";
 
-  return getUserFriendlyErrorMessage(error, fallback);
+    case includesAny(message, ["500", "503"]):
+      return "Sneaky is having trouble signing you in. Please try again in a moment.";
+
+    default:
+      return getUserFriendlyErrorMessage(error, fallback);
+  }
 };

@@ -20,4 +20,10 @@ export const wishlistApi = {
       auth: true,
       method: "DELETE",
     }),
+
+  clearWishlist: () =>
+    apiRequest<void>("/api/wishlist", {
+      auth: true,
+      method: "DELETE",
+    }),
 };

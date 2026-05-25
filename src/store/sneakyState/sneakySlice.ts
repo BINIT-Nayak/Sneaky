@@ -5,6 +5,7 @@ import { getRejectedErrorMessage } from "../../utils/errorMessages";
 import { addCartItem } from "../fetchAPI/addCartItem";
 import { addWishlistItem } from "../fetchAPI/addWishlistItem";
 import { clearCartItems } from "../fetchAPI/clearCartItems";
+import { clearWishlistItems } from "../fetchAPI/clearWishlistItems";
 import { deleteCartItem } from "../fetchAPI/deleteCartItem";
 import { deleteWishlistItem } from "../fetchAPI/deleteWishlistItem";
 import { fetchCart } from "../fetchAPI/fetchCart";
@@ -99,6 +100,9 @@ export const sneakySlice = createSlice({
         state.wishlist = state.wishlist.filter(
           (item) => item.productId !== action.payload,
         );
+      })
+      .addCase(clearWishlistItems.fulfilled, (state) => {
+        state.wishlist = [];
       })
 
       .addCase(fetchCart.pending, (state) => {

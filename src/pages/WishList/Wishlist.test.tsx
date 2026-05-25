@@ -74,14 +74,83 @@ describe("Wishlist", () => {
         price: 12999,
         imageUrl: "image.jpg",
         brandName: "Nike",
+        category: "Running",
+        sizes: ["UK 6", "UK 7", "UK 8", "UK 9", "UK 10"],
+        colors: [
+          { name: "Black", value: "#17151d" },
+          { name: "Ivory", value: "#eee4cf" },
+          { name: "Clay", value: "#c27a58" },
+        ],
+        stockStatus: "In stock",
       },
     ]);
 
     renderWishlist();
-    await userEvent.click(screen.getByRole("button", { name: "Delete" }));
+    await userEvent.click(
+      screen.getByRole("button", { name: /delete air max/i }),
+    );
 
     expect(screen.getByText("Air Max")).toBeInTheDocument();
     expect(screen.getByText("Nike")).toBeInTheDocument();
+    expect(screen.getByText("Running")).toBeInTheDocument();
+    expect(screen.getByText("UK 6, UK 7, UK 8, UK 9, UK 10")).toBeInTheDocument();
+    expect(screen.getByText("Colors: Black, Ivory, Clay")).toBeInTheDocument();
+    await waitFor(() => expect(dispatch).toHaveBeenCalled());
+  });
+
+  it("moves wishlist items to the cart", async () => {
+    const dispatch = jest.fn(() => ({
+      unwrap: jest.fn().mockResolvedValue(undefined),
+    }));
+    mockedUseDispatch.mockReturnValue(dispatch as never);
+    mockedSelectors.getWishlist.mockReturnValue([
+      {
+        productId: "product-1",
+        name: "Air Max",
+        price: 12999,
+        imageUrl: "image.jpg",
+        brandName: "Nike",
+        category: "Running",
+      },
+    ]);
+
+    renderWishlist();
+    await userEvent.click(
+      screen.getByRole("button", { name: /add to cart/i }),
+    );
+
+    expect(screen.getByText(/moved to cart/i)).toBeInTheDocument();
+    await waitFor(() => expect(dispatch).toHaveBeenCalledTimes(2));
+  });
+
+  it("clears all wishlist items", async () => {
+    const dispatch = jest.fn(() => ({
+      unwrap: jest.fn().mockResolvedValue(undefined),
+    }));
+    mockedUseDispatch.mockReturnValue(dispatch as never);
+    mockedSelectors.getWishlist.mockReturnValue([
+      {
+        productId: "product-1",
+        name: "Air Max",
+        price: 12999,
+        imageUrl: "image.jpg",
+        brandName: "Nike",
+        category: "Running",
+      },
+      {
+        productId: "product-2",
+        name: "Classic Wave",
+        price: 8999,
+        imageUrl: "classic.jpg",
+        brandName: "New Balance",
+        category: "Lifestyle",
+      },
+    ]);
+
+    renderWishlist();
+    await userEvent.click(screen.getByRole("button", { name: /clear all/i }));
+
+    expect(screen.getByText(/wishlist cleared/i)).toBeInTheDocument();
     await waitFor(() => expect(dispatch).toHaveBeenCalled());
   });
 });

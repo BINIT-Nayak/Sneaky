@@ -27,7 +27,18 @@ export interface Product {
   description: string;
   brand: string;
   category: string;
+  merchantName?: string;
+  merchantUrl?: string;
+  sizes?: string[];
+  colors?: SneakerColor[];
+  stockStatus?: string;
+  recommended?: boolean;
 }
+
+export type SneakerColor = {
+  name: string;
+  value: string;
+};
 
 export type IWishlistItem = {
   productId: string;
@@ -35,6 +46,10 @@ export type IWishlistItem = {
   price: number;
   imageUrl: string;
   brandName: string;
+  category?: string;
+  sizes?: string[];
+  colors?: SneakerColor[];
+  stockStatus?: string;
 };
 
 export type IAddToWishlistRequestProp = {
@@ -48,8 +63,14 @@ export type ICartItem = {
   currency: string;
   imageUrl: string;
   brandName: string;
+  category?: string;
+  merchantName?: string;
+  merchantUrl?: string;
   quantity: number;
   itemTotal: number;
+  sizes?: string[];
+  colors?: SneakerColor[];
+  stockStatus?: string;
 };
 
 export type IAddToCartRequestProp = {

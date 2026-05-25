@@ -36,16 +36,20 @@ const getInitialAuthState = () => {
 
 export const useAuth = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { user: initialUser, isLoggedIn: initialIsLoggedIn } =
-    getInitialAuthState();
-  const [user, setUser] = useState<UserType | null>(initialUser);
+  const [initialAuthState] = useState(getInitialAuthState);
+  const [user, setUser] = useState<UserType | null>(initialAuthState.user);
+  const [hasStoredSession, setHasStoredSession] = useState(
+    initialAuthState.isLoggedIn,
+  );
   const [authError, setAuthError] = useState<string | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(false);
-  const isLoggedIn = useSneakyStateSlice.getIsLoggedIn();
+  const isReduxLoggedIn = useSneakyStateSlice.getIsLoggedIn();
+  const isLoggedIn = isReduxLoggedIn || hasStoredSession;
 
   const saveAuthSession = useCallback(
     (userData: UserType, authResponse: AuthResponse) => {
       setUser(userData);
+      setHasStoredSession(true);
       setAccessToken(authResponse.accessToken);
       localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
       dispatch(sneakyStateActions.setIsLoggedIn(true));
@@ -56,6 +60,7 @@ export const useAuth = () => {
 
   const clearAuthSession = useCallback(() => {
     setUser(null);
+    setHasStoredSession(false);
     clearStoredAuthSession();
     dispatch(sneakyStateActions.resetWishlistState());
     dispatch(sneakyStateActions.resetCartState());
@@ -77,18 +82,19 @@ export const useAuth = () => {
     };
 
     setUser(nextUser);
+    setHasStoredSession(true);
     localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(nextUser));
     dispatch(sneakyStateActions.setIsLoggedIn(true));
     return nextUser;
   }, [dispatch]);
 
   useEffect(() => {
-    if (!initialIsLoggedIn) return;
+    if (!initialAuthState.isLoggedIn) return;
 
     void loadCurrentUser().catch(() => {
       clearAuthSession();
     });
-  }, [clearAuthSession, initialIsLoggedIn, loadCurrentUser]);
+  }, [clearAuthSession, initialAuthState.isLoggedIn, loadCurrentUser]);
 
   useEffect(() => {
     const handleUnauthorizedSession = () => {

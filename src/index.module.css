@@ -46,6 +46,17 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  scrollbar-width: none;
+}
+
+:global(*) {
+  -ms-overflow-style: none;
+}
+
+:global(*::-webkit-scrollbar) {
+  display: none;
+  height: 0;
+  width: 0;
 }
 
 :global(html, body, #root) {
@@ -115,27 +126,7 @@
   overflow: hidden auto;
   padding: 20px;
   position: relative;
-  scrollbar-color: var(--base-color3) transparent;
-  scrollbar-width: thin;
   width: 100%;
-}
-
-.app__content::-webkit-scrollbar {
-  width: 6px;
-}
-
-.app__content::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.app__content::-webkit-scrollbar-thumb {
-  background: var(--base-color3);
-  border-radius: 20px;
-  transition: background var(--transition-fast);
-}
-
-.app__content::-webkit-scrollbar-thumb:hover {
-  background: var(--base-color2);
 }
 
 @media (width <= 1024px) {
@@ -145,7 +136,7 @@
   }
 }
 
-@media (width <= 1040px) {
+@media (width <= 768px) {
   .app__main {
     margin-left: 0;
     width: 100%;

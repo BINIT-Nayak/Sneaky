@@ -19,6 +19,13 @@ This repository showcases practical development patterns, reusable components, a
 - 📱 Fully responsive across devices
 - 🔒 Secure and scalable architecture
 - 🧩 Reusable component structure
+- 🏠 Swipe-style home product feed
+- 🧠 Recommended product ordering from the backend
+- 🏷️ Product category badges on home cards
+- 🤝 Merchant partner links on product details and cart checkout groups
+- ❤️ Wishlist management with single-item delete and clear-all support
+- 🛒 Cart and wishlist API integration
+- 🕘 Recently viewed product shortcuts
 - 🚀 Optimized performance
 - 🔧 Easy configuration and customization
 
@@ -96,11 +103,52 @@ Start the development server:
 npm run dev
 ```
 
+Run tests:
+
+```bash
+npm test
+```
+
+## 🔌 Backend Integration
+
+The home feed loads products from:
+
+```http
+GET /api/products/recommended
+```
+
+This endpoint returns products already ranked by the Spring Boot recommendation service. The UI keeps rendering the normal `Product[]` shape, so the recommendation logic stays on the backend.
+
+Recommendations are personalized for logged-in users using wishlist, cart, recently viewed, passed products, category, brand, price range, merchant affinity, global popularity, and diversity reranking so the feed does not bunch similar products together.
+
+Cart checkout is merchant-based instead of payment-based inside Sneaky. The cart groups items by `merchantName` and shows one outbound button per partner store.
+
+Wishlist actions use authenticated API calls:
+
+```http
+GET /api/wishlist
+POST /api/wishlist
+DELETE /api/wishlist/{productId}
+DELETE /api/wishlist
+```
+
+`DELETE /api/wishlist` clears all wishlist items for the logged-in user.
+
+Home dislike feedback is recorded for logged-in users through:
+
+```http
+POST /api/product-analytics/products/{productId}/pass
+```
+
+## 📸 Screenshots
+
+Add project screenshots here.
 
 ## Roadmap
  - Improve animations
  - Optimize mobile responsiveness
  - Docker support
+ - Track anonymous session preferences for guest recommendations
 
 ## ⭐ Support
 

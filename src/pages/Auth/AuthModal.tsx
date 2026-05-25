@@ -2,6 +2,7 @@ import type { FC } from "react";
 import { useState } from "react";
 
 import { FaTimes } from "react-icons/fa";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 import { Button } from "../../components/Button/Button";
 import { ButtonVariant } from "../../components/Button/type";
@@ -35,6 +36,7 @@ export const AuthModal: FC<AuthModalProps> = ({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   if (!isOpen) return null;
 
@@ -57,6 +59,7 @@ export const AuthModal: FC<AuthModalProps> = ({
   const handleToggleMode = () => {
     setIsLoginMode(!isLoginMode);
     setLocalError(null);
+    setIsPasswordVisible(false);
   };
 
   //TODO: Think later should we add all login/signup logic here instead of passing it as props
@@ -103,14 +106,25 @@ export const AuthModal: FC<AuthModalProps> = ({
 
           <div className={styles.authModal__field}>
             <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              required
-            />
+            <div className={styles.authModal__passwordField}>
+              <input
+                type={isPasswordVisible ? "text" : "password"}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                required
+              />
+              <button
+                type="button"
+                className={styles.authModal__passwordToggle}
+                aria-label={isPasswordVisible ? "Hide password" : "Show password"}
+                aria-pressed={isPasswordVisible}
+                onClick={() => setIsPasswordVisible((visible) => !visible)}
+              >
+                {isPasswordVisible ? <FiEyeOff /> : <FiEye />}
+              </button>
+            </div>
             {isLoginMode === false ? (
               <p className={styles.authModal__hint}>
                 At least 8 characters with letters, numbers, and a special

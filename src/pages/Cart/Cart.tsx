@@ -8,7 +8,15 @@ import {
 } from "react";
 import { useDispatch } from "react-redux";
 
-import { FiTrash2, FiPlus, FiMinus, FiShoppingBag } from "react-icons/fi";
+import {
+  FiExternalLink,
+  FiMinus,
+  FiPlus,
+  FiShoppingBag,
+  FiShoppingCart,
+  FiTrash2,
+} from "react-icons/fi";
+import { Link } from "react-router-dom";
 
 import emptyCart from "../../assets/emptyList.png";
 import { Toast } from "../../components/Toast/Toast";
@@ -19,6 +27,10 @@ import { fetchCart } from "../../store/fetchAPI/fetchCart";
 import { updateCartQuantity } from "../../store/fetchAPI/updateCartQuantity";
 import { useSneakyStateSlice } from "../../store/sneakyState/sneakySelectors";
 import type { AppDispatch } from "../../store/sneakyStore";
+import {
+  getSneakerDetails,
+  UNIQUE_PRODUCT_MESSAGE,
+} from "../../utils/productDetails";
 
 import styles from "./Cart.module.css";
 
@@ -26,6 +38,14 @@ type ToastMessage = {
   id: number;
   message: string;
 };
+
+const CART_SKELETON_ITEMS = 4;
+const DELIVERY_FEE = 199;
+const FREE_DELIVERY_THRESHOLD = 10000;
+const SNEAKY_DISCOUNT_THRESHOLD = 20000;
+const SNEAKY_DISCOUNT_RATE = 0.1;
+
+const DEFAULT_MERCHANT_NAME = "Partner Store";
 
 export const Cart = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -43,6 +63,7 @@ export const Cart = () => {
   const cartLoading = useSneakyStateSlice.getCartLoading();
   const cartStatus = useSneakyStateSlice.getCartStatus();
   const cartError = useSneakyStateSlice.getCartError();
+  const isCartLoading = cartLoading || cartStatus === "idle";
 
   useEffect(() => {
     if (!isLoggedIn || cartStatus !== "idle") return;
@@ -80,6 +101,41 @@ export const Cart = () => {
     () => cart.reduce((sum, item) => sum + item.itemTotal, 0),
     [cart],
   );
+  const deliveryFee = total >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE;
+  const discount =
+    total >= SNEAKY_DISCOUNT_THRESHOLD
+      ? Math.round(total * SNEAKY_DISCOUNT_RATE)
+      : 0;
+  const finalTotal = Math.max(total + deliveryFee - discount, 0);
+  const merchantGroups = useMemo(() => {
+    const groups = new Map<
+      string,
+      { itemCount: number; merchantName: string; merchantUrl?: string; total: number }
+    >();
+
+    cart.forEach((item) => {
+      const merchantName = item.merchantName || DEFAULT_MERCHANT_NAME;
+      const existingGroup = groups.get(merchantName);
+
+      if (existingGroup) {
+        existingGroup.itemCount += item.quantity;
+        existingGroup.total += item.itemTotal;
+        existingGroup.merchantUrl = existingGroup.merchantUrl || item.merchantUrl;
+        return;
+      }
+
+      groups.set(merchantName, {
+        itemCount: item.quantity,
+        merchantName,
+        merchantUrl: item.merchantUrl,
+        total: item.itemTotal,
+      });
+    });
+
+    return Array.from(groups.values()).sort((first, second) =>
+      first.merchantName.localeCompare(second.merchantName),
+    );
+  }, [cart]);
 
   const getActionErrorMessage = (err: unknown, fallback: string) =>
     typeof err === "string"
@@ -100,10 +156,12 @@ export const Cart = () => {
     try {
       if (newQuantity < 1) {
         await dispatch(deleteCartItem(productId)).unwrap();
+        showToastMessage("Removed from cart.");
       } else {
         await dispatch(
           updateCartQuantity({ productId, quantity: newQuantity }),
         ).unwrap();
+        showToastMessage("Cart quantity updated.");
       }
     } catch (err) {
       setCartActionError(
@@ -122,6 +180,7 @@ export const Cart = () => {
 
     try {
       await dispatch(deleteCartItem(productId)).unwrap();
+      showToastMessage("Removed from cart.");
     } catch (err) {
       setCartActionError(
         getActionErrorMessage(err, "We couldn't remove this item."),
@@ -132,13 +191,14 @@ export const Cart = () => {
   };
 
   const handleClearCart = async () => {
-    if (submittingProductId || isClearing) return;
+    if (isClearing) return;
 
     setIsClearing(true);
     setCartActionError(null);
 
     try {
       await dispatch(clearCartItems()).unwrap();
+      showToastMessage("Cart cleared.");
     } catch (err) {
       setCartActionError(
         getActionErrorMessage(err, "We couldn't clear your cart."),
@@ -148,20 +208,33 @@ export const Cart = () => {
     }
   };
 
-  const checkout = () => {
-    if (cart.length === 0) return;
+  const checkoutWithMerchant = (merchantName: string, merchantUrl?: string) => {
+    if (!merchantUrl) {
+      setCartActionError(`No checkout link is available for ${merchantName}.`);
+      return;
+    }
 
-    showToastMessage("Checkout to payment Gateway/ merchant site coming soon!");
+    window.open(merchantUrl, "_blank", "noopener,noreferrer");
   };
 
   if (!isLoggedIn) {
     return (
       <div className={styles.cartContainer}>
         <div className={styles.cartEmpty}>
-          <img className={styles.cart__icon} src={emptyCart} alt="Empty cart" />
-          <div className={styles.cart__message}>
-            Please log in to view your cart
-          </div>
+          <img
+            className={styles.cart__icon}
+            src={emptyCart}
+            alt=""
+            aria-hidden="true"
+          />
+          <FiShoppingCart
+            className={styles.cart__emptySymbol}
+            aria-hidden="true"
+          />
+          <h2 className={styles.cart__emptyTitle}>Your cart is waiting</h2>
+          <p className={styles.cart__message}>
+            Please log in to view your cart and keep your sneaker picks synced.
+          </p>
           <button className={styles.cart__loginBtn} onClick={onOpenAuth}>
             Sign In
           </button>
@@ -170,12 +243,60 @@ export const Cart = () => {
     );
   }
 
-  if (cartLoading) {
+  if (isCartLoading) {
     return (
       <div className={styles.cartContainer}>
-        <div className={styles.cartEmpty}>
-          <img className={styles.cart__icon} src={emptyCart} alt="Loading" />
-          <div className={styles.cart__message}>Loading cart...</div>
+        <div className={styles.cart} aria-label="Loading cart">
+          <div
+            className={`${styles.cart__skeleton} ${styles.cart__titleSkeleton}`}
+          />
+          <div className={styles.cart__content}>
+            <div className={styles.cart__items}>
+              {Array.from({ length: CART_SKELETON_ITEMS }, (_, index) => (
+                <div key={index} className={styles.cart__item}>
+                  <div
+                    className={`${styles.cart__skeleton} ${styles.cart__imageSkeleton}`}
+                  />
+                  <div className={styles.cart__itemDetails}>
+                    <div
+                      className={`${styles.cart__skeleton} ${styles.cart__lineSkeleton}`}
+                    />
+                    <div
+                      className={`${styles.cart__skeleton} ${styles.cart__lineSkeletonShort}`}
+                    />
+                    <div
+                      className={`${styles.cart__skeleton} ${styles.cart__priceSkeleton}`}
+                    />
+                  </div>
+                  <div
+                    className={`${styles.cart__skeleton} ${styles.cart__quantitySkeleton}`}
+                  />
+                  <div
+                    className={`${styles.cart__skeleton} ${styles.cart__totalSkeleton}`}
+                  />
+                </div>
+              ))}
+            </div>
+
+            <div className={styles.cart__summary}>
+              <div
+                className={`${styles.cart__skeleton} ${styles.cart__summaryTitleSkeleton}`}
+              />
+              <div
+                className={`${styles.cart__skeleton} ${styles.cart__summaryLineSkeleton}`}
+              />
+              <div
+                className={`${styles.cart__skeleton} ${styles.cart__summaryLineSkeleton}`}
+              />
+              <div className={styles.cart__summaryDivider} />
+              <div
+                className={`${styles.cart__skeleton} ${styles.cart__summaryTotalSkeleton}`}
+              />
+              <div
+                className={`${styles.cart__skeleton} ${styles.cart__buttonSkeleton}`}
+              />
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -185,8 +306,18 @@ export const Cart = () => {
     return (
       <div className={styles.cartContainer}>
         <div className={styles.cartEmpty}>
-          <img className={styles.cart__icon} src={emptyCart} alt="Cart error" />
-          <div className={styles.cart__message}>{cartError}</div>
+          <img
+            className={styles.cart__icon}
+            src={emptyCart}
+            alt=""
+            aria-hidden="true"
+          />
+          <FiShoppingCart
+            className={styles.cart__emptySymbol}
+            aria-hidden="true"
+          />
+          <h2 className={styles.cart__emptyTitle}>Cart could not load</h2>
+          <p className={styles.cart__message}>{cartError}</p>
         </div>
       </div>
     );
@@ -196,10 +327,23 @@ export const Cart = () => {
     return (
       <div className={styles.cartContainer}>
         <div className={styles.cartEmpty}>
-          <img className={styles.cart__icon} src={emptyCart} alt="Empty cart" />
-          <div className={styles.cart__message}>
-            Your cart is empty. Start swiping to add items!
-          </div>
+          <img
+            className={styles.cart__icon}
+            src={emptyCart}
+            alt=""
+            aria-hidden="true"
+          />
+          <FiShoppingCart
+            className={styles.cart__emptySymbol}
+            aria-hidden="true"
+          />
+          <h2 className={styles.cart__emptyTitle}>Your cart is empty</h2>
+          <p className={styles.cart__message}>
+            Add a pair when one feels checkout-worthy.
+          </p>
+          <Link className={styles.cart__browseBtn} to="/">
+            Browse Products
+          </Link>
         </div>
       </div>
     );
@@ -219,94 +363,159 @@ export const Cart = () => {
 
         <div className={styles.cart__content}>
           <div className={styles.cart__items}>
-            {cart.map((item) => (
-              <div key={item.productId} className={styles.cart__item}>
-                <img
-                  src={item.imageUrl}
-                  alt={item.name}
-                  className={styles.cart__itemImage}
-                />
-                <div className={styles.cart__itemDetails}>
-                  <h3 className={styles.cart__itemTitle}>{item.name}</h3>
-                  <p className={styles.cart__itemBrand}>{item.brandName}</p>
-                  <p className={styles.cart__itemPrice}>
-                    ₹{item.price.toLocaleString()}
-                  </p>
-                </div>
-                <div className={styles.cart__itemActions}>
-                  <div className={styles.cart__quantity}>
+            {cart.map((item) => {
+              const sneakerDetails = getSneakerDetails(item);
+              const isItemSubmitting = submittingProductId === item.productId;
+              const areItemActionsDisabled = isItemSubmitting || isClearing;
+
+              return (
+                <div key={item.productId} className={styles.cart__item}>
+                  <img
+                    src={item.imageUrl}
+                    alt={item.name}
+                    className={styles.cart__itemImage}
+                  />
+                  <div className={styles.cart__itemDetails}>
+                    <h3 className={styles.cart__itemTitle}>{item.name}</h3>
+                    {item.category ? (
+                      <p className={styles.cart__itemCategory}>
+                        {item.category}
+                      </p>
+                    ) : null}
+                    <p className={styles.cart__itemMerchant}>
+                      {item.merchantName || DEFAULT_MERCHANT_NAME}
+                    </p>
+                    <p className={styles.cart__itemBrand}>{item.brandName}</p>
+                    <p className={styles.cart__itemPrice}>
+                      ₹{item.price.toLocaleString()}
+                    </p>
+                    <div className={styles.cart__itemMeta}>
+                      {sneakerDetails.stockStatus ? (
+                        <span>{sneakerDetails.stockStatus}</span>
+                      ) : null}
+                      {sneakerDetails.isUnique ? (
+                        <span>{UNIQUE_PRODUCT_MESSAGE}</span>
+                      ) : (
+                        <>
+                          <span>{sneakerDetails.sizes.join(", ")}</span>
+                          <span>
+                            Colors:{" "}
+                            {sneakerDetails.colors
+                              .map((color) => color.name)
+                              .join(", ")}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <div className={styles.cart__itemActions}>
+                    <div className={styles.cart__quantity}>
+                      <button
+                        className={styles.cart__quantityBtn}
+                        disabled={
+                          areItemActionsDisabled || item.quantity <= 1
+                        }
+                        aria-label={`Decrease ${item.name} quantity`}
+                        onClick={() => {
+                          void handleUpdateQuantity(
+                            item.productId,
+                            item.quantity - 1,
+                          );
+                        }}
+                      >
+                        <FiMinus />
+                      </button>
+                      <span className={styles.cart__quantityValue}>
+                        {item.quantity}
+                      </span>
+                      <button
+                        className={styles.cart__quantityBtn}
+                        disabled={areItemActionsDisabled}
+                        aria-label={`Increase ${item.name} quantity`}
+                        onClick={() => {
+                          void handleUpdateQuantity(
+                            item.productId,
+                            item.quantity + 1,
+                          );
+                        }}
+                      >
+                        <FiPlus />
+                      </button>
+                    </div>
                     <button
-                      className={styles.cart__quantityBtn}
-                      disabled={
-                        submittingProductId !== null ||
-                        isClearing ||
-                        item.quantity <= 1
-                      }
+                      className={styles.cart__removeBtn}
+                      disabled={areItemActionsDisabled}
+                      aria-label={`Remove ${item.name}`}
                       onClick={() => {
-                        void handleUpdateQuantity(
-                          item.productId,
-                          item.quantity - 1,
-                        );
+                        void handleRemove(item.productId);
                       }}
                     >
-                      <FiMinus />
-                    </button>
-                    <span className={styles.cart__quantityValue}>
-                      {item.quantity}
-                    </span>
-                    <button
-                      className={styles.cart__quantityBtn}
-                      disabled={submittingProductId !== null || isClearing}
-                      onClick={() => {
-                        void handleUpdateQuantity(
-                          item.productId,
-                          item.quantity + 1,
-                        );
-                      }}
-                    >
-                      <FiPlus />
+                      <FiTrash2 />
                     </button>
                   </div>
-                  <button
-                    className={styles.cart__removeBtn}
-                    disabled={submittingProductId !== null || isClearing}
-                    onClick={() => {
-                      void handleRemove(item.productId);
-                    }}
-                  >
-                    <FiTrash2 />
-                  </button>
+                  <div className={styles.cart__itemTotal}>
+                    ₹{item.itemTotal.toLocaleString()}
+                  </div>
                 </div>
-                <div className={styles.cart__itemTotal}>
-                  ₹{item.itemTotal.toLocaleString()}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className={styles.cart__summary}>
-            <h3 className={styles.cart__summaryTitle}>Order Summary</h3>
+            <h3 className={styles.cart__summaryTitle}>Store Checkout</h3>
             <div className={styles.cart__summaryRow}>
               <span>Subtotal ({itemCount} items)</span>
               <span>₹{total.toLocaleString()}</span>
             </div>
             <div className={styles.cart__summaryRow}>
-              <span>Shipping</span>
-              <span>Free</span>
+              <span>Delivery</span>
+              <span>
+                {deliveryFee === 0
+                  ? "Free"
+                  : `₹${deliveryFee.toLocaleString()}`}
+              </span>
+            </div>
+            <div className={styles.cart__summaryRow}>
+              <span>Sneaky discount</span>
+              <span>
+                {discount > 0 ? `-₹${discount.toLocaleString()}` : "₹0"}
+              </span>
+            </div>
+            <div className={styles.cart__summaryNote}>
+              Free delivery above ₹{FREE_DELIVERY_THRESHOLD.toLocaleString()}.
+              10% Sneaky discount above ₹
+              {SNEAKY_DISCOUNT_THRESHOLD.toLocaleString()}.
             </div>
             <div className={styles.cart__summaryDivider} />
             <div
               className={`${styles.cart__summaryRow} ${styles.cart__summaryTotal}`}
             >
               <span>Total</span>
-              <span>₹{total.toLocaleString()}</span>
+              <span>₹{finalTotal.toLocaleString()}</span>
             </div>
-            <button className={styles.cart__checkoutBtn} onClick={checkout}>
-              Proceed to Checkout →
-            </button>
+            <div className={styles.cart__merchantActions}>
+              {merchantGroups.map((group) => (
+                <button
+                  className={styles.cart__checkoutBtn}
+                  key={group.merchantName}
+                  onClick={() => {
+                    checkoutWithMerchant(group.merchantName, group.merchantUrl);
+                  }}
+                  type="button"
+                >
+                  <span>
+                    <FiExternalLink /> Continue on {group.merchantName}
+                  </span>
+                  <small>
+                    {group.itemCount} {group.itemCount === 1 ? "item" : "items"} ·
+                    ₹{group.total.toLocaleString()}
+                  </small>
+                </button>
+              ))}
+            </div>
             <button
               className={styles.cart__clearBtn}
-              disabled={submittingProductId !== null || isClearing}
+              disabled={isClearing}
               onClick={() => {
                 void handleClearCart();
               }}
