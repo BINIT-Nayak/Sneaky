@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import {
   FiCheck,
@@ -19,7 +20,6 @@ import {
   FiUsers,
   FiX,
 } from "react-icons/fi";
-import { Navigate } from "react-router-dom";
 
 import { AuthContext } from "../../context/AuthContext";
 import type {
@@ -63,7 +63,13 @@ const brandNameOf = (product: AdminProduct) =>
 
 type AdminPanel = "users" | "products" | "brands";
 
+type AdminRouteState = {
+  editProductId?: string;
+};
+
 export const Admin = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const { isLoggedIn, onOpenAuth, user } = useContext(AuthContext);
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -85,6 +91,8 @@ export const Admin = () => {
   const [isMutating, setIsMutating] = useState(false);
   const productRequestId = useRef(0);
   const isAdmin = isAdminRole(user?.role);
+  const routeState = location.state as AdminRouteState | null;
+  const productIdToEdit = routeState?.editProductId;
   const isLoading =
     isStatsLoading || isUsersLoading || isProductsLoading || isBrandsLoading;
 
@@ -169,6 +177,49 @@ export const Admin = () => {
 
     void loadProducts(productStatusFilter);
   }, [isAdmin, loadProducts, productStatusFilter]);
+
+  const handleEditProduct = useCallback((product: AdminProduct) => {
+    setEditingProductId(productIdOf(product));
+    setProductForm({
+      name: product.name,
+      description: product.description ?? "",
+      price: product.price,
+      imageUrl: product.imageUrl ?? "",
+      category: product.category ?? "",
+      brandId: brandIdOf(product),
+      isActive: product.isActive ?? true,
+    });
+    setActivePanel("products");
+  }, []);
+
+  useEffect(() => {
+    if (!isAdmin || !productIdToEdit) return;
+
+    setActivePanel("products");
+    setProductStatusFilter("");
+
+    const product = products.find(
+      (item) => productIdOf(item) === productIdToEdit,
+    );
+    if (product) {
+      handleEditProduct(product);
+      navigate(location.pathname, { replace: true, state: null });
+      return;
+    }
+
+    if (!isProductsLoading && products.length > 0) {
+      setError("We couldn't find that product in the admin list.");
+      navigate(location.pathname, { replace: true, state: null });
+    }
+  }, [
+    handleEditProduct,
+    isAdmin,
+    isProductsLoading,
+    location.pathname,
+    navigate,
+    productIdToEdit,
+    products,
+  ]);
 
   const statCards = useMemo(
     () => [
@@ -263,20 +314,6 @@ export const Admin = () => {
     );
     setProductForm(emptyProductForm);
     setEditingProductId(null);
-  };
-
-  const handleEditProduct = (product: AdminProduct) => {
-    setEditingProductId(productIdOf(product));
-    setProductForm({
-      name: product.name,
-      description: product.description ?? "",
-      price: product.price,
-      imageUrl: product.imageUrl ?? "",
-      category: product.category ?? "",
-      brandId: brandIdOf(product),
-      isActive: product.isActive ?? true,
-    });
-    setActivePanel("products");
   };
 
   const handleSubmitBrand = async (event: FormEvent<HTMLFormElement>) => {

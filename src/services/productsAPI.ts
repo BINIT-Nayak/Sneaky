@@ -5,6 +5,6 @@ import { apiRequest } from "./api";
 export const productsApi = {
   getProducts: () =>
     apiRequest<Product[]>("/api/products/recommended", {
-      auth: true,
+      auth: "optional",
     }),
 };

@@ -2,20 +2,20 @@ import type { FC } from "react";
 import type { FormEvent } from "react";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
+import { Navigate } from "react-router-dom";
 
 import {
-  FiUser,
-  FiHeart,
-  FiShoppingBag,
-  FiLogOut,
-  FiEdit2,
-  FiSave,
-  FiX,
-  FiMail,
-  FiShield,
   FiClock,
+  FiEdit2,
+  FiHeart,
+  FiLogOut,
+  FiMail,
+  FiSave,
+  FiShield,
+  FiShoppingBag,
+  FiUser,
+  FiX,
 } from "react-icons/fi";
-import { Navigate } from "react-router-dom";
 
 import { AuthContext } from "../../context/AuthContext";
 import { userApi } from "../../services/userAPI";

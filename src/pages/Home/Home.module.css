@@ -413,6 +413,11 @@
   transform: translateY(-5px);
 }
 
+.home__adminActions {
+  display: flex;
+  justify-content: center;
+}
+
 .home__controls__actions {
   align-items: center;
   display: flex;

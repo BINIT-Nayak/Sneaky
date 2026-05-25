@@ -15,14 +15,15 @@ import styles from "./Home.module.css";
 
 type HomeContentProps = {
   cardRef: RefObject<HTMLDivElement | null>;
-  isAdmin?: boolean;
   currentProduct: Product | undefined;
+  isAdmin?: boolean;
   isFinished: boolean;
   isLoading: boolean;
   isDetailsOpen: boolean;
   onAddToCart: () => void;
   onCloseDetails: () => void;
   onDislike: () => void;
+  onEditProduct: (productId: string) => void;
   onLike: () => void;
   onOpenDetails: () => void;
   onOpenRecentlyViewed: (productId: string) => void;
@@ -37,14 +38,15 @@ type HomeContentProps = {
 
 export const HomeContent: FC<HomeContentProps> = ({
   cardRef,
-  isAdmin,
   currentProduct,
+  isAdmin,
   isFinished,
   isLoading,
   isDetailsOpen,
   onAddToCart,
   onCloseDetails,
   onDislike,
+  onEditProduct,
   onLike,
   onOpenDetails,
   onOpenRecentlyViewed,
@@ -249,16 +251,16 @@ export const HomeContent: FC<HomeContentProps> = ({
           </Button>
         </div>
 
-        {isAdmin && (
+        {isAdmin ? (
           <div className={styles.home__adminActions}>
-            <Button 
-              variant={ButtonVariant.DEFAULT} 
-              onClick={() => console.log("Edit product:", currentProduct.id)}
+            <Button
+              variant={ButtonVariant.DEFAULT}
+              onClick={() => onEditProduct(currentProduct.id)}
             >
               Admin: Edit Product
             </Button>
           </div>
-        )}
+        ) : null}
 
         <div className={styles.home__controls__actions}>
           <button

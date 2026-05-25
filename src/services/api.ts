@@ -7,8 +7,10 @@ import type { RefreshResponse } from "./authTypes";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
 
+type AuthMode = boolean | "optional";
+
 type RequestOptions = Omit<RequestInit, "body"> & {
-  auth?: boolean;
+  auth?: AuthMode;
   body?: unknown;
 };
 
@@ -50,6 +52,8 @@ export const apiRequest = async <T>(
   path: string,
   { auth = false, body, headers, ...options }: RequestOptions = {},
 ): Promise<T> => {
+  const requiresAuth = auth === true;
+  const sendsAuth = requiresAuth || auth === "optional";
   let accessToken = getAccessToken();
 
   const request = (token: string | null) =>
@@ -59,25 +63,30 @@ export const apiRequest = async <T>(
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        ...(auth && token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(sendsAuth && token ? { Authorization: `Bearer ${token}` } : {}),
         ...headers,
       },
     });
 
-  if (auth && !accessToken) {
+  if (requiresAuth && !accessToken) {
     accessToken = await refreshAccessToken();
   }
 
   let response = await request(accessToken);
 
-  if (isAuthFailure(response.status) && auth) {
+  if (isAuthFailure(response.status) && requiresAuth) {
     const nextAccessToken = await refreshAccessToken();
     if (nextAccessToken) {
       response = await request(nextAccessToken);
     }
   }
 
-  if (isAuthFailure(response.status) && auth) {
+  if (isAuthFailure(response.status) && auth === "optional" && accessToken) {
+    const nextAccessToken = await refreshAccessToken();
+    response = await request(nextAccessToken);
+  }
+
+  if (isAuthFailure(response.status) && requiresAuth) {
     notifyUnauthorizedSession();
     throw new Error("Your session expired. Please log in again.");
   }

@@ -1,6 +1,7 @@
 import type { TouchEvent } from "react";
 import { useRef, useEffect, useState, useContext } from "react";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 import { FloatingParticles } from "../../components/FloatingParticles/FloatingParticles";
 import { Toast } from "../../components/Toast/Toast";
@@ -47,6 +48,7 @@ const writeRecentlyViewedIds = (ids: string[]) => {
 
 export const Home = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const { isLoggedIn, onOpenAuth, user } = useContext(AuthContext);
   const isMobile = useIsMobile();
   const isTablet = useIsTablet();
@@ -68,6 +70,9 @@ export const Home = () => {
     readRecentlyViewedIds(),
   );
   const [swipedProductIds, setSwipedProductIds] = useState<string[]>([]);
+  const [lastProductsError, setLastProductsError] = useState<string | null>(
+    null,
+  );
   const cardRef = useRef<HTMLDivElement>(null);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
@@ -122,6 +127,22 @@ export const Home = () => {
       return nextIds;
     });
   }, [currentProduct]);
+
+  useEffect(() => {
+    if (!productsError || productsError === lastProductsError) return;
+
+    setShowToast({
+      id: Date.now(),
+      message: productsError,
+    });
+    setLastProductsError(productsError);
+
+    const timer = window.setTimeout(() => {
+      setShowToast(null);
+    }, 3000);
+
+    return () => window.clearTimeout(timer);
+  }, [lastProductsError, productsError]);
 
   //handles hover glow effect on product card
   useEffect(() => {
@@ -215,6 +236,11 @@ export const Home = () => {
         onAddToCart={onAddToCart}
         onCloseDetails={() => setIsDetailsOpen(false)}
         onDislike={onDislike}
+        onEditProduct={(productId) => {
+          navigate("/admin", {
+            state: { editProductId: productId },
+          });
+        }}
         onLike={onLike}
         onOpenDetails={() => setIsDetailsOpen(true)}
         onOpenRecentlyViewed={(productId) => {

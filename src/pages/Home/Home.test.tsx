@@ -8,8 +8,15 @@ import { useSneakyStateSlice } from "../../store/sneakyState/sneakySelectors";
 
 import { Home } from "./Home";
 
+const mockNavigate = jest.fn();
+
 jest.mock("react-redux", () => ({
   useDispatch: jest.fn(),
+}));
+
+jest.mock("react-router-dom", () => ({
+  ...jest.requireActual("react-router-dom"),
+  useNavigate: () => mockNavigate,
 }));
 
 jest.mock("../../components/FloatingParticles/FloatingParticles", () => ({
@@ -85,7 +92,11 @@ const fourthProduct = {
   category: "Sneakers",
 };
 
-const renderHome = (isLoggedIn = true, onOpenAuth = jest.fn()) =>
+const renderHome = (
+  isLoggedIn = true,
+  onOpenAuth = jest.fn(),
+  role = "user",
+) =>
   render(
     <AuthContext.Provider
       value={{
@@ -94,7 +105,7 @@ const renderHome = (isLoggedIn = true, onOpenAuth = jest.fn()) =>
         onLogout: jest.fn(),
         onUserUpdate: jest.fn(),
         user: isLoggedIn
-          ? { userId: "user-1", email: "mina@example.com", name: "Mina", role: "user" }
+          ? { userId: "user-1", email: "mina@example.com", name: "Mina", role }
           : null,
       }}
     >
@@ -105,6 +116,7 @@ const renderHome = (isLoggedIn = true, onOpenAuth = jest.fn()) =>
 describe("Home", () => {
   beforeEach(() => {
     window.localStorage.clear();
+    mockNavigate.mockClear();
     mockedUseDispatch.mockReturnValue(jest.fn(() => ({
       unwrap: jest.fn().mockResolvedValue(undefined),
     })) as never);
@@ -203,6 +215,18 @@ describe("Home", () => {
     await waitFor(() => expect(dispatch).toHaveBeenCalled());
   });
 
+  it("navigates admins to edit the current product", async () => {
+    renderHome(true, jest.fn(), "ADMIN");
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "Admin: Edit Product" }),
+    );
+
+    expect(mockNavigate).toHaveBeenCalledWith("/admin", {
+      state: { editProductId: product.id },
+    });
+  });
+
   it("shows recently viewed products from localStorage", async () => {
     window.localStorage.setItem(
       "sneaky:recently-viewed-products",
@@ -254,6 +278,6 @@ describe("Home", () => {
       </AuthContext.Provider>,
     );
 
-    expect(screen.getByText("Could not load products")).toBeInTheDocument();
+    expect(screen.getAllByText("Could not load products")).toHaveLength(2);
   });
 });

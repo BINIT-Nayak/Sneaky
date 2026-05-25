@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
 
 import {
   FiExternalLink,
@@ -16,7 +17,6 @@ import {
   FiShoppingCart,
   FiTrash2,
 } from "react-icons/fi";
-import { Link } from "react-router-dom";
 
 import emptyCart from "../../assets/emptyList.png";
 import { Toast } from "../../components/Toast/Toast";

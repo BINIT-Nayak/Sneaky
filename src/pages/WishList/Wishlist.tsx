@@ -1,8 +1,8 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
 
 import { FiHeart, FiShoppingBag, FiTrash2 } from "react-icons/fi";
-import { Link } from "react-router-dom";
 
 import bellIcon from "../../assets/bell.png";
 import emptyList from "../../assets/emptyList.png";

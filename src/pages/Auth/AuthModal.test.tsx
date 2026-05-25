@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 
 import { AuthModal } from "./AuthModal";
 
-const setup = () => {
+const setup = (error: string | null = null) => {
   const onClose = jest.fn();
   const onLogin = jest.fn().mockResolvedValue(undefined);
   const onSignUp = jest.fn().mockResolvedValue(undefined);
@@ -14,7 +14,7 @@ const setup = () => {
       onClose={onClose}
       onLogin={onLogin}
       onSignUp={onSignUp}
-      error={null}
+      error={error}
       isSubmitting={false}
     />,
   );
@@ -66,6 +66,16 @@ describe("AuthModal", () => {
       "Mina",
       "mina@example.com",
       "Secret@123",
+    );
+  });
+
+  it("shows backend unavailable auth errors as a toast", async () => {
+    setup(
+      "We can't reach Sneaky right now. Please check your connection and try again.",
+    );
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "We can't reach Sneaky right now",
     );
   });
 });

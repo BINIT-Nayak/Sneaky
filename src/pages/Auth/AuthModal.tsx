@@ -36,6 +36,7 @@ export const AuthModal: FC<AuthModalProps> = ({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
+  const [localErrorId, setLocalErrorId] = useState(0);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   if (!isOpen) return null;
@@ -49,6 +50,7 @@ export const AuthModal: FC<AuthModalProps> = ({
     } else {
       if (!isStrongPassword(password)) {
         setLocalError(PASSWORD_REQUIREMENT_MESSAGE);
+        setLocalErrorId((id) => id + 1);
         return;
       }
 
@@ -61,6 +63,11 @@ export const AuthModal: FC<AuthModalProps> = ({
     setLocalError(null);
     setIsPasswordVisible(false);
   };
+
+  const visibleError = localError ?? error;
+  const toastKey = localError
+    ? `local-${localErrorId}`
+    : `auth-${visibleError ?? "empty"}`;
 
   //TODO: Think later should we add all login/signup logic here instead of passing it as props
   return (
@@ -154,7 +161,7 @@ export const AuthModal: FC<AuthModalProps> = ({
                 : "Sign Up"}
           </Button>
 
-          <Toast message={localError ?? error} role="alert" />
+          <Toast key={toastKey} message={visibleError} role="alert" />
         </form>
 
         <div className={styles.authModal__toggle}>
