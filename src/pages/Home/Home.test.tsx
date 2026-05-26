@@ -116,6 +116,7 @@ const renderHome = (
 describe("Home", () => {
   beforeEach(() => {
     window.localStorage.clear();
+    window.sessionStorage.clear();
     mockNavigate.mockClear();
     mockedUseDispatch.mockReturnValue(jest.fn(() => ({
       unwrap: jest.fn().mockResolvedValue(undefined),
@@ -149,6 +150,20 @@ describe("Home", () => {
     expect(screen.getByText("Nike")).toBeInTheDocument();
     expect(screen.getByText("Sneakers")).toBeInTheDocument();
     expect(screen.getByText("Comfortable sneakers")).toBeInTheDocument();
+    expect(dispatch).not.toHaveBeenCalled();
+  });
+
+  it("does not retry recommendations automatically while product error exists", () => {
+    const dispatch = jest.fn(() => ({
+      unwrap: jest.fn().mockResolvedValue(undefined),
+    }));
+    mockedUseDispatch.mockReturnValue(dispatch as never);
+    mockedSelectors.getProducts.mockReturnValue([]);
+    mockedSelectors.getProductsError.mockReturnValue("Could not load products");
+
+    renderHome();
+
+    expect(screen.getAllByText("Could not load products")).toHaveLength(2);
     expect(dispatch).not.toHaveBeenCalled();
   });
 
@@ -188,6 +203,30 @@ describe("Home", () => {
     );
 
     await waitFor(() => expect(dispatch).toHaveBeenCalledTimes(1));
+  });
+
+  it("keeps home swipe progress when navigating away and back", async () => {
+    mockedSelectors.getProducts.mockReturnValue([product, secondProduct]);
+
+    const { unmount } = renderHome();
+    await userEvent.click(
+      screen.getByRole("button", { name: "Like / Add to Wishlist" }),
+    );
+
+    await waitFor(() =>
+      expect(window.sessionStorage.getItem("sneaky:home-swiped-product-ids"))
+        .toContain(product.id),
+    );
+
+    unmount();
+    renderHome();
+
+    expect(
+      screen.queryByRole("heading", { name: "Air Max" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Forum Low" }),
+    ).toBeInTheDocument();
   });
 
   it("opens product details from the home card", async () => {

@@ -94,8 +94,30 @@ export const sneakySlice = createSlice({
           "We couldn't load your wishlist. Please try again.",
         );
       })
-      .addCase(addWishlistItem.fulfilled, (state) => {
-        state.wishlistStatus = "idle";
+      .addCase(addWishlistItem.fulfilled, (state, action) => {
+        const productId = action.payload;
+        const product = state.products.find((item) => item.id === productId);
+
+        if (!product || state.wishlistStatus !== "succeeded") {
+          state.wishlistStatus = "idle";
+          return;
+        }
+
+        state.wishlist = state.wishlist.filter(
+          (item) => item.productId !== productId,
+        );
+        state.wishlist.unshift({
+          productId: product.id,
+          name: product.name,
+          price: product.price,
+          imageUrl: product.image,
+          brandName: product.brand,
+          category: product.category,
+          sizes: product.sizes,
+          colors: product.colors,
+          stockStatus: product.stockStatus,
+        });
+        state.wishlistStatus = "succeeded";
       })
       .addCase(deleteWishlistItem.fulfilled, (state, action) => {
         state.wishlist = state.wishlist.filter(

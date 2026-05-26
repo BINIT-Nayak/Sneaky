@@ -18,33 +18,47 @@ import type { ToastMessage } from "./useHomeActions";
 import { useHomeActions } from "./useHomeActions";
 
 const RECENTLY_VIEWED_STORAGE_KEY = "sneaky:recently-viewed-products";
+const SWIPED_PRODUCTS_STORAGE_KEY = "sneaky:home-swiped-product-ids";
 const RECENTLY_VIEWED_STORAGE_LIMIT = 3;
 const RECENTLY_VIEWED_VISIBLE_LIMIT = 2;
 
-const readRecentlyViewedIds = () => {
+const readStoredIds = (storage: Storage, key: string, limit?: number) => {
   try {
-    const storedValue = window.localStorage.getItem(RECENTLY_VIEWED_STORAGE_KEY);
+    const storedValue = storage.getItem(key);
     const parsedValue = storedValue ? JSON.parse(storedValue) : [];
-
-    return Array.isArray(parsedValue)
+    const ids = Array.isArray(parsedValue)
       ? parsedValue.filter((id): id is string => typeof id === "string")
-          .slice(0, RECENTLY_VIEWED_STORAGE_LIMIT)
       : [];
+
+    return typeof limit === "number" ? ids.slice(0, limit) : ids;
   } catch {
     return [];
   }
 };
 
-const writeRecentlyViewedIds = (ids: string[]) => {
+const readRecentlyViewedIds = () =>
+  readStoredIds(
+    window.localStorage,
+    RECENTLY_VIEWED_STORAGE_KEY,
+    RECENTLY_VIEWED_STORAGE_LIMIT,
+  );
+
+const readSwipedProductIds = () =>
+  readStoredIds(window.sessionStorage, SWIPED_PRODUCTS_STORAGE_KEY);
+
+const writeStoredIds = (storage: Storage, key: string, ids: string[]) => {
   try {
-    window.localStorage.setItem(
-      RECENTLY_VIEWED_STORAGE_KEY,
-      JSON.stringify(ids),
-    );
+    storage.setItem(key, JSON.stringify(ids));
   } catch {
-    // localStorage can be unavailable in private browsing or test contexts.
+    // Browser storage can be unavailable in private browsing or test contexts.
   }
 };
+
+const writeRecentlyViewedIds = (ids: string[]) =>
+  writeStoredIds(window.localStorage, RECENTLY_VIEWED_STORAGE_KEY, ids);
+
+const writeSwipedProductIds = (ids: string[]) =>
+  writeStoredIds(window.sessionStorage, SWIPED_PRODUCTS_STORAGE_KEY, ids);
 
 export const Home = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -69,7 +83,9 @@ export const Home = () => {
   const [recentlyViewedIds, setRecentlyViewedIds] = useState<string[]>(() =>
     readRecentlyViewedIds(),
   );
-  const [swipedProductIds, setSwipedProductIds] = useState<string[]>([]);
+  const [swipedProductIds, setSwipedProductIds] = useState<string[]>(() =>
+    readSwipedProductIds(),
+  );
   const [lastProductsError, setLastProductsError] = useState<string | null>(
     null,
   );
@@ -96,11 +112,14 @@ export const Home = () => {
     isLoggedIn,
     onOpenAuth,
     onProductSwiped: (product) => {
-      setSwipedProductIds((previousIds) =>
-        previousIds.includes(product.id)
+      setSwipedProductIds((previousIds) => {
+        const nextIds = previousIds.includes(product.id)
           ? previousIds
-          : [...previousIds, product.id],
-      );
+          : [...previousIds, product.id];
+
+        writeSwipedProductIds(nextIds);
+        return nextIds;
+      });
     },
     setCurrentIndex,
     setShowAnimation,
@@ -111,10 +130,10 @@ export const Home = () => {
 
   // Fetch products on mount
   useEffect(() => {
-    if (products.length > 0 || productsLoading) return;
+    if (products.length > 0 || productsLoading || productsError) return;
 
     dispatch(fetchProducts());
-  }, [dispatch, products.length, productsLoading]);
+  }, [dispatch, products.length, productsError, productsLoading]);
 
   useEffect(() => {
     if (!currentProduct) return;
@@ -255,6 +274,7 @@ export const Home = () => {
           }
         }}
         onStartOver={() => {
+          writeSwipedProductIds([]);
           setSwipedProductIds([]);
           setCurrentIndex(0);
         }}
