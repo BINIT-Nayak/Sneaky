@@ -1,10 +1,9 @@
 import type { Dispatch, SetStateAction } from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 
 import { addCartItem } from "../../store/fetchAPI/addCartItem";
 import { addWishlistItem } from "../../store/fetchAPI/addWishlistItem";
-import { fetchProducts } from "../../store/fetchAPI/fetchProducts";
 import { recordProductPass } from "../../store/fetchAPI/recordProductPass";
 import type { AppDispatch } from "../../store/sneakyStore";
 import type { Product } from "../../store/types";
@@ -27,7 +26,7 @@ type UseHomeActionsParams = {
   showAnimation: boolean;
 };
 
-const SWIPE_ANIMATION_DURATION = 300;
+const SWIPE_ANIMATION_DURATION = 420;
 
 export const useHomeActions = ({
   currentProduct,
@@ -41,8 +40,6 @@ export const useHomeActions = ({
   showAnimation,
 }: UseHomeActionsParams) => {
   const dispatch = useDispatch<AppDispatch>();
-  const [wishlistSubmitting, setWishlistSubmitting] = useState(false);
-  const [cartSubmitting, setCartSubmitting] = useState(false);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const toastIdRef = useRef(0);
 
@@ -91,7 +88,7 @@ export const useHomeActions = ({
   );
 
   const onLike = useCallback(() => {
-    if (showAnimation || wishlistSubmitting) return;
+    if (showAnimation || !currentProduct) return;
 
     if (!isLoggedIn) {
       onOpenAuth();
@@ -99,28 +96,20 @@ export const useHomeActions = ({
       return;
     }
 
-    if (currentProduct) {
-      setWishlistSubmitting(true);
-      void dispatch(addWishlistItem({ productId: currentProduct.id }))
-        .unwrap()
-        .then(() => {
-          advanceProduct("right", currentProduct);
-          showToastMessage(`❤️ Added ${currentProduct.name} to wishlist!`);
-          void dispatch(fetchProducts());
-        })
-        .catch((err) => {
-          const message =
-            typeof err === "string"
-              ? err
-              : err instanceof Error
-                ? err.message
-                : "Failed to add to wishlist";
-          showToastMessage(message);
-        })
-        .finally(() => {
-          setWishlistSubmitting(false);
-        });
-    }
+    advanceProduct("right", currentProduct);
+    showToastMessage(`❤️ Added ${currentProduct.name} to wishlist!`);
+
+    void dispatch(addWishlistItem({ productId: currentProduct.id }))
+      .unwrap()
+      .catch((err) => {
+        const message =
+          typeof err === "string"
+            ? err
+            : err instanceof Error
+              ? err.message
+              : "Failed to add to wishlist";
+        showToastMessage(message);
+      });
   }, [
     advanceProduct,
     currentProduct,
@@ -129,25 +118,22 @@ export const useHomeActions = ({
     onOpenAuth,
     showAnimation,
     showToastMessage,
-    wishlistSubmitting,
   ]);
 
   const onDislike = useCallback(() => {
     if (showAnimation || !currentProduct) return;
 
-    if (isLoggedIn) {
-      void dispatch(recordProductPass(currentProduct.id))
-        .unwrap()
-        .then(() => {
-          void dispatch(fetchProducts());
-        });
-    }
-
     advanceProduct("left", currentProduct);
+
+    if (isLoggedIn) {
+      void dispatch(recordProductPass(currentProduct.id)).unwrap().catch(() => {
+        // Preference recording should never block the next card.
+      });
+    }
   }, [advanceProduct, currentProduct, dispatch, isLoggedIn, showAnimation]);
 
   const onAddToCart = useCallback(() => {
-    if (showAnimation || cartSubmitting) return;
+    if (showAnimation || !currentProduct) return;
 
     if (!isLoggedIn) {
       onOpenAuth();
@@ -155,31 +141,22 @@ export const useHomeActions = ({
       return;
     }
 
-    if (currentProduct) {
-      setCartSubmitting(true);
-      void dispatch(addCartItem({ productId: currentProduct.id }))
-        .unwrap()
-        .then(() => {
-          advanceProduct("right", currentProduct);
-          showToastMessage(`🛒 Added ${currentProduct.name} to cart!`);
-          void dispatch(fetchProducts());
-        })
-        .catch((err) => {
-          const message =
-            typeof err === "string"
-              ? err
-              : err instanceof Error
-                ? err.message
-                : "Failed to add to cart";
-          showToastMessage(message);
-        })
-        .finally(() => {
-          setCartSubmitting(false);
-        });
-    }
+    advanceProduct("right", currentProduct);
+    showToastMessage(`🛒 Added ${currentProduct.name} to cart!`);
+
+    void dispatch(addCartItem({ productId: currentProduct.id }))
+      .unwrap()
+      .catch((err) => {
+        const message =
+          typeof err === "string"
+            ? err
+            : err instanceof Error
+              ? err.message
+              : "Failed to add to cart";
+        showToastMessage(message);
+      });
   }, [
     advanceProduct,
-    cartSubmitting,
     currentProduct,
     dispatch,
     isLoggedIn,

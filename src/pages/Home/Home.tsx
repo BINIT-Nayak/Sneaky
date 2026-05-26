@@ -111,8 +111,10 @@ export const Home = () => {
 
   // Fetch products on mount
   useEffect(() => {
+    if (products.length > 0 || productsLoading) return;
+
     dispatch(fetchProducts());
-  }, [dispatch]);
+  }, [dispatch, products.length, productsLoading]);
 
   useEffect(() => {
     if (!currentProduct) return;

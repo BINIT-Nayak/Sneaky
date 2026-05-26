@@ -91,12 +91,12 @@
 }
 
 .swipe_left {
-  animation: swipe-left 0.3s ease-in forwards;
+  animation: swipe-left 0.42s ease-in forwards;
   pointer-events: none;
 }
 
 .swipe_right {
-  animation: swipe-right 0.3s ease-in forwards;
+  animation: swipe-right 0.42s ease-in forwards;
   pointer-events: none;
 }
 

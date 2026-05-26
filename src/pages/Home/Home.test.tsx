@@ -130,6 +130,18 @@ describe("Home", () => {
       unwrap: jest.fn().mockResolvedValue(undefined),
     }));
     mockedUseDispatch.mockReturnValue(dispatch as never);
+    mockedSelectors.getProducts.mockReturnValue([]);
+
+    renderHome();
+
+    expect(dispatch).toHaveBeenCalled();
+  });
+
+  it("reuses already loaded products when home remounts", () => {
+    const dispatch = jest.fn(() => ({
+      unwrap: jest.fn().mockResolvedValue(undefined),
+    }));
+    mockedUseDispatch.mockReturnValue(dispatch as never);
 
     renderHome();
 
@@ -137,7 +149,7 @@ describe("Home", () => {
     expect(screen.getByText("Nike")).toBeInTheDocument();
     expect(screen.getByText("Sneakers")).toBeInTheDocument();
     expect(screen.getByText("Comfortable sneakers")).toBeInTheDocument();
-    expect(dispatch).toHaveBeenCalled();
+    expect(dispatch).not.toHaveBeenCalled();
   });
 
   it("opens auth instead of liking when guest clicks wishlist action", async () => {
@@ -162,6 +174,20 @@ describe("Home", () => {
     await userEvent.click(screen.getByRole("button", { name: "Add to Cart" }));
 
     await waitFor(() => expect(dispatch).toHaveBeenCalled());
+  });
+
+  it("does not refetch recommendations after right swipe", async () => {
+    const dispatch = jest.fn(() => ({
+      unwrap: jest.fn().mockResolvedValue(undefined),
+    }));
+    mockedUseDispatch.mockReturnValue(dispatch as never);
+
+    renderHome();
+    await userEvent.click(
+      screen.getByRole("button", { name: "Like / Add to Wishlist" }),
+    );
+
+    await waitFor(() => expect(dispatch).toHaveBeenCalledTimes(1));
   });
 
   it("opens product details from the home card", async () => {
