@@ -92,6 +92,16 @@ const fourthProduct = {
   category: "Sneakers",
 };
 
+const makeProduct = (index: number) => ({
+  id: `product-${index}`,
+  name: `Product ${index}`,
+  price: 5000 + index,
+  image: `product-${index}.jpg`,
+  description: `Product ${index} description`,
+  brand: `Brand ${index}`,
+  category: "Sneakers",
+});
+
 const renderHome = (
   isLoggedIn = true,
   onOpenAuth = jest.fn(),
@@ -227,6 +237,34 @@ describe("Home", () => {
     expect(
       screen.getByRole("heading", { name: "Forum Low" }),
     ).toBeInTheDocument();
+  });
+
+  it("prefetches more recommendations in the background when the deck reaches the last ten products", async () => {
+    const dispatch = jest.fn(() => ({
+      unwrap: jest.fn().mockResolvedValue(undefined),
+    }));
+    const products = Array.from({ length: 21 }, (_, index) =>
+      makeProduct(index + 1),
+    );
+    window.sessionStorage.setItem(
+      "sneaky:home-swiped-product-ids",
+      JSON.stringify(products.slice(0, 11).map((item) => item.id)),
+    );
+    mockedUseDispatch.mockReturnValue(dispatch as never);
+    mockedSelectors.getProducts.mockReturnValue(products);
+
+    renderHome();
+
+    await waitFor(() =>
+      expect(dispatch).toHaveBeenCalledWith({
+        payload: {
+          excludeProductIds: products.map((item) => item.id),
+        },
+        type: "sneakyState/fetchProducts",
+      }),
+    );
+    expect(screen.queryByRole("button", { name: "Start Over" }))
+      .not.toBeInTheDocument();
   });
 
   it("opens product details from the home card", async () => {

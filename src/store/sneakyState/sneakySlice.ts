@@ -63,7 +63,17 @@ export const sneakySlice = createSlice({
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
         state.productsLoading = false;
-        state.products = action.payload;
+        const existingProductIds = new Set(
+          state.products.map((product) => product.id),
+        );
+        const newProducts = action.payload.filter(
+          (product) => !existingProductIds.has(product.id),
+        );
+
+        state.products =
+          state.products.length === 0
+            ? action.payload
+            : [...state.products, ...newProducts];
         state.productsError = null;
       })
       .addCase(fetchProducts.rejected, (state, action) => {

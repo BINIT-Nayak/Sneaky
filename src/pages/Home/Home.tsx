@@ -21,6 +21,7 @@ const RECENTLY_VIEWED_STORAGE_KEY = "sneaky:recently-viewed-products";
 const SWIPED_PRODUCTS_STORAGE_KEY = "sneaky:home-swiped-product-ids";
 const RECENTLY_VIEWED_STORAGE_LIMIT = 3;
 const RECENTLY_VIEWED_VISIBLE_LIMIT = 2;
+const RECOMMENDATION_PREFETCH_THRESHOLD = 10;
 
 const readStoredIds = (storage: Storage, key: string, limit?: number) => {
   try {
@@ -90,6 +91,7 @@ export const Home = () => {
     null,
   );
   const cardRef = useRef<HTMLDivElement>(null);
+  const lastPrefetchRemainingRef = useRef<number | null>(null);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const isAdmin = isAdminRole(user?.role);
@@ -134,6 +136,39 @@ export const Home = () => {
 
     dispatch(fetchProducts());
   }, [dispatch, products.length, productsError, productsLoading]);
+
+  useEffect(() => {
+    if (
+      products.length === 0 ||
+      products.length <= RECOMMENDATION_PREFETCH_THRESHOLD ||
+      productsLoading ||
+      productsError ||
+      feedProducts.length === 0
+    )
+      return;
+
+    const remainingProducts = feedProducts.length - currentIndex;
+
+    if (
+      remainingProducts > RECOMMENDATION_PREFETCH_THRESHOLD ||
+      lastPrefetchRemainingRef.current === remainingProducts
+    )
+      return;
+
+    lastPrefetchRemainingRef.current = remainingProducts;
+    dispatch(
+      fetchProducts({
+        excludeProductIds: products.map((product) => product.id),
+      }),
+    );
+  }, [
+    currentIndex,
+    dispatch,
+    feedProducts.length,
+    products,
+    productsError,
+    productsLoading,
+  ]);
 
   useEffect(() => {
     if (!currentProduct) return;

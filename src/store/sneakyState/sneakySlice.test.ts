@@ -158,4 +158,46 @@ describe("sneakySlice", () => {
     });
     expect(nextState.wishlist[1].productId).toBe("product-2");
   });
+
+  it("appends new recommendation products without duplicating existing ones", () => {
+    const initialState = {
+      ...sneakySlice.reducer(undefined, { type: "init" }),
+      products: [
+        {
+          id: "product-1",
+          name: "Air Max",
+          price: 12999,
+          image: "image.jpg",
+          description: "Comfortable sneakers",
+          brand: "Nike",
+          category: "Running",
+        },
+      ],
+    };
+
+    const nextState = sneakySlice.reducer(
+      initialState,
+      {
+        payload: [
+          initialState.products[0],
+          {
+            id: "product-2",
+            name: "Forum Low",
+            price: 9999,
+            image: "forum.jpg",
+            description: "Retro court sneakers",
+            brand: "Adidas",
+            category: "Lifestyle",
+          },
+        ],
+        type: "sneakyState/fetchProducts/fulfilled",
+      },
+    );
+
+    expect(nextState.products).toHaveLength(2);
+    expect(nextState.products.map((product) => product.id)).toEqual([
+      "product-1",
+      "product-2",
+    ]);
+  });
 });
