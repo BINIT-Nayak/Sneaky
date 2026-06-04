@@ -2,6 +2,7 @@ import type {
   IAddToCartRequestProp,
   ICartItem,
   IUpdateCartQuantityRequestProp,
+  IWishlistItem,
 } from "../store/types";
 
 import { apiRequest } from "./api";
@@ -30,6 +31,12 @@ export const cartApi = {
     apiRequest<void>(`/api/cart/${productId}`, {
       auth: true,
       method: "DELETE",
+    }),
+
+  moveToWishlist: (productId: string) =>
+    apiRequest<IWishlistItem>(`/api/cart/${productId}/move-to-wishlist`, {
+      auth: true,
+      method: "POST",
     }),
 
   clearCart: () =>

@@ -149,6 +149,36 @@ describe("Cart", () => {
     });
   });
 
+  it("moves cart items to wishlist", async () => {
+    const dispatch = jest.fn(() => ({
+      unwrap: jest.fn().mockResolvedValue(undefined),
+    }));
+    mockedUseDispatch.mockReturnValue(dispatch as never);
+    mockedSelectors.getCart.mockReturnValue([
+      {
+        productId: "product-1",
+        name: "Air Max",
+        price: 12999,
+        currency: "INR",
+        imageUrl: "image.jpg",
+        brandName: "Nike",
+        category: "Running",
+        merchantName: "Amazon",
+        merchantUrl: "https://www.amazon.in/s?k=sneakers",
+        quantity: 1,
+        itemTotal: 12999,
+      },
+    ]);
+
+    renderCart();
+    await userEvent.click(
+      screen.getByRole("button", { name: /move air max to wishlist/i }),
+    );
+
+    expect(screen.getByText(/air max moved to wishlist/i)).toBeInTheDocument();
+    await waitFor(() => expect(dispatch).toHaveBeenCalled());
+  });
+
   it("groups checkout buttons by merchant", () => {
     mockedSelectors.getCart.mockReturnValue([
       {

@@ -15,6 +15,9 @@ export const deleteWishlistItem = makeThunk("sneakyState/deleteWishlistItem");
 export const fetchCart = makeThunk("sneakyState/fetchCart");
 export const fetchProducts = makeThunk("sneakyState/fetchProducts");
 export const fetchWishlist = makeThunk("sneakyState/fetchWishlist");
+export const moveCartItemToWishlist = makeThunk(
+  "sneakyState/moveCartItemToWishlist",
+);
 export const moveWishlistItemToCart = makeThunk(
   "sneakyState/moveWishlistItemToCart",
 );

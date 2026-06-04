@@ -228,6 +228,7 @@
 }
 
 .cart__quantityBtn,
+.cart__wishlistBtn,
 .cart__removeBtn {
   align-items: center;
   background: transparent;
@@ -245,13 +246,14 @@
 }
 
 .cart__quantityBtn:hover:not(:disabled),
+.cart__wishlistBtn:hover:not(:disabled),
 .cart__removeBtn:hover:not(:disabled) {
-  background: rgb(0 214 201 / 12%);
-  border-radius: inherit;
-  color: #d8fffb;
+  background: rgb(122 141 140 / 12%);
+  color: #ff9090;
 }
 
 .cart__quantityBtn:disabled,
+.cart__wishlistBtn:disabled,
 .cart__removeBtn:disabled {
   cursor: not-allowed;
 }
@@ -271,6 +273,15 @@
   background: rgb(255 119 94 / 10%);
   border-radius: 8px;
   color: #ffc4b7;
+  flex: 0 0 38px;
+  height: 38px;
+  width: 38px;
+}
+
+.cart__wishlistBtn {
+  background: rgb(0 214 201 / 10%);
+  border-radius: 8px;
+  color: #a9fff7;
   flex: 0 0 38px;
   height: 38px;
   width: 38px;

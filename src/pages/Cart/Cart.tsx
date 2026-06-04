@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 
 import {
   FiExternalLink,
+  FiHeart,
   FiMinus,
   FiPlus,
   FiShoppingBag,
@@ -24,6 +25,7 @@ import { AuthContext } from "../../context/AuthContext";
 import { clearCartItems } from "../../store/fetchAPI/clearCartItems";
 import { deleteCartItem } from "../../store/fetchAPI/deleteCartItem";
 import { fetchCart } from "../../store/fetchAPI/fetchCart";
+import { moveCartItemToWishlist } from "../../store/fetchAPI/moveCartItemToWishlist";
 import { updateCartQuantity } from "../../store/fetchAPI/updateCartQuantity";
 import { useSneakyStateSlice } from "../../store/sneakyState/sneakySelectors";
 import type { AppDispatch } from "../../store/sneakyStore";
@@ -184,6 +186,24 @@ export const Cart = () => {
     } catch (err) {
       setCartActionError(
         getActionErrorMessage(err, "We couldn't remove this item."),
+      );
+    } finally {
+      setSubmittingProductId(null);
+    }
+  };
+
+  const handleMoveToWishlist = async (productId: string, productName: string) => {
+    if (submittingProductId || isClearing) return;
+
+    setSubmittingProductId(productId);
+    setCartActionError(null);
+
+    try {
+      await dispatch(moveCartItemToWishlist(productId)).unwrap();
+      showToastMessage(`${productName} moved to wishlist.`);
+    } catch (err) {
+      setCartActionError(
+        getActionErrorMessage(err, "We couldn't move this item to wishlist."),
       );
     } finally {
       setSubmittingProductId(null);
@@ -443,12 +463,24 @@ export const Cart = () => {
                       </button>
                     </div>
                     <button
+                      className={styles.cart__wishlistBtn}
+                      disabled={areItemActionsDisabled}
+                      aria-label={`Move ${item.name} to wishlist`}
+                      onClick={() => {
+                        void handleMoveToWishlist(item.productId, item.name);
+                      }}
+                      type="button"
+                    >
+                      <FiHeart />
+                    </button>
+                    <button
                       className={styles.cart__removeBtn}
                       disabled={areItemActionsDisabled}
                       aria-label={`Remove ${item.name}`}
                       onClick={() => {
                         void handleRemove(item.productId);
                       }}
+                      type="button"
                     >
                       <FiTrash2 />
                     </button>

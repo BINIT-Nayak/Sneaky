@@ -31,6 +31,9 @@ jest.mock("../fetchAPI/fetchProducts", () => ({
 jest.mock("../fetchAPI/fetchWishlist", () => ({
   fetchWishlist: mockThunk("sneakyState/fetchWishlist"),
 }));
+jest.mock("../fetchAPI/moveCartItemToWishlist", () => ({
+  moveCartItemToWishlist: mockThunk("sneakyState/moveCartItemToWishlist"),
+}));
 jest.mock("../fetchAPI/moveWishlistItemToCart", () => ({
   moveWishlistItemToCart: mockThunk("sneakyState/moveWishlistItemToCart"),
 }));
@@ -102,5 +105,57 @@ describe("sneakySlice", () => {
     );
 
     expect(nextState.wishlistStatus).toBe("idle");
+  });
+
+  it("moves cart items to the top of an already-loaded wishlist", () => {
+    const initialState = {
+      ...sneakySlice.reducer(undefined, { type: "init" }),
+      cart: [
+        {
+          productId: "product-1",
+          name: "Air Max",
+          price: 12999,
+          currency: "INR",
+          imageUrl: "image.jpg",
+          brandName: "Nike",
+          quantity: 2,
+          itemTotal: 25998,
+        },
+      ],
+      wishlist: [
+        {
+          productId: "product-2",
+          name: "Forum Low",
+          price: 9999,
+          imageUrl: "forum.jpg",
+          brandName: "Adidas",
+        },
+      ],
+      wishlistStatus: "succeeded" as const,
+    };
+
+    const nextState = sneakySlice.reducer(
+      initialState,
+      {
+        payload: {
+          productId: "product-1",
+          wishlistItem: {
+            productId: "product-1",
+            name: "Air Max",
+            price: 12999,
+            imageUrl: "image.jpg",
+            brandName: "Nike",
+          },
+        },
+        type: "sneakyState/moveCartItemToWishlist/fulfilled",
+      },
+    );
+
+    expect(nextState.cart).toHaveLength(0);
+    expect(nextState.wishlist[0]).toMatchObject({
+      productId: "product-1",
+      name: "Air Max",
+    });
+    expect(nextState.wishlist[1].productId).toBe("product-2");
   });
 });
