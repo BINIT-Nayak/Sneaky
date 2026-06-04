@@ -221,7 +221,13 @@ Merchant checkout buttons do not call Sneaky payment APIs. They open the partner
 
 ## 📸 Screenshots
 
-Add project screenshots here.
+<img width="500" height="500" alt="Screenshot 2026-06-04 at 7 58 35 PM" src="https://github.com/user-attachments/assets/336d0a8f-7583-495b-99bd-0ae851f013b4" />
+<img width="500" height="500" alt="Screenshot 2026-06-04 at 7 58 43 PM" src="https://github.com/user-attachments/assets/76257019-c3a2-4b2f-a93e-7d8de637f489" />
+<img width="500" height="500" alt="Screenshot 2026-06-04 at 8 01 11 PM" src="https://github.com/user-attachments/assets/5dd6073f-b81e-402f-b237-9581bebe99b9" />
+<img width="500" height="500" alt="Screenshot 2026-06-04 at 8 01 30 PM" src="https://github.com/user-attachments/assets/9e7cb309-0c85-4795-b64a-059b4259af8b" />
+<img width="500" height="500" alt="Screenshot 2026-06-04 at 8 03 07 PM" src="https://github.com/user-attachments/assets/99d4c509-5043-412b-b802-d663b5a49b91" />
+<img width="364" height="659" alt="Screenshot 2026-06-04 at 8 02 15 PM" src="https://github.com/user-attachments/assets/63761929-4edf-420f-bbf7-eee6dc00b8fe" />
+
 
 ## Roadmap
  - Improve animations
