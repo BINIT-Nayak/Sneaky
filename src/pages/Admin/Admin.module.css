@@ -25,7 +25,13 @@
   line-height: 1;
 }
 
+.admin__headerActions {
+  display: flex;
+  gap: 10px;
+}
+
 .admin__iconButton,
+.admin__logoutButton,
 .admin__rowActions button,
 .admin__formActions button,
 .admin__emptyState button {
@@ -52,6 +58,7 @@
 }
 
 .admin__iconButton:hover,
+.admin__logoutButton:hover,
 .admin__rowActions button:hover,
 .admin__formActions button:hover,
 .admin__emptyState button:hover {
@@ -63,6 +70,11 @@
 .admin__iconButton:disabled {
   cursor: wait;
   opacity: 0.6;
+}
+
+.admin__logoutButton {
+  font: inherit;
+  font-weight: 700;
 }
 
 .admin__rowActions button:disabled,

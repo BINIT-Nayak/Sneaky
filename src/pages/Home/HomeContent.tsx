@@ -134,6 +134,16 @@ export const HomeContent: FC<HomeContentProps> = ({
     );
   }
 
+  if (!currentProduct && !isFinished) {
+    return (
+      <div className={styles.home__card}>
+        <div className={styles.home__loading}>
+          <p>Loading products...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (isFinished) {
     return (
       <div className={styles.home__card}>
@@ -149,13 +159,7 @@ export const HomeContent: FC<HomeContentProps> = ({
   }
 
   if (!currentProduct) {
-    return (
-      <div className={styles.home__card}>
-        <div className={styles.home__loading}>
-          <p>Loading products...</p>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   return (

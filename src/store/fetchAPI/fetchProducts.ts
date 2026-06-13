@@ -2,6 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 
 import { productsApi } from "../../services/productsAPI";
 import { getUserFriendlyErrorMessage } from "../../utils/errorMessages";
+import type { UIStateProps } from "../types";
 
 type FetchProductsPayload = {
   excludeProductIds?: string[];
@@ -20,5 +21,13 @@ export const fetchProducts = createAsyncThunk(
         ),
       );
     }
+  },
+  {
+    condition: (_, { getState }) => {
+      const { sneakyState } = getState() as { sneakyState: UIStateProps };
+      return (
+        !sneakyState.productsLoading && sneakyState.products.length === 0
+      );
+    },
   },
 );

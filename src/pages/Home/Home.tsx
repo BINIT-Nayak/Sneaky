@@ -37,16 +37,6 @@ const readStoredIds = (storage: Storage, key: string, limit?: number) => {
   }
 };
 
-const readRecentlyViewedIds = () =>
-  readStoredIds(
-    window.localStorage,
-    RECENTLY_VIEWED_STORAGE_KEY,
-    RECENTLY_VIEWED_STORAGE_LIMIT,
-  );
-
-const readSwipedProductIds = () =>
-  readStoredIds(window.sessionStorage, SWIPED_PRODUCTS_STORAGE_KEY);
-
 const writeStoredIds = (storage: Storage, key: string, ids: string[]) => {
   try {
     storage.setItem(key, JSON.stringify(ids));
@@ -54,12 +44,6 @@ const writeStoredIds = (storage: Storage, key: string, ids: string[]) => {
     // Browser storage can be unavailable in private browsing or test contexts.
   }
 };
-
-const writeRecentlyViewedIds = (ids: string[]) =>
-  writeStoredIds(window.localStorage, RECENTLY_VIEWED_STORAGE_KEY, ids);
-
-const writeSwipedProductIds = (ids: string[]) =>
-  writeStoredIds(window.sessionStorage, SWIPED_PRODUCTS_STORAGE_KEY, ids);
 
 export const Home = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -82,10 +66,14 @@ export const Home = () => {
   );
   const [showToast, setShowToast] = useState<ToastMessage | null>(null);
   const [recentlyViewedIds, setRecentlyViewedIds] = useState<string[]>(() =>
-    readRecentlyViewedIds(),
+    readStoredIds(
+      window.localStorage,
+      RECENTLY_VIEWED_STORAGE_KEY,
+      RECENTLY_VIEWED_STORAGE_LIMIT,
+    ),
   );
   const [swipedProductIds, setSwipedProductIds] = useState<string[]>(() =>
-    readSwipedProductIds(),
+    readStoredIds(window.sessionStorage, SWIPED_PRODUCTS_STORAGE_KEY),
   );
   const [lastProductsError, setLastProductsError] = useState<string | null>(
     null,
@@ -119,7 +107,11 @@ export const Home = () => {
           ? previousIds
           : [...previousIds, product.id];
 
-        writeSwipedProductIds(nextIds);
+        writeStoredIds(
+          window.sessionStorage,
+          SWIPED_PRODUCTS_STORAGE_KEY,
+          nextIds,
+        );
         return nextIds;
       });
     },
@@ -148,7 +140,6 @@ export const Home = () => {
       return;
 
     const remainingProducts = feedProducts.length - currentIndex;
-
     if (
       remainingProducts > RECOMMENDATION_PREFETCH_THRESHOLD ||
       lastPrefetchRemainingRef.current === remainingProducts
@@ -179,7 +170,7 @@ export const Home = () => {
         ...previousIds.filter((id) => id !== currentProduct.id),
       ].slice(0, RECENTLY_VIEWED_STORAGE_LIMIT);
 
-      writeRecentlyViewedIds(nextIds);
+      writeStoredIds(window.localStorage, RECENTLY_VIEWED_STORAGE_KEY, nextIds);
       return nextIds;
     });
   }, [currentProduct]);
@@ -187,16 +178,9 @@ export const Home = () => {
   useEffect(() => {
     if (!productsError || productsError === lastProductsError) return;
 
-    setShowToast({
-      id: Date.now(),
-      message: productsError,
-    });
+    setShowToast({ id: Date.now(), message: productsError });
     setLastProductsError(productsError);
-
-    const timer = window.setTimeout(() => {
-      setShowToast(null);
-    }, 3000);
-
+    const timer = window.setTimeout(() => setShowToast(null), 3000);
     return () => window.clearTimeout(timer);
   }, [lastProductsError, productsError]);
 
@@ -293,9 +277,7 @@ export const Home = () => {
         onCloseDetails={() => setIsDetailsOpen(false)}
         onDislike={onDislike}
         onEditProduct={(productId) => {
-          navigate("/admin", {
-            state: { editProductId: productId },
-          });
+          navigate("/admin", { state: { editProductId: productId } });
         }}
         onLike={onLike}
         onOpenDetails={() => setIsDetailsOpen(true)}
@@ -309,7 +291,7 @@ export const Home = () => {
           }
         }}
         onStartOver={() => {
-          writeSwipedProductIds([]);
+          writeStoredIds(window.sessionStorage, SWIPED_PRODUCTS_STORAGE_KEY, []);
           setSwipedProductIds([]);
           setCurrentIndex(0);
         }}
