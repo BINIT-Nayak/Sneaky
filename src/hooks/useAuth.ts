@@ -179,9 +179,13 @@ export const useAuth = () => {
     [clearAuthSession, saveAuthSession],
   );
 
-  const handleLogout = useCallback(() => {
+  const handleLogout = useCallback(async () => {
     clearAuthSession();
-    void authApi.logout().catch(() => undefined);
+    try {
+      await authApi.logout();
+    } catch {
+      // Best effort only: the local session is already cleared.
+    }
   }, [clearAuthSession]);
 
   const handleOpenAuth = useCallback(() => {

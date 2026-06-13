@@ -12,6 +12,7 @@ import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import {
   FiCheck,
   FiEdit2,
+  FiLogOut,
   FiPackage,
   FiRefreshCw,
   FiShield,
@@ -70,7 +71,7 @@ type AdminRouteState = {
 export const Admin = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isLoggedIn, onOpenAuth, user } = useContext(AuthContext);
+  const { isLoggedIn, onLogout, onOpenAuth, user } = useContext(AuthContext);
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [products, setProducts] = useState<AdminProduct[]>([]);
@@ -265,6 +266,10 @@ export const Admin = () => {
   }
 
   const refresh = () => void refreshDashboard();
+  const logout = async () => {
+    await onLogout();
+    navigate("/", { replace: true });
+  };
 
   const setNotice = (message: string) => {
     setSuccess(message);
@@ -343,16 +348,28 @@ export const Admin = () => {
           <p>Admin</p>
           <h1>Control Center</h1>
         </div>
-        <button
-          className={styles.admin__iconButton}
-          type="button"
-          onClick={refresh}
-          disabled={isLoading}
-          aria-label="Refresh admin data"
-          title="Refresh admin data"
-        >
-          <FiRefreshCw />
-        </button>
+        <div className={styles.admin__headerActions}>
+          <button
+            className={styles.admin__iconButton}
+            type="button"
+            onClick={refresh}
+            disabled={isLoading}
+            aria-label="Refresh admin data"
+            title="Refresh admin data"
+          >
+            <FiRefreshCw />
+          </button>
+          <button
+            className={styles.admin__logoutButton}
+            type="button"
+            onClick={() => {
+              void logout();
+            }}
+          >
+            <FiLogOut />
+            Logout
+          </button>
+        </div>
       </header>
 
       {error ? <p className={styles.admin__error}>{error}</p> : null}
