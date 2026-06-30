@@ -209,6 +209,28 @@
   animation-delay: 0.2s;
 }
 
+.navBar__item:nth-child(5) {
+  animation-delay: 0.25s;
+}
+
+.navBar__badge {
+  align-items: center;
+  background: #e95d7c;
+  border: 2px solid var(--base-color1);
+  border-radius: 999px;
+  color: #fff;
+  display: flex;
+  font-size: 9px;
+  font-weight: 700;
+  height: 18px;
+  justify-content: center;
+  min-width: 18px;
+  padding: 0 4px;
+  position: absolute;
+  right: -10px;
+  top: -8px;
+}
+
 /* Glow effect on hover */
 .navBar__item::before {
   background: linear-gradient(90deg, rgb(223 182 130 / 15%), transparent 70%);
@@ -280,6 +302,7 @@
   align-items: center;
   display: flex;
   filter: drop-shadow(0 2px 4px rgb(0 0 0 / 20%));
+  flex: 0 0 auto;
   font-size: 22px;
   position: relative;
   transition:

@@ -13,6 +13,7 @@ import { AuthModal } from "./pages/Auth/AuthModal";
 import { Cart } from "./pages/Cart/Cart";
 import { Home } from "./pages/Home/Home";
 import { LandingPage } from "./pages/LandingPage/LandingPage";
+import { Notifications } from "./pages/Notifications/Notifications";
 import { Profile } from "./pages/Profile/Profile";
 import { Wishlist } from "./pages/WishList/Wishlist";
 import { useSneakyStateSlice } from "./store/sneakyState/sneakySelectors";
@@ -84,6 +85,7 @@ export const App = () => {
               <Route path="/home" element={<Home />} />
               <Route path="/wishlist" element={<Wishlist />} />
               <Route path="/cart" element={<Cart />} />
+              <Route path="/notifications" element={<Notifications />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/admin" element={<Admin />} />
             </Routes>

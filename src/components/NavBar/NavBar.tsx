@@ -5,9 +5,11 @@ import { CgProfile } from "react-icons/cg";
 import { GiRoundStar } from "react-icons/gi";
 import { RiShoppingCartFill } from "react-icons/ri";
 import { RiAdminFill } from "react-icons/ri";
+import { RiNotification3Fill } from "react-icons/ri";
 import { TiHome } from "react-icons/ti";
 
 import { AuthContext } from "../../context/AuthContext";
+import { NotificationsContext } from "../../context/notifications";
 import { getClasses } from "../../hooks/useClasses";
 import { isAdminRole } from "../../utils/roles";
 
@@ -16,6 +18,7 @@ import styles from "./NavBar.module.css";
 export const NavBar = memo(() => {
   const navigate = useNavigate();
   const { isLoggedIn, user } = useContext(AuthContext);
+  const { unreadCount } = useContext(NotificationsContext);
 
   const cls = useCallback(
     (isActive: boolean) =>
@@ -68,6 +71,21 @@ export const NavBar = memo(() => {
                 <RiShoppingCartFill />
               </span>
               <span className={styles.navBar__itemLabel}>Cart</span>
+            </NavLink>
+
+            <NavLink
+              to="/notifications"
+              className={({ isActive }) => cls(isActive)}
+            >
+              <span className={styles.navBar__itemIcon}>
+                <RiNotification3Fill />
+                {unreadCount > 0 ? (
+                  <span className={styles.navBar__badge}>
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                ) : null}
+              </span>
+              <span className={styles.navBar__itemLabel}>Notifications</span>
             </NavLink>
 
             <NavLink to="/profile" className={({ isActive }) => cls(isActive)}>

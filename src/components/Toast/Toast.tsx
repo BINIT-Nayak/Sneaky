@@ -1,4 +1,6 @@
-import type { HTMLAttributes, ReactNode } from "react";
+import { useContext, useEffect, useRef, type HTMLAttributes, type ReactNode } from "react";
+
+import { NotificationsContext } from "../../context/notifications";
 
 import styles from "./Toast.module.css";
 
@@ -8,6 +10,18 @@ interface ToastProps {
 }
 
 export const Toast = ({ message, role = "status" }: ToastProps) => {
+  const { addNotification } = useContext(NotificationsContext);
+  const recordedMessageRef = useRef<ReactNode | null>(null);
+
+  useEffect(() => {
+    if (typeof message !== "string" || recordedMessageRef.current === message) {
+      return;
+    }
+
+    recordedMessageRef.current = message;
+    addNotification(message);
+  }, [addNotification, message]);
+
   if (!message) return null;
 
   return (
