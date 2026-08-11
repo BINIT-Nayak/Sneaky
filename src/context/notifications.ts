@@ -5,6 +5,7 @@ export type NotificationItem = {
   message: string;
   createdAt: string;
   read: boolean;
+  source: "local" | "server";
 };
 
 export type NotificationsContextValue = {

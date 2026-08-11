@@ -6,6 +6,7 @@ import emptyList from "./assets/emptyList.png";
 import { AuthEntryLoginButton } from "./components/AuthEntryLoginButton/AuthEntryLoginButton";
 import { ResponsiveNav } from "./components/ResponsiveNav/ResponsiveNav";
 import { AuthContext } from "./context/AuthContext";
+import { NotificationsProvider } from "./context/NotificationsContext";
 import { useAuth } from "./hooks/useAuth";
 import styles from "./index.module.css";
 import { Admin } from "./pages/Admin/Admin";
@@ -66,41 +67,43 @@ export const App = () => {
 
   return (
     <AuthContext.Provider value={contextValue}>
-      <div className={styles.app}>
-        <div className={styles.app__assetPreloader} aria-hidden="true">
-          <img src={bellIcon} alt="" decoding="async" />
-          <img src={emptyList} alt="" decoding="async" />
+      <NotificationsProvider>
+        <div className={styles.app}>
+          <div className={styles.app__assetPreloader} aria-hidden="true">
+            <img src={bellIcon} alt="" decoding="async" />
+            <img src={emptyList} alt="" decoding="async" />
+          </div>
+
+          <ResponsiveNav />
+
+          <main className={styles.app__main}>
+            {isLoggedIn === false ? (
+              <AuthEntryLoginButton onOpenAuth={handleOpenAuth} />
+            ) : null}
+
+            <div className={styles.app__content}>
+              <Routes>
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/home" element={<Home />} />
+                <Route path="/wishlist" element={<Wishlist />} />
+                <Route path="/cart" element={<Cart />} />
+                <Route path="/notifications" element={<Notifications />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/admin" element={<Admin />} />
+              </Routes>
+            </div>
+          </main>
         </div>
 
-        <ResponsiveNav />
-
-        <main className={styles.app__main}>
-          {isLoggedIn === false ? (
-            <AuthEntryLoginButton onOpenAuth={handleOpenAuth} />
-          ) : null}
-
-          <div className={styles.app__content}>
-            <Routes>
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/home" element={<Home />} />
-              <Route path="/wishlist" element={<Wishlist />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/notifications" element={<Notifications />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/admin" element={<Admin />} />
-            </Routes>
-          </div>
-        </main>
-      </div>
-
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={handleCloseAuth}
-        onLogin={handleLogin}
-        onSignUp={handleSignUp}
-        error={authError}
-        isSubmitting={isAuthLoading}
-      />
+        <AuthModal
+          isOpen={isAuthModalOpen}
+          onClose={handleCloseAuth}
+          onLogin={handleLogin}
+          onSignUp={handleSignUp}
+          error={authError}
+          isSubmitting={isAuthLoading}
+        />
+      </NotificationsProvider>
     </AuthContext.Provider>
   );
 };
