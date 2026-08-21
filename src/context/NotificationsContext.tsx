@@ -3,6 +3,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -17,6 +18,8 @@ import {
 
 const STORAGE_KEY = "sneaky:notifications";
 const MAX_NOTIFICATIONS = 100;
+const SERVER_REFRESH_INTERVAL_MS = 5 * 60_000;
+const SERVER_REFRESH_THROTTLE_MS = 60_000;
 
 const readNotifications = (): NotificationItem[] => {
   try {
@@ -54,6 +57,8 @@ export const NotificationsProvider = ({ children }: { children: ReactNode }) => 
   const [serverNotifications, setServerNotifications] = useState<
     NotificationItem[]
   >([]);
+  const isRefreshingServerRef = useRef(false);
+  const lastServerRefreshAtRef = useRef(0);
 
   useEffect(() => {
     try {
@@ -66,13 +71,31 @@ export const NotificationsProvider = ({ children }: { children: ReactNode }) => 
     }
   }, [localNotifications]);
 
-  const refreshServerNotifications = useCallback(async () => {
+  const refreshServerNotifications = useCallback(async (force = false) => {
     if (!isLoggedIn) {
       return;
     }
 
+    if (isRefreshingServerRef.current) {
+      return;
+    }
+
+    if (
+      !force &&
+      Date.now() - lastServerRefreshAtRef.current < SERVER_REFRESH_THROTTLE_MS
+    ) {
+      return;
+    }
+
+    if (document.visibilityState === "hidden" || !navigator.onLine) {
+      return;
+    }
+
+    isRefreshingServerRef.current = true;
+
     try {
       const notifications = await notificationsApi.getNotifications();
+      lastServerRefreshAtRef.current = Date.now();
       setServerNotifications(
         notifications.map((notification) => ({
           id: notification.notificationId,
@@ -84,28 +107,45 @@ export const NotificationsProvider = ({ children }: { children: ReactNode }) => 
       );
     } catch {
       // Existing notifications remain visible if a background refresh fails.
+    } finally {
+      isRefreshingServerRef.current = false;
     }
   }, [isLoggedIn]);
 
   useEffect(() => {
-    if (!isLoggedIn) return undefined;
+    if (!isLoggedIn) {
+      setServerNotifications([]);
+      lastServerRefreshAtRef.current = 0;
+      return undefined;
+    }
 
     const initialRefreshId = window.setTimeout(
-      () => void refreshServerNotifications(),
+      () => void refreshServerNotifications(true),
       0,
     );
 
     const intervalId = window.setInterval(
       () => void refreshServerNotifications(),
-      60_000,
+      SERVER_REFRESH_INTERVAL_MS,
     );
     const handleFocus = () => void refreshServerNotifications();
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        void refreshServerNotifications();
+      }
+    };
+    const handleOnline = () => void refreshServerNotifications(true);
+
     window.addEventListener("focus", handleFocus);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("online", handleOnline);
 
     return () => {
       window.clearTimeout(initialRefreshId);
       window.clearInterval(intervalId);
       window.removeEventListener("focus", handleFocus);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("online", handleOnline);
     };
   }, [isLoggedIn, refreshServerNotifications]);
 
