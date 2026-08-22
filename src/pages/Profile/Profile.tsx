@@ -1,7 +1,6 @@
 import type { FC } from "react";
 import type { FormEvent } from "react";
-import { useContext, useEffect, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useContext, useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 
 import {
@@ -18,11 +17,7 @@ import {
 } from "react-icons/fi";
 
 import { AuthContext } from "../../context/AuthContext";
-import { userApi } from "../../services/userAPI";
-import { fetchCart } from "../../store/fetchAPI/fetchCart";
-import { fetchWishlist } from "../../store/fetchAPI/fetchWishlist";
-import { useSneakyStateSlice } from "../../store/sneakyState/sneakySelectors";
-import type { AppDispatch } from "../../store/sneakyStore";
+import { userApi, type ProfileSummary } from "../../services/userAPI";
 import type { IWishlistItem } from "../../store/types";
 import { getUserFriendlyErrorMessage } from "../../utils/errorMessages";
 import {
@@ -47,8 +42,7 @@ const getInitials = (name?: string | null, email?: string | null) => {
 };
 
 export const Profile: FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const { isLoggedIn, user, onLogout, onOpenAuth, onUserUpdate } =
+  const { isAuthReady, isLoggedIn, user, onLogout, onOpenAuth, onUserUpdate } =
     useContext(AuthContext);
   const [isEditing, setIsEditing] = useState(false);
   const [profileName, setProfileName] = useState(user?.name ?? "");
@@ -58,51 +52,64 @@ export const Profile: FC = () => {
   const [profileError, setProfileError] = useState<string | null>(null);
   const [profileSuccess, setProfileSuccess] = useState<string | null>(null);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
-
-  const cart = useSneakyStateSlice.getCart();
-  const cartStatus = useSneakyStateSlice.getCartStatus();
-  const wishlist = useSneakyStateSlice.getWishlist();
-  const wishlistStatus = useSneakyStateSlice.getWishlistStatus();
-  const wishlistLoading = useSneakyStateSlice.getWishlistLoading();
-  const wishlistError = useSneakyStateSlice.getWishlistError();
+  const [profileSummary, setProfileSummary] = useState<ProfileSummary | null>(
+    null,
+  );
+  const [isProfileSummaryLoading, setIsProfileSummaryLoading] = useState(false);
+  const [profileSummaryError, setProfileSummaryError] = useState<string | null>(
+    null,
+  );
   const isAdmin = isAdminRole(user?.role);
 
   useEffect(() => {
-    if (!isLoggedIn || cartStatus !== "idle") return;
+    if (!isAuthReady || !isLoggedIn || isAdmin) return;
 
-    void dispatch(fetchCart());
-  }, [cartStatus, dispatch, isLoggedIn]);
+    let isMounted = true;
+    setIsProfileSummaryLoading(true);
+    setProfileSummaryError(null);
 
-  useEffect(() => {
-    if (!isLoggedIn || wishlistStatus !== "idle") return;
+    void userApi
+      .getProfileSummary()
+      .then((summary) => {
+        if (isMounted) {
+          setProfileSummary(summary);
+        }
+      })
+      .catch((err) => {
+        if (isMounted) {
+          setProfileSummaryError(
+            getUserFriendlyErrorMessage(
+              err,
+              "We couldn't load your profile activity.",
+            ),
+          );
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsProfileSummaryLoading(false);
+        }
+      });
 
-    void dispatch(fetchWishlist());
-  }, [dispatch, isLoggedIn, wishlistStatus]);
+    return () => {
+      isMounted = false;
+    };
+  }, [isAdmin, isAuthReady, isLoggedIn]);
 
   useEffect(() => {
     setProfileName(user?.name ?? "");
     setProfileEmail(user?.email ?? "");
   }, [user]);
 
-  const userData = useMemo((): {
+  const userData: {
     wishlistCount: number;
     cartCount: number;
     recentWishlist: IWishlistItem[];
-  } => {
-    if (!isLoggedIn) {
-      return {
-        wishlistCount: 0,
-        cartCount: 0,
-        recentWishlist: [],
-      };
-    }
-
-    return {
-      wishlistCount: wishlist.length,
-      recentWishlist: wishlist.slice(0, 10), // Get last 10 items
-      cartCount: cart.reduce((count, item) => count + item.quantity, 0),
-    };
-  }, [cart, isLoggedIn, wishlist]);
+  } = profileSummary ?? {
+    wishlistCount: 0,
+    cartCount: 0,
+    recentWishlist: [],
+  };
 
   const handleStartEditing = () => {
     setIsEditing(true);
@@ -348,10 +355,12 @@ export const Profile: FC = () => {
           <h3 className={styles.profile__sectionTitle}>
             Recent Wishlist Items
           </h3>
-          {wishlistLoading ? (
+          {isProfileSummaryLoading ? (
             <p className={styles.profile__emptyMessage}>Loading wishlist...</p>
-          ) : wishlistError ? (
-            <p className={styles.profile__emptyMessage}>{wishlistError}</p>
+          ) : profileSummaryError ? (
+            <p className={styles.profile__emptyMessage}>
+              {profileSummaryError}
+            </p>
           ) : userData.recentWishlist.length > 0 ? (
             <div className={styles.profile__recentGrid}>
               {userData.recentWishlist.map((item) => (

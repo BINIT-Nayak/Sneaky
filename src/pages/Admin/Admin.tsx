@@ -71,7 +71,8 @@ type AdminRouteState = {
 export const Admin = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isLoggedIn, onLogout, onOpenAuth, user } = useContext(AuthContext);
+  const { isAuthReady, isLoggedIn, onLogout, onOpenAuth, user } =
+    useContext(AuthContext);
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [products, setProducts] = useState<AdminProduct[]>([]);
@@ -168,16 +169,16 @@ export const Admin = () => {
   }, [loadBrands, loadProducts, loadStats, loadUsers]);
 
   useEffect(() => {
-    if (!isAdmin) return;
+    if (!isAuthReady || !isAdmin) return;
 
     void Promise.all([loadStats(), loadUsers(), loadBrands()]);
-  }, [isAdmin, loadBrands, loadStats, loadUsers]);
+  }, [isAuthReady, isAdmin, loadBrands, loadStats, loadUsers]);
 
   useEffect(() => {
-    if (!isAdmin) return;
+    if (!isAuthReady || !isAdmin) return;
 
     void loadProducts(productStatusFilter);
-  }, [isAdmin, loadProducts, productStatusFilter]);
+  }, [isAuthReady, isAdmin, loadProducts, productStatusFilter]);
 
   const handleEditProduct = useCallback((product: AdminProduct) => {
     setEditingProductId(productIdOf(product));
@@ -194,7 +195,7 @@ export const Admin = () => {
   }, []);
 
   useEffect(() => {
-    if (!isAdmin || !productIdToEdit) return;
+    if (!isAuthReady || !isAdmin || !productIdToEdit) return;
 
     setActivePanel("products");
     setProductStatusFilter("");
@@ -214,6 +215,7 @@ export const Admin = () => {
     }
   }, [
     handleEditProduct,
+    isAuthReady,
     isAdmin,
     isProductsLoading,
     location.pathname,

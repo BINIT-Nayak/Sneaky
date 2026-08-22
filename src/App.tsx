@@ -26,6 +26,7 @@ export const App = () => {
   const wasLoggedIn = useRef(false);
   const {
     isLoggedIn,
+    isAuthReady,
     user,
     handleLogin,
     handleSignUp,
@@ -57,12 +58,13 @@ export const App = () => {
   const contextValue = useMemo(
     () => ({
       isLoggedIn,
+      isAuthReady,
       onOpenAuth: handleOpenAuth,
       onLogout: handleLogout,
       onUserUpdate: handleUserUpdate,
       user,
     }),
-    [handleOpenAuth, handleLogout, handleUserUpdate, isLoggedIn, user],
+    [handleOpenAuth, handleLogout, handleUserUpdate, isAuthReady, isLoggedIn, user],
   );
 
   return (

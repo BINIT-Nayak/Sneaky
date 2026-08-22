@@ -2,7 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 
 import { cartApi } from "../../services/cartAPI";
 import { getUserFriendlyErrorMessage } from "../../utils/errorMessages";
-import type { ICartItem } from "../types";
+import type { ICartItem, UIStateProps } from "../types";
 
 export const fetchCart = createAsyncThunk(
   "sneakyState/fetchCart",
@@ -18,5 +18,11 @@ export const fetchCart = createAsyncThunk(
         ),
       );
     }
+  },
+  {
+    condition: (_, { getState }) => {
+      const { sneakyState } = getState() as { sneakyState: UIStateProps };
+      return sneakyState.cartStatus === "idle";
+    },
   },
 );

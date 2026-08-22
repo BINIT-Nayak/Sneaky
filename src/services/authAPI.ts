@@ -1,4 +1,4 @@
-import { apiRequest } from "./api";
+import { apiRequest, refreshAccessToken } from "./api";
 import type { AuthResponse, LoginPayload, SignUpPayload } from "./authTypes";
 
 export const authApi = {
@@ -15,10 +15,13 @@ export const authApi = {
         isGuest: payload.isGuest ?? false,
       },
     }),
-  refresh: () =>
-    apiRequest<AuthResponse>("/api/auth/refresh", {
-      method: "POST",
-    }),
+  refresh: async () => {
+    const accessToken = await refreshAccessToken();
+    if (!accessToken) {
+      throw new Error("Unable to refresh session");
+    }
+    return { accessToken };
+  },
   logout: () =>
     apiRequest<{ message: string }>("/api/auth/logout", {
       method: "POST",

@@ -50,7 +50,7 @@ const readNotifications = (): NotificationItem[] => {
 };
 
 export const NotificationsProvider = ({ children }: { children: ReactNode }) => {
-  const { isLoggedIn } = useContext(AuthContext);
+  const { isAuthReady, isLoggedIn } = useContext(AuthContext);
   const [localNotifications, setLocalNotifications] = useState<NotificationItem[]>(
     readNotifications,
   );
@@ -72,7 +72,7 @@ export const NotificationsProvider = ({ children }: { children: ReactNode }) => 
   }, [localNotifications]);
 
   const refreshServerNotifications = useCallback(async (force = false) => {
-    if (!isLoggedIn) {
+    if (!isAuthReady || !isLoggedIn) {
       return;
     }
 
@@ -110,9 +110,13 @@ export const NotificationsProvider = ({ children }: { children: ReactNode }) => 
     } finally {
       isRefreshingServerRef.current = false;
     }
-  }, [isLoggedIn]);
+  }, [isAuthReady, isLoggedIn]);
 
   useEffect(() => {
+    if (!isAuthReady) {
+      return undefined;
+    }
+
     if (!isLoggedIn) {
       setServerNotifications([]);
       lastServerRefreshAtRef.current = 0;
@@ -147,7 +151,7 @@ export const NotificationsProvider = ({ children }: { children: ReactNode }) => 
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("online", handleOnline);
     };
-  }, [isLoggedIn, refreshServerNotifications]);
+  }, [isAuthReady, isLoggedIn, refreshServerNotifications]);
 
   const addNotification = useCallback((message: string) => {
     const normalizedMessage = message.trim();

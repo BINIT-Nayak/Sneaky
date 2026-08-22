@@ -41,7 +41,7 @@ type ToastMessage = {
 
 export const Wishlist = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { isLoggedIn, onOpenAuth } = useContext(AuthContext);
+  const { isAuthReady, isLoggedIn, onOpenAuth } = useContext(AuthContext);
   const [removingProductId, setRemovingProductId] = useState<string | null>(
     null,
   );
@@ -59,10 +59,10 @@ export const Wishlist = () => {
   const isWishlistLoading = wishlistLoading || wishlistStatus === "idle";
 
   useEffect(() => {
-    if (!isLoggedIn || wishlistStatus !== "idle") return;
+    if (!isAuthReady || !isLoggedIn || wishlistStatus !== "idle") return;
 
     void dispatch(fetchWishlist());
-  }, [dispatch, isLoggedIn, wishlistStatus]);
+  }, [dispatch, isAuthReady, isLoggedIn, wishlistStatus]);
 
   useEffect(
     () => () => {

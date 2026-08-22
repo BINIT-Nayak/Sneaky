@@ -6,6 +6,8 @@ import {
 import type { RefreshResponse } from "./authTypes";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
+let refreshAccessTokenPromise: Promise<string | null> | null = null;
+const inFlightGetRequests = new Map<string, Promise<unknown>>();
 
 type AuthMode = boolean | "optional";
 
@@ -28,7 +30,20 @@ const getErrorMessage = async (response: Response) => {
   }
 };
 
-const refreshAccessToken = async () => {
+export class ApiRequestError extends Error {
+  readonly status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiRequestError";
+    this.status = status;
+  }
+}
+
+export const isUnauthorizedApiError = (error: unknown) =>
+  error instanceof ApiRequestError && isAuthFailure(error.status);
+
+const requestRefreshAccessToken = async () => {
   const response = await fetch(`${API_BASE_URL}/api/auth/refresh`, {
     credentials: "include",
     method: "POST",
@@ -38,7 +53,7 @@ const refreshAccessToken = async () => {
   });
 
   if (!response.ok) {
-    return null;
+    throw new ApiRequestError(await getErrorMessage(response), response.status);
   }
 
   const payload = (await response.json()) as RefreshResponse;
@@ -48,7 +63,51 @@ const refreshAccessToken = async () => {
 
 const isAuthFailure = (status: number) => status === 401 || status === 403;
 
+export const refreshAccessToken = () => {
+  refreshAccessTokenPromise ??= requestRefreshAccessToken().finally(() => {
+    refreshAccessTokenPromise = null;
+  });
+
+  return refreshAccessTokenPromise;
+};
+
 export const apiRequest = async <T>(
+  path: string,
+  { auth = false, body, headers, ...options }: RequestOptions = {},
+): Promise<T> => {
+  const method = (options.method ?? "GET").toUpperCase();
+  const canDedupeRequest = method === "GET" && body === undefined;
+  const dedupeKey = canDedupeRequest
+    ? `${method}:${auth}:${API_BASE_URL}${path}`
+    : null;
+
+  if (dedupeKey) {
+    const existingRequest = inFlightGetRequests.get(dedupeKey);
+    if (existingRequest) {
+      return existingRequest as Promise<T>;
+    }
+  }
+
+  const requestPromise = executeApiRequest<T>(path, {
+    ...options,
+    auth,
+    body,
+    headers,
+  });
+
+  if (!dedupeKey) {
+    return requestPromise;
+  }
+
+  inFlightGetRequests.set(dedupeKey, requestPromise);
+  requestPromise.finally(() => {
+    inFlightGetRequests.delete(dedupeKey);
+  });
+
+  return requestPromise;
+};
+
+const executeApiRequest = async <T>(
   path: string,
   { auth = false, body, headers, ...options }: RequestOptions = {},
 ): Promise<T> => {
@@ -68,22 +127,39 @@ export const apiRequest = async <T>(
       },
     });
 
+  const refreshForProtectedRequest = async () => {
+    try {
+      return await refreshAccessToken();
+    } catch (error) {
+      if (isUnauthorizedApiError(error)) {
+        notifyUnauthorizedSession();
+        throw new Error("Your session expired. Please log in again.");
+      }
+
+      throw error;
+    }
+  };
+
   if (requiresAuth && !accessToken) {
-    accessToken = await refreshAccessToken();
+    accessToken = await refreshForProtectedRequest();
   }
 
   let response = await request(accessToken);
 
   if (isAuthFailure(response.status) && requiresAuth) {
-    const nextAccessToken = await refreshAccessToken();
+    const nextAccessToken = await refreshForProtectedRequest();
     if (nextAccessToken) {
       response = await request(nextAccessToken);
     }
   }
 
   if (isAuthFailure(response.status) && auth === "optional" && accessToken) {
-    const nextAccessToken = await refreshAccessToken();
-    response = await request(nextAccessToken);
+    try {
+      const nextAccessToken = await refreshAccessToken();
+      response = await request(nextAccessToken);
+    } catch {
+      response = await request(null);
+    }
   }
 
   if (isAuthFailure(response.status) && requiresAuth) {
@@ -92,7 +168,7 @@ export const apiRequest = async <T>(
   }
 
   if (!response.ok) {
-    throw new Error(await getErrorMessage(response));
+    throw new ApiRequestError(await getErrorMessage(response), response.status);
   }
 
   if (response.status === 204) {

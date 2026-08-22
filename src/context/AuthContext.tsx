@@ -9,6 +9,7 @@ export interface UserType {
 }
 
 export interface AuthContextType {
+  isAuthReady: boolean;
   isLoggedIn: boolean;
   onOpenAuth: () => void;
   onLogout: () => Promise<void>;
@@ -17,6 +18,7 @@ export interface AuthContextType {
 }
 
 export const AuthContext = createContext<AuthContextType>({
+  isAuthReady: true,
   isLoggedIn: false,
   onOpenAuth: () => {},
   onLogout: async () => {},

@@ -51,7 +51,7 @@ const DEFAULT_MERCHANT_NAME = "Partner Store";
 
 export const Cart = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { isLoggedIn, onOpenAuth } = useContext(AuthContext);
+  const { isAuthReady, isLoggedIn, onOpenAuth } = useContext(AuthContext);
   const [submittingProductId, setSubmittingProductId] = useState<string | null>(
     null,
   );
@@ -68,10 +68,10 @@ export const Cart = () => {
   const isCartLoading = cartLoading || cartStatus === "idle";
 
   useEffect(() => {
-    if (!isLoggedIn || cartStatus !== "idle") return;
+    if (!isAuthReady || !isLoggedIn || cartStatus !== "idle") return;
 
     void dispatch(fetchCart());
-  }, [cartStatus, dispatch, isLoggedIn]);
+  }, [cartStatus, dispatch, isAuthReady, isLoggedIn]);
 
   useEffect(
     () => () => {

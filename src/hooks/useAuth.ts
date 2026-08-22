@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
 import type { UserType } from "../context/AuthContext";
+import { isUnauthorizedApiError } from "../services/api";
 import { authApi } from "../services/authAPI";
 import {
   AUTH_UNAUTHORIZED_EVENT,
@@ -41,6 +42,9 @@ export const useAuth = () => {
   const [hasStoredSession, setHasStoredSession] = useState(
     initialAuthState.isLoggedIn,
   );
+  const [isAuthRestoring, setIsAuthRestoring] = useState(
+    initialAuthState.isLoggedIn,
+  );
   const [authError, setAuthError] = useState<string | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(false);
   const isReduxLoggedIn = useSneakyStateSlice.getIsLoggedIn();
@@ -61,6 +65,7 @@ export const useAuth = () => {
   const clearAuthSession = useCallback(() => {
     setUser(null);
     setHasStoredSession(false);
+    setIsAuthRestoring(false);
     clearStoredAuthSession();
     dispatch(sneakyStateActions.resetWishlistState());
     dispatch(sneakyStateActions.resetCartState());
@@ -89,10 +94,17 @@ export const useAuth = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (!initialAuthState.isLoggedIn) return;
+    if (!initialAuthState.isLoggedIn) {
+      setIsAuthRestoring(false);
+      return;
+    }
 
-    void loadCurrentUser().catch(() => {
-      clearAuthSession();
+    void loadCurrentUser().catch((error) => {
+      if (isUnauthorizedApiError(error)) {
+        clearAuthSession();
+      }
+    }).finally(() => {
+      setIsAuthRestoring(false);
     });
   }, [clearAuthSession, initialAuthState.isLoggedIn, loadCurrentUser]);
 
@@ -199,6 +211,7 @@ export const useAuth = () => {
   }, [dispatch]);
 
   return {
+    isAuthReady: !isAuthRestoring,
     isLoggedIn,
     user,
     authError,

@@ -3,6 +3,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { wishlistApi } from "../../services/wishlistAPI";
 import type { IWishlistItem } from "../../store/types";
 import { getUserFriendlyErrorMessage } from "../../utils/errorMessages";
+import type { UIStateProps } from "../types";
 
 export const fetchWishlist = createAsyncThunk(
   "sneakyState/fetchWishlist",
@@ -18,5 +19,11 @@ export const fetchWishlist = createAsyncThunk(
         ),
       );
     }
+  },
+  {
+    condition: (_, { getState }) => {
+      const { sneakyState } = getState() as { sneakyState: UIStateProps };
+      return sneakyState.wishlistStatus === "idle";
+    },
   },
 );
