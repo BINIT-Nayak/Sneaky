@@ -1,24 +1,39 @@
-import { useEffect, useMemo, useRef } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef } from "react";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 
-import bellIcon from "./assets/bell.png";
-import emptyList from "./assets/emptyList.png";
 import { AuthEntryLoginButton } from "./components/AuthEntryLoginButton/AuthEntryLoginButton";
 import { ResponsiveNav } from "./components/ResponsiveNav/ResponsiveNav";
 import { AuthContext } from "./context/AuthContext";
 import { NotificationsProvider } from "./context/NotificationsContext";
 import { useAuth } from "./hooks/useAuth";
 import styles from "./index.module.css";
-import { Admin } from "./pages/Admin/Admin";
 import { AuthModal } from "./pages/Auth/AuthModal";
-import { Cart } from "./pages/Cart/Cart";
 import { Home } from "./pages/Home/Home";
 import { LandingPage } from "./pages/LandingPage/LandingPage";
-import { Notifications } from "./pages/Notifications/Notifications";
-import { Profile } from "./pages/Profile/Profile";
-import { Wishlist } from "./pages/WishList/Wishlist";
 import { useSneakyStateSlice } from "./store/sneakyState/sneakySelectors";
 import { isAdminRole } from "./utils/roles";
+
+const Admin = lazy(() =>
+  import("./pages/Admin/Admin").then((module) => ({ default: module.Admin })),
+);
+const Cart = lazy(() =>
+  import("./pages/Cart/Cart").then((module) => ({ default: module.Cart })),
+);
+const Notifications = lazy(() =>
+  import("./pages/Notifications/Notifications").then((module) => ({
+    default: module.Notifications,
+  })),
+);
+const Profile = lazy(() =>
+  import("./pages/Profile/Profile").then((module) => ({
+    default: module.Profile,
+  })),
+);
+const Wishlist = lazy(() =>
+  import("./pages/WishList/Wishlist").then((module) => ({
+    default: module.Wishlist,
+  })),
+);
 
 export const App = () => {
   const location = useLocation();
@@ -71,11 +86,6 @@ export const App = () => {
     <AuthContext.Provider value={contextValue}>
       <NotificationsProvider>
         <div className={styles.app}>
-          <div className={styles.app__assetPreloader} aria-hidden="true">
-            <img src={bellIcon} alt="" decoding="async" />
-            <img src={emptyList} alt="" decoding="async" />
-          </div>
-
           <ResponsiveNav />
 
           <main className={styles.app__main}>
@@ -84,15 +94,17 @@ export const App = () => {
             ) : null}
 
             <div className={styles.app__content}>
-              <Routes>
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/home" element={<Home />} />
-                <Route path="/wishlist" element={<Wishlist />} />
-                <Route path="/cart" element={<Cart />} />
-                <Route path="/notifications" element={<Notifications />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/admin" element={<Admin />} />
-              </Routes>
+              <Suspense fallback={null}>
+                <Routes>
+                  <Route path="/" element={<LandingPage />} />
+                  <Route path="/home" element={<Home />} />
+                  <Route path="/wishlist" element={<Wishlist />} />
+                  <Route path="/cart" element={<Cart />} />
+                  <Route path="/notifications" element={<Notifications />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/admin" element={<Admin />} />
+                </Routes>
+              </Suspense>
             </div>
           </main>
         </div>

@@ -175,7 +175,9 @@ export const HomeContent: FC<HomeContentProps> = ({
             src={currentProduct.image}
             alt={currentProduct.name}
             className={styles.home__image}
-            loading="lazy"
+            decoding="async"
+            fetchPriority="high"
+            loading="eager"
           />
           <div className={styles.home__imageGlow} aria-hidden="true" />
           {currentProduct.recommended ? (
