@@ -1,5 +1,5 @@
 import type { UserType } from "../context/AuthContext";
-import type { IWishlistItem } from "../store/types";
+import type { ProfileSummary } from "../store/types";
 
 import { apiRequest } from "./api";
 
@@ -7,12 +7,6 @@ export type UpdateCurrentUserPayload = {
   name?: string;
   email?: string;
   password?: string;
-};
-
-export type ProfileSummary = {
-  wishlistCount: number;
-  cartCount: number;
-  recentWishlist: IWishlistItem[];
 };
 
 export const userApi = {

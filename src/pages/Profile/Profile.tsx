@@ -1,6 +1,7 @@
 import type { FC } from "react";
 import type { FormEvent } from "react";
 import { useContext, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { Navigate } from "react-router-dom";
 
 import {
@@ -17,7 +18,10 @@ import {
 } from "react-icons/fi";
 
 import { AuthContext } from "../../context/AuthContext";
-import { userApi, type ProfileSummary } from "../../services/userAPI";
+import { userApi } from "../../services/userAPI";
+import { fetchProfileSummary } from "../../store/fetchAPI/fetchProfileSummary";
+import { useSneakyStateSlice } from "../../store/sneakyState/sneakySelectors";
+import type { AppDispatch } from "../../store/sneakyStore";
 import type { IWishlistItem } from "../../store/types";
 import { getUserFriendlyErrorMessage } from "../../utils/errorMessages";
 import {
@@ -42,6 +46,7 @@ const getInitials = (name?: string | null, email?: string | null) => {
 };
 
 export const Profile: FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const { isAuthReady, isLoggedIn, user, onLogout, onOpenAuth, onUserUpdate } =
     useContext(AuthContext);
   const [isEditing, setIsEditing] = useState(false);
@@ -52,49 +57,24 @@ export const Profile: FC = () => {
   const [profileError, setProfileError] = useState<string | null>(null);
   const [profileSuccess, setProfileSuccess] = useState<string | null>(null);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
-  const [profileSummary, setProfileSummary] = useState<ProfileSummary | null>(
-    null,
-  );
-  const [isProfileSummaryLoading, setIsProfileSummaryLoading] = useState(false);
-  const [profileSummaryError, setProfileSummaryError] = useState<string | null>(
-    null,
-  );
+  const profileSummary = useSneakyStateSlice.getProfileSummary();
+  const profileSummaryStatus = useSneakyStateSlice.getProfileSummaryStatus();
+  const isProfileSummaryLoading =
+    useSneakyStateSlice.getProfileSummaryLoading();
+  const profileSummaryError = useSneakyStateSlice.getProfileSummaryError();
   const isAdmin = isAdminRole(user?.role);
 
   useEffect(() => {
-    if (!isAuthReady || !isLoggedIn || isAdmin) return;
+    if (
+      !isAuthReady ||
+      !isLoggedIn ||
+      isAdmin ||
+      profileSummaryStatus !== "idle"
+    )
+      return;
 
-    let isMounted = true;
-    setIsProfileSummaryLoading(true);
-    setProfileSummaryError(null);
-
-    void userApi
-      .getProfileSummary()
-      .then((summary) => {
-        if (isMounted) {
-          setProfileSummary(summary);
-        }
-      })
-      .catch((err) => {
-        if (isMounted) {
-          setProfileSummaryError(
-            getUserFriendlyErrorMessage(
-              err,
-              "We couldn't load your profile activity.",
-            ),
-          );
-        }
-      })
-      .finally(() => {
-        if (isMounted) {
-          setIsProfileSummaryLoading(false);
-        }
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [isAdmin, isAuthReady, isLoggedIn]);
+    void dispatch(fetchProfileSummary());
+  }, [dispatch, isAdmin, isAuthReady, isLoggedIn, profileSummaryStatus]);
 
   useEffect(() => {
     setProfileName(user?.name ?? "");

@@ -17,6 +17,11 @@ export interface UIStateProps {
   cartStatus: AsyncStatus;
   cartLoading: boolean;
   cartError: string | null;
+
+  profileSummary: ProfileSummary | null;
+  profileSummaryStatus: AsyncStatus;
+  profileSummaryLoading: boolean;
+  profileSummaryError: string | null;
 }
 
 export interface Product {
@@ -50,6 +55,12 @@ export type IWishlistItem = {
   sizes?: string[];
   colors?: SneakerColor[];
   stockStatus?: string;
+};
+
+export type ProfileSummary = {
+  wishlistCount: number;
+  cartCount: number;
+  recentWishlist: IWishlistItem[];
 };
 
 export type IAddToWishlistRequestProp = {

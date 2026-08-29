@@ -69,6 +69,7 @@ export const useAuth = () => {
     clearStoredAuthSession();
     dispatch(sneakyStateActions.resetWishlistState());
     dispatch(sneakyStateActions.resetCartState());
+    dispatch(sneakyStateActions.resetProfileSummaryState());
     dispatch(sneakyStateActions.setIsLoggedIn(false));
   }, [dispatch]);
 

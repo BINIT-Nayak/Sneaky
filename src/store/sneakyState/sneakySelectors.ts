@@ -99,4 +99,36 @@ export const useSneakyStateSlice = {
         sneakyState.cartError,
     );
   },
+
+  getProfileSummary: () => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useSelector(
+      ({ sneakyState }: { sneakyState: UIStateProps }) =>
+        sneakyState.profileSummary,
+    );
+  },
+
+  getProfileSummaryLoading: (): boolean => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useSelector(
+      ({ sneakyState }: { sneakyState: UIStateProps }) =>
+        sneakyState.profileSummaryLoading,
+    );
+  },
+
+  getProfileSummaryStatus: (): AsyncStatus => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useSelector(
+      ({ sneakyState }: { sneakyState: UIStateProps }) =>
+        sneakyState.profileSummaryStatus,
+    );
+  },
+
+  getProfileSummaryError: (): string | null => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useSelector(
+      ({ sneakyState }: { sneakyState: UIStateProps }) =>
+        sneakyState.profileSummaryError,
+    );
+  },
 };

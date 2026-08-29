@@ -9,12 +9,98 @@ import { clearWishlistItems } from "../fetchAPI/clearWishlistItems";
 import { deleteCartItem } from "../fetchAPI/deleteCartItem";
 import { deleteWishlistItem } from "../fetchAPI/deleteWishlistItem";
 import { fetchCart } from "../fetchAPI/fetchCart";
+import { fetchProfileSummary } from "../fetchAPI/fetchProfileSummary";
 import { fetchProducts } from "../fetchAPI/fetchProducts";
 import { fetchWishlist } from "../fetchAPI/fetchWishlist";
 import { moveCartItemToWishlist } from "../fetchAPI/moveCartItemToWishlist";
 import { moveWishlistItemToCart } from "../fetchAPI/moveWishlistItemToCart";
 import { updateCartQuantity } from "../fetchAPI/updateCartQuantity";
-import type { UIStateProps } from "../types";
+import type { ICartItem, IWishlistItem, UIStateProps } from "../types";
+
+const RECENT_PROFILE_WISHLIST_LIMIT = 10;
+
+const wishlistItemFromProduct = (
+  product: UIStateProps["products"][number],
+): IWishlistItem => ({
+  productId: product.id,
+  name: product.name,
+  price: product.price,
+  imageUrl: product.image,
+  brandName: product.brand,
+  category: product.category,
+  sizes: product.sizes,
+  colors: product.colors,
+  stockStatus: product.stockStatus,
+});
+
+const addProfileWishlistItem = (
+  state: UIStateProps,
+  wishlistItem: IWishlistItem,
+) => {
+  if (state.profileSummaryStatus !== "succeeded" || !state.profileSummary) {
+    return;
+  }
+
+  const alreadyCounted = state.profileSummary.recentWishlist.some(
+    (item) => item.productId === wishlistItem.productId,
+  );
+
+  if (!alreadyCounted) {
+    state.profileSummary.wishlistCount += 1;
+  }
+
+  state.profileSummary.recentWishlist = [
+    wishlistItem,
+    ...state.profileSummary.recentWishlist.filter(
+      (item) => item.productId !== wishlistItem.productId,
+    ),
+  ].slice(0, RECENT_PROFILE_WISHLIST_LIMIT);
+};
+
+const removeProfileWishlistItem = (state: UIStateProps, productId: string) => {
+  if (state.profileSummaryStatus !== "succeeded" || !state.profileSummary) {
+    return;
+  }
+
+  state.profileSummary.wishlistCount = Math.max(
+    0,
+    state.profileSummary.wishlistCount - 1,
+  );
+  state.profileSummary.recentWishlist =
+    state.profileSummary.recentWishlist.filter(
+      (item) => item.productId !== productId,
+    );
+};
+
+const replaceProfileCartItemQuantity = (
+  state: UIStateProps,
+  nextItem: ICartItem,
+  fallbackDelta = nextItem.quantity,
+) => {
+  if (state.profileSummaryStatus !== "succeeded" || !state.profileSummary) {
+    return;
+  }
+
+  const previousItem = state.cart.find(
+    (item) => item.productId === nextItem.productId,
+  );
+  state.profileSummary.cartCount +=
+    previousItem === undefined
+      ? fallbackDelta
+      : nextItem.quantity - previousItem.quantity;
+};
+
+const removeProfileCartItem = (state: UIStateProps, productId: string) => {
+  if (state.profileSummaryStatus !== "succeeded" || !state.profileSummary) {
+    return;
+  }
+
+  const previousItem = state.cart.find((item) => item.productId === productId);
+  state.profileSummary.cartCount = Math.max(
+    0,
+    state.profileSummary.cartCount - (previousItem?.quantity ?? 0),
+  );
+};
 
 const initialState: UIStateProps = {
   isAuthModalOpen: false,
@@ -30,6 +116,10 @@ const initialState: UIStateProps = {
   cartStatus: "idle",
   cartLoading: false,
   cartError: null,
+  profileSummary: null,
+  profileSummaryStatus: "idle",
+  profileSummaryLoading: false,
+  profileSummaryError: null,
 };
 
 export const sneakySlice = createSlice({
@@ -53,6 +143,12 @@ export const sneakySlice = createSlice({
       state.cartStatus = "idle";
       state.cartLoading = false;
       state.cartError = null;
+    },
+    resetProfileSummaryState: (state) => {
+      state.profileSummary = null;
+      state.profileSummaryStatus = "idle";
+      state.profileSummaryLoading = false;
+      state.profileSummaryError = null;
     },
   },
   extraReducers: (builder) => {
@@ -95,6 +191,13 @@ export const sneakySlice = createSlice({
         state.wishlistLoading = false;
         state.wishlist = action.payload;
         state.wishlistError = null;
+        if (state.profileSummaryStatus === "succeeded" && state.profileSummary) {
+          state.profileSummary.wishlistCount = action.payload.length;
+          state.profileSummary.recentWishlist = action.payload.slice(
+            0,
+            RECENT_PROFILE_WISHLIST_LIMIT,
+          );
+        }
       })
       .addCase(fetchWishlist.rejected, (state, action) => {
         state.wishlistStatus = "failed";
@@ -111,37 +214,39 @@ export const sneakySlice = createSlice({
 
         if (!product || state.wishlistStatus !== "succeeded") {
           state.wishlistStatus = "idle";
+          if (product) {
+            addProfileWishlistItem(state, wishlistItemFromProduct(product));
+          }
           return;
         }
 
+        const wishlistItem = wishlistItemFromProduct(product);
         state.wishlist = state.wishlist.filter(
           (item) => item.productId !== productId,
         );
-        state.wishlist.unshift({
-          productId: product.id,
-          name: product.name,
-          price: product.price,
-          imageUrl: product.image,
-          brandName: product.brand,
-          category: product.category,
-          sizes: product.sizes,
-          colors: product.colors,
-          stockStatus: product.stockStatus,
-        });
+        state.wishlist.unshift(wishlistItem);
         state.wishlistStatus = "succeeded";
+        addProfileWishlistItem(state, wishlistItem);
       })
       .addCase(deleteWishlistItem.fulfilled, (state, action) => {
         state.wishlist = state.wishlist.filter(
           (item) => item.productId !== action.payload,
         );
+        removeProfileWishlistItem(state, action.payload);
       })
       .addCase(clearWishlistItems.fulfilled, (state) => {
         state.wishlist = [];
+        if (state.profileSummaryStatus === "succeeded" && state.profileSummary) {
+          state.profileSummary.wishlistCount = 0;
+          state.profileSummary.recentWishlist = [];
+        }
       })
       .addCase(moveCartItemToWishlist.fulfilled, (state, action) => {
         const { productId, wishlistItem } = action.payload;
 
+        removeProfileCartItem(state, productId);
         state.cart = state.cart.filter((item) => item.productId !== productId);
+        addProfileWishlistItem(state, wishlistItem);
 
         if (state.wishlistStatus !== "succeeded") {
           state.wishlistStatus = "idle";
@@ -161,6 +266,8 @@ export const sneakySlice = createSlice({
       })
       .addCase(moveWishlistItemToCart.fulfilled, (state, action) => {
         const { cartItem, productId } = action.payload;
+        replaceProfileCartItemQuantity(state, cartItem, 1);
+        removeProfileWishlistItem(state, productId);
         const index = state.cart.findIndex(
           (item) => item.productId === cartItem.productId,
         );
@@ -199,6 +306,11 @@ export const sneakySlice = createSlice({
       })
       .addCase(addCartItem.fulfilled, (state, action) => {
         const nextItem = action.payload;
+        replaceProfileCartItemQuantity(
+          state,
+          nextItem,
+          action.meta.arg.quantity ?? 1,
+        );
         const index = state.cart.findIndex(
           (item) => item.productId === nextItem.productId,
         );
@@ -212,6 +324,7 @@ export const sneakySlice = createSlice({
       })
       .addCase(updateCartQuantity.fulfilled, (state, action) => {
         const nextItem = action.payload;
+        replaceProfileCartItemQuantity(state, nextItem);
         const index = state.cart.findIndex(
           (item) => item.productId === nextItem.productId,
         );
@@ -221,12 +334,37 @@ export const sneakySlice = createSlice({
         }
       })
       .addCase(deleteCartItem.fulfilled, (state, action) => {
+        removeProfileCartItem(state, action.payload);
         state.cart = state.cart.filter(
           (item) => item.productId !== action.payload,
         );
       })
       .addCase(clearCartItems.fulfilled, (state) => {
         state.cart = [];
+        if (state.profileSummaryStatus === "succeeded" && state.profileSummary) {
+          state.profileSummary.cartCount = 0;
+        }
+      })
+
+      .addCase(fetchProfileSummary.pending, (state) => {
+        state.profileSummaryStatus = "loading";
+        state.profileSummaryLoading = true;
+        state.profileSummaryError = null;
+      })
+      .addCase(fetchProfileSummary.fulfilled, (state, action) => {
+        state.profileSummaryStatus = "succeeded";
+        state.profileSummaryLoading = false;
+        state.profileSummary = action.payload;
+        state.profileSummaryError = null;
+      })
+      .addCase(fetchProfileSummary.rejected, (state, action) => {
+        state.profileSummaryStatus = "failed";
+        state.profileSummaryLoading = false;
+        state.profileSummaryError = getRejectedErrorMessage(
+          action.payload,
+          action.error.message,
+          "We couldn't load your profile activity.",
+        );
       });
   },
 });
