@@ -1,9 +1,10 @@
-import { apiRequest } from "./api";
+import { eventApi } from "./eventAPI";
 
 export const productAnalyticsApi = {
   recordProductPass: (productId: string) =>
-    apiRequest<void>(`/api/product-analytics/products/${productId}/pass`, {
-      auth: true,
-      method: "POST",
+    eventApi.track({
+      productId,
+      type: "SKIP",
+      source: "DISCOVERY_FEED",
     }),
 };

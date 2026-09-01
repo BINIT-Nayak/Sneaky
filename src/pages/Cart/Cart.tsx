@@ -22,6 +22,7 @@ import {
 import emptyCart from "../../assets/emptyList.png";
 import { Toast } from "../../components/Toast/Toast";
 import { AuthContext } from "../../context/AuthContext";
+import { eventApi } from "../../services/eventAPI";
 import { clearCartItems } from "../../store/fetchAPI/clearCartItems";
 import { deleteCartItem } from "../../store/fetchAPI/deleteCartItem";
 import { fetchCart } from "../../store/fetchAPI/fetchCart";
@@ -112,7 +113,13 @@ export const Cart = () => {
   const merchantGroups = useMemo(() => {
     const groups = new Map<
       string,
-      { itemCount: number; merchantName: string; merchantUrl?: string; total: number }
+      {
+        itemCount: number;
+        merchantName: string;
+        merchantUrl?: string;
+        productIds: string[];
+        total: number;
+      }
     >();
 
     cart.forEach((item) => {
@@ -121,6 +128,7 @@ export const Cart = () => {
 
       if (existingGroup) {
         existingGroup.itemCount += item.quantity;
+        existingGroup.productIds.push(item.productId);
         existingGroup.total += item.itemTotal;
         existingGroup.merchantUrl = existingGroup.merchantUrl || item.merchantUrl;
         return;
@@ -130,6 +138,7 @@ export const Cart = () => {
         itemCount: item.quantity,
         merchantName,
         merchantUrl: item.merchantUrl,
+        productIds: [item.productId],
         total: item.itemTotal,
       });
     });
@@ -228,11 +237,32 @@ export const Cart = () => {
     }
   };
 
-  const checkoutWithMerchant = (merchantName: string, merchantUrl?: string) => {
+  const checkoutWithMerchant = (
+    merchantName: string,
+    merchantUrl: string | undefined,
+    productIds: string[],
+  ) => {
     if (!merchantUrl) {
       setCartActionError(`No checkout link is available for ${merchantName}.`);
       return;
     }
+
+    productIds.forEach((productId, position) => {
+      void eventApi
+        .track({
+          productId,
+          type: "PURCHASE",
+          source: "CART_CHECKOUT",
+          position,
+          metadata: {
+            merchantName,
+            checkoutType: "EXTERNAL_INTENT",
+          },
+        })
+        .catch(() => {
+          // Checkout should not wait for event tracking.
+        });
+    });
 
     window.open(merchantUrl, "_blank", "noopener,noreferrer");
   };
@@ -531,7 +561,11 @@ export const Cart = () => {
                   className={styles.cart__checkoutBtn}
                   key={group.merchantName}
                   onClick={() => {
-                    checkoutWithMerchant(group.merchantName, group.merchantUrl);
+                    checkoutWithMerchant(
+                      group.merchantName,
+                      group.merchantUrl,
+                      group.productIds,
+                    );
                   }}
                   type="button"
                 >

@@ -7,6 +7,7 @@ import { FloatingParticles } from "../../components/FloatingParticles/FloatingPa
 import { Toast } from "../../components/Toast/Toast";
 import { AuthContext } from "../../context/AuthContext";
 import { useIsMobile, useIsTablet } from "../../hooks/useGetDeviceType";
+import { eventApi } from "../../services/eventAPI";
 import { fetchProducts } from "../../store/fetchAPI/fetchProducts";
 import { useSneakyStateSlice } from "../../store/sneakyState/sneakySelectors";
 import type { AppDispatch } from "../../store/sneakyStore";
@@ -80,6 +81,7 @@ export const Home = () => {
   );
   const cardRef = useRef<HTMLDivElement>(null);
   const lastPrefetchRemainingRef = useRef<number | null>(null);
+  const trackedImpressionIdsRef = useRef<Set<string>>(new Set());
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const isAdmin = isAdminRole(user?.role);
@@ -174,6 +176,25 @@ export const Home = () => {
       return nextIds;
     });
   }, [currentProduct]);
+
+  useEffect(() => {
+    if (!isLoggedIn || !currentProduct) return;
+
+    const impressionKey = `${currentProduct.id}:${currentIndex}`;
+    if (trackedImpressionIdsRef.current.has(impressionKey)) return;
+
+    trackedImpressionIdsRef.current.add(impressionKey);
+    void eventApi
+      .track({
+        productId: currentProduct.id,
+        type: "IMPRESSION",
+        source: "DISCOVERY_FEED",
+        position: currentIndex,
+      })
+      .catch(() => {
+        // Event tracking should not block product browsing.
+      });
+  }, [currentIndex, currentProduct, isLoggedIn]);
 
   useEffect(() => {
     if (!productsError || productsError === lastProductsError) return;
@@ -280,7 +301,38 @@ export const Home = () => {
           navigate("/admin", { state: { editProductId: productId } });
         }}
         onLike={onLike}
-        onOpenDetails={() => setIsDetailsOpen(true)}
+        onOpenDetails={() => {
+          setIsDetailsOpen(true);
+          if (!isLoggedIn || !currentProduct) return;
+
+          void eventApi
+            .track({
+              productId: currentProduct.id,
+              type: "CLICK",
+              source: "DISCOVERY_FEED",
+              position: currentIndex,
+              metadata: {
+                target: "DETAILS_BUTTON",
+              },
+            })
+            .catch(() => {
+              // Product details should open even if event tracking fails.
+            });
+
+          void eventApi
+            .track({
+              productId: currentProduct.id,
+              type: "VIEW",
+              source: "DISCOVERY_FEED",
+              position: currentIndex,
+              metadata: {
+                interaction: "DETAILS_OPENED",
+              },
+            })
+            .catch(() => {
+              // Product details should open even if event tracking fails.
+            });
+        }}
         onOpenRecentlyViewed={(productId) => {
           const nextIndex = feedProducts.findIndex(
             (product) => product.id === productId,
