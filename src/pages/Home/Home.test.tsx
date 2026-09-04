@@ -32,6 +32,12 @@ jest.mock("../../hooks/useGetDeviceType", () => ({
   useIsTablet: () => false,
 }));
 
+jest.mock("../../services/eventAPI", () => ({
+  eventApi: {
+    track: jest.fn(() => Promise.resolve()),
+  },
+}));
+
 jest.mock("../../store/sneakyState/sneakySelectors", () => ({
   useSneakyStateSlice: {
     getProducts: jest.fn(),
@@ -110,6 +116,7 @@ const renderHome = (
   render(
     <AuthContext.Provider
       value={{
+        isAuthReady: true,
         isLoggedIn,
         onOpenAuth,
         onLogout: jest.fn(),
@@ -370,6 +377,7 @@ describe("Home", () => {
     rerender(
       <AuthContext.Provider
         value={{
+          isAuthReady: true,
           isLoggedIn: true,
           onOpenAuth: jest.fn(),
           onLogout: jest.fn(),

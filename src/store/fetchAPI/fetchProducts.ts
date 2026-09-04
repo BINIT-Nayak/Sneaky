@@ -23,11 +23,11 @@ export const fetchProducts = createAsyncThunk(
     }
   },
   {
-    condition: (_, { getState }) => {
+    condition: (payload, { getState }) => {
       const { sneakyState } = getState() as { sneakyState: UIStateProps };
-      return (
-        !sneakyState.productsLoading && sneakyState.products.length === 0
-      );
+      const isPrefetch = Boolean(payload?.excludeProductIds?.length);
+
+      return !sneakyState.productsLoading && (isPrefetch || sneakyState.products.length === 0);
     },
   },
 );
