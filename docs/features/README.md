@@ -4,3 +4,4 @@ Feature details are split out of the main README so setup and project navigation
 
 - [Backend integration](backend-integration.md)
 - [Frontend API lifecycle](api-lifecycle.md)
+- [Performance and bundle report](performance-bundle-report.md)

@@ -30,6 +30,7 @@ This repository showcases practical development patterns, reusable components, a
 - 🔔 In-app notifications for cart reminders
 - 🕘 Recently viewed product shortcuts
 - 🖼️ Service worker image caching for repeat product and empty-state assets
+- 📊 Documented frontend performance and bundle optimizations
 - 🚀 Optimized performance
 - 🔧 Easy configuration and customization
 
@@ -44,7 +45,6 @@ This repository showcases practical development patterns, reusable components, a
 - 🗂️ Redux Toolkit
 - 🔄 React Redux
 - 🎨 CSS / SCSS
-- 🎯 React Icons
 
 ### Build & Development
 - ⚡ Vite
@@ -120,6 +120,7 @@ Detailed docs:
 
 - [Backend integration](docs/features/backend-integration.md)
 - [Frontend API lifecycle](docs/features/api-lifecycle.md)
+- [Performance and bundle report](docs/features/performance-bundle-report.md)
 
 ## 📸 Screenshots
 
