@@ -11,7 +11,10 @@ describe("SwipeButton", () => {
   ])("renders the %s button type", (type) => {
     render(<SwipeButton type={type} />);
 
-    expect(screen.getByRole("button")).toHaveAttribute("data-text", type);
+    expect(screen.getByText("", { selector: "[data-text]" })).toHaveAttribute(
+      "data-text",
+      type,
+    );
   });
 
   it("applies disabled state and extra class name", () => {
@@ -23,8 +26,8 @@ describe("SwipeButton", () => {
       />,
     );
 
-    const button = screen.getByRole("button");
-    expect(button).toBeDisabled();
-    expect(button).toHaveClass("custom-swipe-action");
+    const buttonVisual = screen.getByText("", { selector: "[data-text]" });
+    expect(buttonVisual).toHaveAttribute("aria-hidden", "true");
+    expect(buttonVisual).toHaveClass("custom-swipe-action");
   });
 });

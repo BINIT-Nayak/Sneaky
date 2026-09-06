@@ -38,7 +38,12 @@ export const NavBar = memo(() => {
 
       {/* Navigation Links */}
       <nav className={styles.navBar__nav}>
-        <NavLink to={homePath} end className={({ isActive }) => cls(isActive)}>
+        <NavLink
+          to={homePath}
+          end
+          className={({ isActive }) => cls(isActive)}
+          aria-label="Home"
+        >
           <span className={styles.navBar__itemIcon}>
             <TiHome />
           </span>
@@ -46,7 +51,11 @@ export const NavBar = memo(() => {
         </NavLink>
 
         {isAdmin ? (
-          <NavLink to="/admin" className={({ isActive }) => cls(isActive)}>
+          <NavLink
+            to="/admin"
+            className={({ isActive }) => cls(isActive)}
+            aria-label="Admin"
+          >
             <span className={styles.navBar__itemIcon}>
               <RiAdminFill />
             </span>
@@ -54,14 +63,22 @@ export const NavBar = memo(() => {
           </NavLink>
         ) : (
           <>
-            <NavLink to="/wishlist" className={({ isActive }) => cls(isActive)}>
+            <NavLink
+              to="/wishlist"
+              className={({ isActive }) => cls(isActive)}
+              aria-label="Wish List"
+            >
               <span className={styles.navBar__itemIcon}>
                 <GiRoundStar />
               </span>
               <span className={styles.navBar__itemLabel}>Wish List</span>
             </NavLink>
 
-            <NavLink to="/cart" className={({ isActive }) => cls(isActive)}>
+            <NavLink
+              to="/cart"
+              className={({ isActive }) => cls(isActive)}
+              aria-label="Cart"
+            >
               <span className={styles.navBar__itemIcon}>
                 <RiShoppingCartFill />
               </span>
@@ -71,6 +88,7 @@ export const NavBar = memo(() => {
             <NavLink
               to="/notifications"
               className={({ isActive }) => cls(isActive)}
+              aria-label="Notifications"
             >
               <span className={styles.navBar__itemIcon}>
                 <RiNotification3Fill />
@@ -83,7 +101,11 @@ export const NavBar = memo(() => {
               <span className={styles.navBar__itemLabel}>Notifications</span>
             </NavLink>
 
-            <NavLink to="/profile" className={({ isActive }) => cls(isActive)}>
+            <NavLink
+              to="/profile"
+              className={({ isActive }) => cls(isActive)}
+              aria-label="Profile"
+            >
               <span className={styles.navBar__itemIcon}>
                 <CgProfile />
               </span>

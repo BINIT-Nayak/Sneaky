@@ -376,6 +376,7 @@ export const HomeContent: FC<HomeContentProps> = ({
                     href={currentProduct.merchantUrl}
                     target="_blank"
                     rel="noreferrer"
+                    aria-label={`Open ${currentProduct.merchantName || "partner store"} product page`}
                   >
                     {currentProduct.merchantName || "Partner Store"}
                   </a>

@@ -20,9 +20,10 @@ import {
 import { AuthContext } from "../../context/AuthContext";
 import { userApi } from "../../services/userAPI";
 import { fetchProfileSummary } from "../../store/fetchAPI/fetchProfileSummary";
+import { sneakyStateActions } from "../../store/sneakyState/sneakySlice";
 import { useSneakyStateSlice } from "../../store/sneakyState/sneakySelectors";
 import type { AppDispatch } from "../../store/sneakyStore";
-import type { IWishlistItem } from "../../store/types";
+import type { IWishlistItem, ProfileSummary } from "../../store/types";
 import { getUserFriendlyErrorMessage } from "../../utils/errorMessages";
 import {
   isStrongPassword,
@@ -31,6 +32,18 @@ import {
 import { isAdminRole } from "../../utils/roles";
 
 import styles from "./Profile.module.css";
+
+const PROFILE_SUMMARY_CACHE_TTL_MS = 30 * 60 * 1000;
+
+type IdleCallbackHandle = number;
+
+type WindowWithIdleCallback = Window & {
+  cancelIdleCallback?: (handle: IdleCallbackHandle) => void;
+  requestIdleCallback?: (
+    callback: IdleRequestCallback,
+    options?: IdleRequestOptions,
+  ) => IdleCallbackHandle;
+};
 
 const getInitials = (name?: string | null, email?: string | null) => {
   const source = name?.trim() || email?.trim() || "User";
@@ -43,6 +56,67 @@ const getInitials = (name?: string | null, email?: string | null) => {
     .slice(0, 2)
     .map((word) => word[0]?.toUpperCase())
     .join("");
+};
+
+const getProfileSummaryCacheKey = (userId: string) =>
+  `sneaky:profile-summary:${userId}`;
+
+const isWishlistItem = (item: IWishlistItem | null | undefined) =>
+  typeof item?.productId === "string" &&
+  typeof item.name === "string" &&
+  typeof item.imageUrl === "string" &&
+  typeof item.brandName === "string" &&
+  typeof item.price === "number";
+
+const isProfileSummary = (
+  summary: ProfileSummary | null | undefined,
+): summary is ProfileSummary =>
+  typeof summary?.wishlistCount === "number" &&
+  typeof summary.cartCount === "number" &&
+  Array.isArray(summary.recentWishlist) &&
+  summary.recentWishlist.every(isWishlistItem);
+
+const readCachedProfileSummary = (userId: string): ProfileSummary | null => {
+  try {
+    const storedValue = window.localStorage.getItem(
+      getProfileSummaryCacheKey(userId),
+    );
+    if (!storedValue) return null;
+
+    const payload = JSON.parse(storedValue) as {
+      savedAt?: number;
+      summary?: ProfileSummary;
+    };
+
+    if (
+      typeof payload.savedAt !== "number" ||
+      Date.now() - payload.savedAt > PROFILE_SUMMARY_CACHE_TTL_MS ||
+      !isProfileSummary(payload.summary)
+    ) {
+      return null;
+    }
+
+    return payload.summary;
+  } catch {
+    return null;
+  }
+};
+
+const writeCachedProfileSummary = (
+  userId: string,
+  summary: ProfileSummary,
+) => {
+  try {
+    window.localStorage.setItem(
+      getProfileSummaryCacheKey(userId),
+      JSON.stringify({
+        savedAt: Date.now(),
+        summary,
+      }),
+    );
+  } catch {
+    // Profile summary cache is only used to improve reload paint.
+  }
 };
 
 export const Profile: FC = () => {
@@ -69,12 +143,44 @@ export const Profile: FC = () => {
       !isAuthReady ||
       !isLoggedIn ||
       isAdmin ||
+      !user?.userId ||
       profileSummaryStatus !== "idle"
     )
       return;
 
-    void dispatch(fetchProfileSummary());
-  }, [dispatch, isAdmin, isAuthReady, isLoggedIn, profileSummaryStatus]);
+    const cachedSummary = readCachedProfileSummary(user.userId);
+    if (cachedSummary) {
+      dispatch(sneakyStateActions.hydrateProfileSummaryFromCache(cachedSummary));
+    }
+
+    const fetchSummary = () => {
+      void dispatch(fetchProfileSummary({ forceRefresh: Boolean(cachedSummary) }));
+    };
+
+    const idleWindow = window as WindowWithIdleCallback;
+    if (idleWindow.requestIdleCallback) {
+      const idleHandle = idleWindow.requestIdleCallback(fetchSummary, {
+        timeout: 2500,
+      });
+      return () => idleWindow.cancelIdleCallback?.(idleHandle);
+    }
+
+    const timeoutId = window.setTimeout(fetchSummary, 1500);
+    return () => window.clearTimeout(timeoutId);
+  }, [
+    dispatch,
+    isAdmin,
+    isAuthReady,
+    isLoggedIn,
+    profileSummaryStatus,
+    user?.userId,
+  ]);
+
+  useEffect(() => {
+    if (!user?.userId || !profileSummary) return;
+
+    writeCachedProfileSummary(user.userId, profileSummary);
+  }, [profileSummary, user?.userId]);
 
   useEffect(() => {
     setProfileName(user?.name ?? "");

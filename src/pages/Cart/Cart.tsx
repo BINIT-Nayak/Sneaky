@@ -48,8 +48,17 @@ type ToastMessage = {
   message: string;
 };
 
+type WindowWithIdleCallback = Window & {
+  cancelIdleCallback?: (handle: number) => void;
+  requestIdleCallback?: (
+    callback: IdleRequestCallback,
+    options?: IdleRequestOptions,
+  ) => number;
+};
+
 const CART_SKELETON_ITEMS = 4;
 const CART_CACHE_TTL_MS = 10 * 60 * 1000;
+const CART_BACKGROUND_REFRESH_DELAY_MS = 2500;
 const DELIVERY_FEE = 199;
 const FREE_DELIVERY_THRESHOLD = 10000;
 const SNEAKY_DISCOUNT_THRESHOLD = 20000;
@@ -105,6 +114,29 @@ const writeCachedCart = (userId: string, items: ICartItem[]) => {
   }
 };
 
+const scheduleCartRefresh = (callback: () => void) => {
+  const idleWindow = window as WindowWithIdleCallback;
+
+  if (idleWindow.requestIdleCallback) {
+    const idleHandle = idleWindow.requestIdleCallback(callback, {
+      timeout: CART_BACKGROUND_REFRESH_DELAY_MS,
+    });
+
+    return () => {
+      idleWindow.cancelIdleCallback?.(idleHandle);
+    };
+  }
+
+  const timeoutId = window.setTimeout(
+    callback,
+    CART_BACKGROUND_REFRESH_DELAY_MS,
+  );
+
+  return () => {
+    window.clearTimeout(timeoutId);
+  };
+};
+
 export const Cart = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { isAuthReady, isLoggedIn, onOpenAuth, user } = useContext(AuthContext);
@@ -123,6 +155,7 @@ export const Cart = () => {
   const cartStatus = useSneakyStateSlice.getCartStatus();
   const cartError = useSneakyStateSlice.getCartError();
   const isCartLoading = cartLoading || cartStatus === "idle";
+  const shouldShowInitialCartLoading = isCartLoading && cart.length === 0;
 
   useEffect(() => {
     if (!isLoggedIn || !user?.userId || cartStatus !== "idle") return;
@@ -131,7 +164,9 @@ export const Cart = () => {
     if (cachedCart.length > 0) {
       dispatch(sneakyStateActions.hydrateCartFromCache(cachedCart));
       hasRequestedCartRef.current = true;
-      void dispatch(fetchCart({ forceRefresh: true }));
+      return scheduleCartRefresh(() => {
+        void dispatch(fetchCart({ forceRefresh: true }));
+      });
     }
   }, [cartStatus, dispatch, isLoggedIn, user?.userId]);
 
@@ -377,7 +412,7 @@ export const Cart = () => {
     );
   }
 
-  if (isCartLoading) {
+  if (shouldShowInitialCartLoading) {
     return (
       <div className={styles.cartContainer}>
         <div className={styles.cart} aria-label="Loading cart">
@@ -476,7 +511,11 @@ export const Cart = () => {
           <p className={styles.cart__message}>
             Add a pair when one feels checkout-worthy.
           </p>
-          <Link className={styles.cart__browseBtn} to="/">
+          <Link
+            className={styles.cart__browseBtn}
+            to="/"
+            aria-label="Browse products"
+          >
             Browse Products
           </Link>
         </div>
@@ -519,7 +558,7 @@ export const Cart = () => {
                     alt={item.name}
                     className={styles.cart__itemImage}
                     decoding="async"
-                    fetchPriority={index === 0 ? "high" : "auto"}
+                    {...{ fetchpriority: index === 0 ? "high" : "auto" }}
                     height={92}
                     loading={index < 3 ? "eager" : "lazy"}
                     width={92}

@@ -162,6 +162,17 @@ export const sneakySlice = createSlice({
         state.cartError = null;
       }
     },
+    hydrateProfileSummaryFromCache: (
+      state,
+      action: PayloadAction<NonNullable<UIStateProps["profileSummary"]>>,
+    ) => {
+      if (state.profileSummaryStatus === "idle" && state.profileSummary === null) {
+        state.profileSummary = action.payload;
+        state.profileSummaryStatus = "succeeded";
+        state.profileSummaryLoading = false;
+        state.profileSummaryError = null;
+      }
+    },
     resetWishlistState: (state) => {
       state.wishlist = [];
       state.wishlistStatus = "idle";

@@ -39,11 +39,20 @@ const mapWishlistItem = (item: IWishlistItem) => ({
 
 const WISHLIST_SKELETON_ITEMS = 6;
 const WISHLIST_CACHE_TTL_MS = 10 * 60 * 1000;
+const WISHLIST_BACKGROUND_REFRESH_DELAY_MS = 2500;
 const getWishlistCacheKey = (userId: string) => `sneaky:wishlist-cache:${userId}`;
 
 type ToastMessage = {
   id: number;
   message: string;
+};
+
+type WindowWithIdleCallback = Window & {
+  cancelIdleCallback?: (handle: number) => void;
+  requestIdleCallback?: (
+    callback: IdleRequestCallback,
+    options?: IdleRequestOptions,
+  ) => number;
 };
 
 const isWishlistItem = (item: IWishlistItem | null | undefined) =>
@@ -91,6 +100,29 @@ const writeCachedWishlist = (userId: string, items: IWishlistItem[]) => {
   }
 };
 
+const scheduleWishlistRefresh = (callback: () => void) => {
+  const idleWindow = window as WindowWithIdleCallback;
+
+  if (idleWindow.requestIdleCallback) {
+    const idleHandle = idleWindow.requestIdleCallback(callback, {
+      timeout: WISHLIST_BACKGROUND_REFRESH_DELAY_MS,
+    });
+
+    return () => {
+      idleWindow.cancelIdleCallback?.(idleHandle);
+    };
+  }
+
+  const timeoutId = window.setTimeout(
+    callback,
+    WISHLIST_BACKGROUND_REFRESH_DELAY_MS,
+  );
+
+  return () => {
+    window.clearTimeout(timeoutId);
+  };
+};
+
 export const Wishlist = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { isAuthReady, isLoggedIn, onOpenAuth, user } = useContext(AuthContext);
@@ -110,6 +142,8 @@ export const Wishlist = () => {
   const wishlistStatus = useSneakyStateSlice.getWishlistStatus();
   const wishlistError = useSneakyStateSlice.getWishlistError();
   const isWishlistLoading = wishlistLoading || wishlistStatus === "idle";
+  const shouldShowInitialWishlistLoading =
+    isWishlistLoading && wishlistItems.length === 0;
 
   useEffect(() => {
     if (!isLoggedIn || !user?.userId || wishlistStatus !== "idle") return;
@@ -118,7 +152,9 @@ export const Wishlist = () => {
     if (cachedWishlist.length > 0) {
       dispatch(sneakyStateActions.hydrateWishlistFromCache(cachedWishlist));
       hasRequestedWishlistRef.current = true;
-      void dispatch(fetchWishlist({ forceRefresh: true }));
+      return scheduleWishlistRefresh(() => {
+        void dispatch(fetchWishlist({ forceRefresh: true }));
+      });
     }
   }, [dispatch, isLoggedIn, user?.userId, wishlistStatus]);
 
@@ -264,7 +300,7 @@ export const Wishlist = () => {
     );
   }
 
-  if (isWishlistLoading) {
+  if (shouldShowInitialWishlistLoading) {
     return (
       <div className={styles.wishlistContainer}>
         <div className={styles.wishlist} aria-label="Loading wishlist">
@@ -345,7 +381,11 @@ export const Wishlist = () => {
             Your wishlist is empty—for now. Start liking products to save them
             here
           </p>
-          <Link className={styles.wishlist__browseBtn} to="/">
+          <Link
+            className={styles.wishlist__browseBtn}
+            to="/"
+            aria-label="Browse products"
+          >
             Browse Products
           </Link>
         </div>
@@ -387,7 +427,7 @@ export const Wishlist = () => {
                 alt={item.name}
                 className={styles.wishlist__itemImage}
                 decoding="async"
-                fetchPriority={index === 0 ? "high" : "auto"}
+                {...{ fetchpriority: index === 0 ? "high" : "auto" }}
                 height={200}
                 loading={index < 2 ? "eager" : "lazy"}
                 width={320}

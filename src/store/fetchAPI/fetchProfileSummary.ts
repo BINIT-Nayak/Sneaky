@@ -4,9 +4,13 @@ import { userApi } from "../../services/userAPI";
 import { getUserFriendlyErrorMessage } from "../../utils/errorMessages";
 import type { ProfileSummary, UIStateProps } from "../types";
 
+type FetchProfileSummaryArgs = {
+  forceRefresh?: boolean;
+} | void;
+
 export const fetchProfileSummary = createAsyncThunk(
   "sneakyState/fetchProfileSummary",
-  async (_, { rejectWithValue }) => {
+  async (_: FetchProfileSummaryArgs, { rejectWithValue }) => {
     try {
       const summary = await userApi.getProfileSummary();
       return summary satisfies ProfileSummary;
@@ -20,7 +24,11 @@ export const fetchProfileSummary = createAsyncThunk(
     }
   },
   {
-    condition: (_, { getState }) => {
+    condition: (args, { getState }) => {
+      if (args?.forceRefresh) {
+        return true;
+      }
+
       const { sneakyState } = getState() as { sneakyState: UIStateProps };
       return sneakyState.profileSummaryStatus === "idle";
     },

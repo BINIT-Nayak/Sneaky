@@ -20,6 +20,17 @@ const STORAGE_KEY = "sneaky:notifications";
 const MAX_NOTIFICATIONS = 100;
 const SERVER_REFRESH_INTERVAL_MS = 5 * 60_000;
 const SERVER_REFRESH_THROTTLE_MS = 60_000;
+const INITIAL_SERVER_REFRESH_DELAY_MS = 3500;
+
+type IdleCallbackHandle = number;
+
+type WindowWithIdleCallback = Window & {
+  cancelIdleCallback?: (handle: IdleCallbackHandle) => void;
+  requestIdleCallback?: (
+    callback: IdleRequestCallback,
+    options?: IdleRequestOptions,
+  ) => IdleCallbackHandle;
+};
 
 const readNotifications = (): NotificationItem[] => {
   try {
@@ -123,10 +134,17 @@ export const NotificationsProvider = ({ children }: { children: ReactNode }) => 
       return undefined;
     }
 
-    const initialRefreshId = window.setTimeout(
-      () => void refreshServerNotifications(true),
-      0,
-    );
+    const idleWindow = window as WindowWithIdleCallback;
+    const scheduledWithIdleCallback = Boolean(idleWindow.requestIdleCallback);
+    const initialRefreshId = scheduledWithIdleCallback
+      ? idleWindow.requestIdleCallback(
+          () => void refreshServerNotifications(true),
+          { timeout: INITIAL_SERVER_REFRESH_DELAY_MS },
+        )
+      : window.setTimeout(
+          () => void refreshServerNotifications(true),
+          INITIAL_SERVER_REFRESH_DELAY_MS,
+        );
 
     const intervalId = window.setInterval(
       () => void refreshServerNotifications(),
@@ -145,7 +163,11 @@ export const NotificationsProvider = ({ children }: { children: ReactNode }) => 
     window.addEventListener("online", handleOnline);
 
     return () => {
-      window.clearTimeout(initialRefreshId);
+      if (scheduledWithIdleCallback && idleWindow.cancelIdleCallback) {
+        idleWindow.cancelIdleCallback(initialRefreshId);
+      } else {
+        window.clearTimeout(initialRefreshId);
+      }
       window.clearInterval(intervalId);
       window.removeEventListener("focus", handleFocus);
       document.removeEventListener("visibilitychange", handleVisibilityChange);

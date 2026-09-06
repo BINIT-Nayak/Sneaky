@@ -6,6 +6,7 @@ import { ResponsiveNav } from "./components/ResponsiveNav/ResponsiveNav";
 import { AuthContext } from "./context/AuthContext";
 import { NotificationsProvider } from "./context/NotificationsContext";
 import { useAuth } from "./hooks/useAuth";
+import { useMobileFullscreenOnTap } from "./hooks/useMobileFullscreenOnFirstInteraction";
 import styles from "./index.module.css";
 import { useSneakyStateSlice } from "./store/sneakyState/sneakySelectors";
 import { isAdminRole } from "./utils/roles";
@@ -46,6 +47,8 @@ const Wishlist = lazy(() =>
 );
 
 export const App = () => {
+  useMobileFullscreenOnTap();
+
   const location = useLocation();
   const navigate = useNavigate();
   const wasLoggedIn = useRef(false);

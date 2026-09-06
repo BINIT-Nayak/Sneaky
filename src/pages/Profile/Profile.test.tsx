@@ -19,6 +19,21 @@ jest.mock("../../services/userAPI", () => ({
   },
 }));
 
+jest.mock("../../store/fetchAPI/fetchProfileSummary", () => ({
+  fetchProfileSummary: jest.fn(() => ({
+    type: "sneakyState/fetchProfileSummary/pending",
+  })),
+}));
+
+jest.mock("../../store/sneakyState/sneakySlice", () => ({
+  sneakyStateActions: {
+    hydrateProfileSummaryFromCache: jest.fn((payload) => ({
+      payload,
+      type: "sneakyState/hydrateProfileSummaryFromCache",
+    })),
+  },
+}));
+
 jest.mock("../../store/sneakyState/sneakySelectors", () => ({
   useSneakyStateSlice: {
     getCart: jest.fn(),
@@ -27,6 +42,10 @@ jest.mock("../../store/sneakyState/sneakySelectors", () => ({
     getWishlistStatus: jest.fn(),
     getWishlistLoading: jest.fn(),
     getWishlistError: jest.fn(),
+    getProfileSummary: jest.fn(),
+    getProfileSummaryStatus: jest.fn(),
+    getProfileSummaryLoading: jest.fn(),
+    getProfileSummaryError: jest.fn(),
   },
 }));
 
@@ -38,6 +57,7 @@ const renderProfile = (onUserUpdate = jest.fn()) =>
   render(
     <AuthContext.Provider
       value={{
+        isAuthReady: true,
         isLoggedIn: true,
         onOpenAuth: jest.fn(),
         onLogout: jest.fn(),
@@ -77,6 +97,22 @@ describe("Profile", () => {
     mockedSelectors.getWishlistStatus.mockReturnValue("succeeded");
     mockedSelectors.getWishlistLoading.mockReturnValue(false);
     mockedSelectors.getWishlistError.mockReturnValue(null);
+    mockedSelectors.getProfileSummary.mockReturnValue({
+      wishlistCount: 1,
+      cartCount: 2,
+      recentWishlist: [
+        {
+          productId: "product-1",
+          name: "Air Max",
+          price: 12999,
+          imageUrl: "image.jpg",
+          brandName: "Nike",
+        },
+      ],
+    });
+    mockedSelectors.getProfileSummaryStatus.mockReturnValue("succeeded");
+    mockedSelectors.getProfileSummaryLoading.mockReturnValue(false);
+    mockedSelectors.getProfileSummaryError.mockReturnValue(null);
     mockedUserApi.updateMe.mockReset();
   });
 
