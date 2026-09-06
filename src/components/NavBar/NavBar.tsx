@@ -1,12 +1,7 @@
 import { memo, useCallback, useContext } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 
-import { CgProfile } from "react-icons/cg";
-import { GiRoundStar } from "react-icons/gi";
-import { RiShoppingCartFill } from "react-icons/ri";
-import { RiAdminFill } from "react-icons/ri";
-import { RiNotification3Fill } from "react-icons/ri";
-import { TiHome } from "react-icons/ti";
+import { CgProfile, GiRoundStar, RiAdminFill, RiNotification3Fill, RiShoppingCartFill, TiHome } from "../Icon/Icon";
 
 import { AuthContext } from "../../context/AuthContext";
 import { NotificationsContext } from "../../context/notifications";

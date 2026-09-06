@@ -20,7 +20,7 @@ import {
   FiTrash2,
   FiUsers,
   FiX,
-} from "react-icons/fi";
+} from "../../components/Icon/Icon";
 
 import { AuthContext } from "../../context/AuthContext";
 import type {

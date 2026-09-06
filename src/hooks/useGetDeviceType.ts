@@ -1,39 +1,27 @@
 import { useEffect, useState } from "react";
 
-export const useIsMobile = () => {
-  const [isMobile, setIsMobile] = useState(false);
+const useMediaQuery = (query: string) => {
+  const [matches, setMatches] = useState(false);
 
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
+    const mediaQuery = window.matchMedia(query);
+    const handleChange = () => setMatches(mediaQuery.matches);
 
-    handleResize();
-    window.addEventListener("resize", handleResize);
+    handleChange();
+    mediaQuery.addEventListener("change", handleChange);
 
     return () => {
-      window.removeEventListener("resize", handleResize);
+      mediaQuery.removeEventListener("change", handleChange);
     };
-  }, []);
+  }, [query]);
 
-  return isMobile;
+  return matches;
+};
+
+export const useIsMobile = () => {
+  return useMediaQuery("(max-width: 768px)");
 };
 
 export const useIsTablet = () => {
-  const [isTablet, setIsTablet] = useState(false);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsTablet(window.innerWidth <= 1024 && window.innerWidth > 768);
-    };
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
-
-  return isTablet;
+  return useMediaQuery("(min-width: 769px) and (max-width: 1024px)");
 };

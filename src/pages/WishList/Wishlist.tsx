@@ -2,10 +2,10 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 
-import { FiHeart, FiShoppingBag, FiTrash2 } from "react-icons/fi";
+import { FiHeart, FiShoppingBag, FiTrash2 } from "../../components/Icon/Icon";
 
-import bellIcon from "../../assets/bell.png";
-import emptyList from "../../assets/emptyList.png";
+import bellIcon from "../../assets/bell.avif";
+import emptyList from "../../assets/emptyList.avif";
 import { Toast } from "../../components/Toast/Toast";
 import { AuthContext } from "../../context/AuthContext";
 import { clearWishlistItems } from "../../store/fetchAPI/clearWishlistItems";

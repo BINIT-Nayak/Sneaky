@@ -1,3 +1,21 @@
+@font-face {
+  font-display: swap;
+  font-family: "Space Grotesk";
+  font-style: normal;
+  font-weight: 300 700;
+  src: url("./assets/fonts/Space_Grotesk/SpaceGrotesk-VariableFont_wght.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-display: swap;
+  font-family: "Imperial Script";
+  font-style: normal;
+  font-weight: 400;
+  src: url("./assets/fonts/Imperial_Script/ImperialScript-Regular.woff2")
+    format("woff2");
+}
+
 :global(:root) {
   --base-color1: #2b124c;
   --base-color2: #52265b;

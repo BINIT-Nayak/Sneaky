@@ -1,8 +1,8 @@
 import type { FC } from "react";
 import { useState } from "react";
 
-import { FaTimes } from "react-icons/fa";
-import { FiEye, FiEyeOff } from "react-icons/fi";
+import { FaTimes } from "../../components/Icon/Icon";
+import { FiEye, FiEyeOff } from "../../components/Icon/Icon";
 
 import { Button } from "../../components/Button/Button";
 import { ButtonVariant } from "../../components/Button/type";

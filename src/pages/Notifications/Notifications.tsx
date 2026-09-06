@@ -1,6 +1,6 @@
 import { useContext, useEffect } from "react";
 
-import { RiDeleteBin6Line, RiNotification3Line } from "react-icons/ri";
+import { RiDeleteBin6Line, RiNotification3Line } from "../../components/Icon/Icon";
 
 import { NotificationsContext } from "../../context/notifications";
 

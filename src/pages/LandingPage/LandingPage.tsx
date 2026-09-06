@@ -2,8 +2,8 @@ import type { FC } from "react";
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { FiHeart, FiShoppingCart } from "react-icons/fi";
-import { GiRoundStar } from "react-icons/gi";
+import { FiHeart, FiShoppingCart } from "../../components/Icon/Icon";
+import { GiRoundStar } from "../../components/Icon/Icon";
 
 import { FloatingParticles } from "../../components/FloatingParticles/FloatingParticles";
 import { AuthContext } from "../../context/AuthContext";

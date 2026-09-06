@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { TiThMenu } from "react-icons/ti";
+import { TiThMenu } from "../Icon/Icon";
 
 import { getClasses } from "../../hooks/useClasses";
 import { useIsMobile } from "../../hooks/useGetDeviceType";

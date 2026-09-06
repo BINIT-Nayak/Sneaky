@@ -189,25 +189,22 @@
 
 .home__floatingBadge {
   align-items: center;
+  background: var(--base-color2);
   border: 1px solid rgb(255 255 255 / 20%);
   border-radius: 999px;
   box-shadow: 0 12px 28px rgb(0 0 0 / 24%);
+  color: var(--base-color4);
   display: inline-flex;
-  font-weight: 900;
-  min-height: 34px;
-  position: absolute;
-  z-index: 3;
-}
-
-.home__floatingBadge {
-  background: rgb(0 214 201 / 18%);
-  color: #d8fffb;
   font-size: 11px;
+  font-weight: 900;
   left: 20px;
   letter-spacing: 0.08em;
+  min-height: 34px;
   padding: 0 12px;
+  position: absolute;
   text-transform: uppercase;
   top: 20px;
+  z-index: 3;
 }
 
 .home__recent {
@@ -293,10 +290,10 @@
 
 .home__productDesc {
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
   color: rgb(239 231 219 / 82%);
   display: -webkit-box;
   font-size: 14px;
+  -webkit-line-clamp: 3;
   line-height: 1.55;
   margin: 0;
   min-height: calc(14px * 1.55 * 3);
@@ -403,8 +400,7 @@
 }
 
 .home__detailsButton {
-  background:
-    linear-gradient(145deg, rgb(82 38 91 / 92%), rgb(28 31 48 / 96%));
+  background: linear-gradient(145deg, rgb(82 38 91 / 92%), rgb(28 31 48 / 96%));
   border: 1px solid rgb(223 182 130 / 42%);
   box-shadow:
     8px 8px 18px rgb(0 0 0 / 42%),
@@ -490,6 +486,10 @@
   color: #ff6b6b;
 }
 
+.home__actionBtn_dislike > button {
+  color: #ff6b6b;
+}
+
 .home__actionBtn_dislike:hover {
   background: rgb(255 107 107 / 15%);
   box-shadow: 0 15px 30px rgb(255 107 107 / 40%);
@@ -506,6 +506,10 @@
   width: 75px;
 }
 
+.home__actionBtn_cart > button {
+  color: #aafff8;
+}
+
 .home__actionBtn_cart:hover {
   background:
     linear-gradient(145deg, rgb(0 214 201 / 28%), rgb(223 182 130 / 18%)),
@@ -515,6 +519,10 @@
 
 .home__actionBtn_like {
   border-color: rgb(81 207 102 / 30%);
+  color: #51cf66;
+}
+
+.home__actionBtn_like > button {
   color: #51cf66;
 }
 

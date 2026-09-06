@@ -1,6 +1,6 @@
 import type { FC } from "react";
 
-import { FaSignInAlt } from "react-icons/fa";
+import { FaSignInAlt } from "../Icon/Icon";
 
 import style from "./AuthEntryLoginButton.module.css";
 

@@ -19,6 +19,7 @@ const renderNavBar = (isLoggedIn = true) =>
     <MemoryRouter>
       <AuthContext.Provider
         value={{
+          isAuthReady: true,
           isLoggedIn,
           onOpenAuth: jest.fn(),
           onLogout: jest.fn(),

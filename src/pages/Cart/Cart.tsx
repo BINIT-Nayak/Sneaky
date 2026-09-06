@@ -17,9 +17,9 @@ import {
   FiShoppingBag,
   FiShoppingCart,
   FiTrash2,
-} from "react-icons/fi";
+} from "../../components/Icon/Icon";
 
-import emptyCart from "../../assets/emptyList.png";
+import emptyCart from "../../assets/emptyList.avif";
 import { Toast } from "../../components/Toast/Toast";
 import { AuthContext } from "../../context/AuthContext";
 import { eventApi } from "../../services/eventAPI";
@@ -210,7 +210,8 @@ export const Cart = () => {
         existingGroup.itemCount += item.quantity;
         existingGroup.productIds.push(item.productId);
         existingGroup.total += item.itemTotal;
-        existingGroup.merchantUrl = existingGroup.merchantUrl || item.merchantUrl;
+        existingGroup.merchantUrl =
+          existingGroup.merchantUrl || item.merchantUrl;
         return;
       }
 
@@ -281,7 +282,10 @@ export const Cart = () => {
     }
   };
 
-  const handleMoveToWishlist = async (productId: string, productName: string) => {
+  const handleMoveToWishlist = async (
+    productId: string,
+    productName: string,
+  ) => {
     if (submittingProductId || isClearing) return;
 
     setSubmittingProductId(productId);
@@ -557,9 +561,7 @@ export const Cart = () => {
                     <div className={styles.cart__quantity}>
                       <button
                         className={styles.cart__quantityBtn}
-                        disabled={
-                          areItemActionsDisabled || item.quantity <= 1
-                        }
+                        disabled={areItemActionsDisabled || item.quantity <= 1}
                         aria-label={`Decrease ${item.name} quantity`}
                         onClick={() => {
                           void handleUpdateQuantity(
@@ -668,8 +670,8 @@ export const Cart = () => {
                     <FiExternalLink /> Continue on {group.merchantName}
                   </span>
                   <small>
-                    {group.itemCount} {group.itemCount === 1 ? "item" : "items"} ·
-                    ₹{group.total.toLocaleString()}
+                    {group.itemCount} {group.itemCount === 1 ? "item" : "items"}{" "}
+                    · ₹{group.total.toLocaleString()}
                   </small>
                 </button>
               ))}

@@ -1,6 +1,6 @@
 import { MemoryRouter } from "react-router-dom";
 
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { AuthContext } from "../../context/AuthContext";
@@ -19,6 +19,7 @@ const renderResponsiveNav = () =>
     <MemoryRouter>
       <AuthContext.Provider
         value={{
+          isAuthReady: true,
           isLoggedIn: true,
           onOpenAuth: jest.fn(),
           onLogout: jest.fn(),
@@ -58,13 +59,15 @@ describe("ResponsiveNav", () => {
     expect(screen.getByRole("dialog", { name: /navigation menu/i })).toBeInTheDocument();
     expect(document.body).toHaveStyle({ overflow: "hidden" });
 
-    const backdrop = container.querySelector("[aria-hidden='true']");
+    const backdrop = container.querySelector("div[aria-hidden='true']");
     expect(backdrop).toBeInTheDocument();
 
     if (backdrop) {
       await userEvent.click(backdrop);
     }
 
-    expect(document.body).not.toHaveStyle({ overflow: "hidden" });
+    await waitFor(() => {
+      expect(document.body).not.toHaveStyle({ overflow: "hidden" });
+    });
   });
 });

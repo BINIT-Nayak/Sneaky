@@ -14,6 +14,13 @@ type Particle = {
   y: number;
 };
 
+type CachedRect = {
+  height: number;
+  left: number;
+  top: number;
+  width: number;
+};
+
 type FloatingParticlesProps = {
   attractionRadius?: number;
   className?: string;
@@ -27,6 +34,13 @@ type FloatingParticlesProps = {
   strength?: number;
   velocityBias?: number;
 };
+
+const toCachedRect = (rect: DOMRectReadOnly): CachedRect => ({
+  height: Math.max(1, rect.height),
+  left: rect.left,
+  top: rect.top,
+  width: Math.max(1, rect.width),
+});
 
 export const FloatingParticles: FC<FloatingParticlesProps> = ({
   attractionRadius = 0.2,
@@ -170,6 +184,14 @@ export const FloatingParticles: FC<FloatingParticlesProps> = ({
 
     let frameId = 0;
     let latestMouse = { x: 0.5, y: 0.5 };
+    let rect = containerRef.current
+      ? toCachedRect(containerRef.current.getBoundingClientRect())
+      : null;
+
+    const updateRect = () => {
+      if (!containerRef.current) return;
+      rect = toCachedRect(containerRef.current.getBoundingClientRect());
+    };
 
     const sendMouse = () => {
       frameId = 0;
@@ -181,7 +203,6 @@ export const FloatingParticles: FC<FloatingParticlesProps> = ({
     };
 
     const handleMouseMove = (event: MouseEvent) => {
-      const rect = containerRef.current?.getBoundingClientRect();
       if (!rect) return;
 
       latestMouse = {
@@ -194,9 +215,23 @@ export const FloatingParticles: FC<FloatingParticlesProps> = ({
       }
     };
 
+    const resizeObserver =
+      containerRef.current && "ResizeObserver" in window
+        ? new ResizeObserver(updateRect)
+        : null;
+
+    if (containerRef.current) {
+      resizeObserver?.observe(containerRef.current);
+    }
+
+    window.addEventListener("resize", updateRect, { passive: true });
+    window.addEventListener("scroll", updateRect, { passive: true });
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
 
     return () => {
+      resizeObserver?.disconnect();
+      window.removeEventListener("resize", updateRect);
+      window.removeEventListener("scroll", updateRect);
       window.removeEventListener("mousemove", handleMouseMove);
       if (frameId) {
         cancelAnimationFrame(frameId);
@@ -209,6 +244,14 @@ export const FloatingParticles: FC<FloatingParticlesProps> = ({
 
     let frameId = 0;
     let latestMouse = { x: 0.5, y: 0.5 };
+    let rect = containerRef.current
+      ? toCachedRect(containerRef.current.getBoundingClientRect())
+      : null;
+
+    const updateRect = () => {
+      if (!containerRef.current) return;
+      rect = toCachedRect(containerRef.current.getBoundingClientRect());
+    };
 
     const resetParticles = () => {
       for (const particle of particleRefs.current) {
@@ -244,7 +287,6 @@ export const FloatingParticles: FC<FloatingParticlesProps> = ({
     };
 
     const handleMouseMove = (event: MouseEvent) => {
-      const rect = containerRef.current?.getBoundingClientRect();
       if (!rect) return;
 
       latestMouse = {
@@ -257,10 +299,24 @@ export const FloatingParticles: FC<FloatingParticlesProps> = ({
       }
     };
 
+    const resizeObserver =
+      containerRef.current && "ResizeObserver" in window
+        ? new ResizeObserver(updateRect)
+        : null;
+
+    if (containerRef.current) {
+      resizeObserver?.observe(containerRef.current);
+    }
+
+    window.addEventListener("resize", updateRect, { passive: true });
+    window.addEventListener("scroll", updateRect, { passive: true });
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
     window.addEventListener("mouseleave", resetParticles);
 
     return () => {
+      resizeObserver?.disconnect();
+      window.removeEventListener("resize", updateRect);
+      window.removeEventListener("scroll", updateRect);
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseleave", resetParticles);
       if (frameId) {

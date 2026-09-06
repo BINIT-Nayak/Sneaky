@@ -1,8 +1,6 @@
 import type { FC } from "react";
 
-import { ImCross } from "react-icons/im";
-import { PiHeartStraightFill } from "react-icons/pi";
-import { RiShoppingCartFill } from "react-icons/ri";
+import { ImCross, PiHeartStraightFill, RiShoppingCartFill } from "../Icon/Icon";
 
 import { getClasses } from "../../hooks/useClasses";
 

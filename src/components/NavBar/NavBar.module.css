@@ -288,12 +288,12 @@
   animation: glow-pulse 2s ease-in-out infinite;
   background: linear-gradient(180deg, #dfb682, #c95b7a, #dfb682);
   border-radius: 0 4px 4px 0;
-  bottom: 15%;
+  bottom: 25%;
   box-shadow: var(--nav-glow);
   content: "";
   left: 0;
   position: absolute;
-  top: 15%;
+  top: 25%;
   width: 3px;
 }
 

@@ -15,7 +15,7 @@ import {
   FiShoppingBag,
   FiUser,
   FiX,
-} from "react-icons/fi";
+} from "../../components/Icon/Icon";
 
 import { AuthContext } from "../../context/AuthContext";
 import { userApi } from "../../services/userAPI";
