@@ -2,13 +2,18 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 
 import { productsApi } from "../../services/productsAPI";
 import { getUserFriendlyErrorMessage } from "../../utils/errorMessages";
-import type { UIStateProps } from "../types";
+import type { Product, UIStateProps } from "../types";
 
 type FetchProductsPayload = {
   excludeProductIds?: string[];
+  forceRefresh?: boolean;
 };
 
-export const fetchProducts = createAsyncThunk(
+export const fetchProducts = createAsyncThunk<
+  Product[],
+  FetchProductsPayload | undefined,
+  { rejectValue: string }
+>(
   "sneakyState/fetchProducts",
   async (payload: FetchProductsPayload | undefined, { rejectWithValue }) => {
     try {
@@ -26,8 +31,12 @@ export const fetchProducts = createAsyncThunk(
     condition: (payload, { getState }) => {
       const { sneakyState } = getState() as { sneakyState: UIStateProps };
       const isPrefetch = Boolean(payload?.excludeProductIds?.length);
+      const isForcedRefresh = Boolean(payload?.forceRefresh);
 
-      return !sneakyState.productsLoading && (isPrefetch || sneakyState.products.length === 0);
+      return (
+        !sneakyState.productsLoading &&
+        (isForcedRefresh || isPrefetch || sneakyState.products.length === 0)
+      );
     },
   },
 );

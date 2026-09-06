@@ -5,7 +5,15 @@
   position: absolute;
 }
 
+.floatingParticles__canvas {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
 .floatingParticles__particle {
+  animation: particle-float var(--particle-speed, 14s) ease-in-out infinite;
+  animation-delay: var(--particle-delay, 0s);
   background: var(--particle-color);
   border-radius: 50%;
   height: var(--particle-size);
@@ -13,4 +21,20 @@
   position: absolute;
   width: var(--particle-size);
   will-change: transform;
+}
+
+.floatingParticles__particle_interactive {
+  animation: none;
+  transition: transform 120ms ease-out;
+}
+
+@keyframes particle-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(18px, -22px, 0);
+  }
 }

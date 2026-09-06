@@ -18,6 +18,7 @@ type UseHomeActionsParams = {
   currentProduct: Product | undefined;
   isLoggedIn: boolean;
   onOpenAuth: () => void;
+  onProductAdvanceStart?: () => void;
   onProductSwiped?: (product: Product) => void;
   setCurrentIndex: Dispatch<SetStateAction<number>>;
   setShowAnimation: Dispatch<SetStateAction<boolean>>;
@@ -32,6 +33,7 @@ export const useHomeActions = ({
   currentProduct,
   isLoggedIn,
   onOpenAuth,
+  onProductAdvanceStart,
   onProductSwiped,
   setCurrentIndex,
   setShowAnimation,
@@ -70,6 +72,7 @@ export const useHomeActions = ({
 
   const advanceProduct = useCallback(
     (direction: Exclude<SwipeDirection, null>, product: Product) => {
+      onProductAdvanceStart?.();
       setSwipeDirection(direction);
       setShowAnimation(true);
 
@@ -84,7 +87,13 @@ export const useHomeActions = ({
         setSwipeDirection(null);
       }, SWIPE_ANIMATION_DURATION);
     },
-    [onProductSwiped, setCurrentIndex, setShowAnimation, setSwipeDirection],
+    [
+      onProductAdvanceStart,
+      onProductSwiped,
+      setCurrentIndex,
+      setShowAnimation,
+      setSwipeDirection,
+    ],
   );
 
   const onLike = useCallback(() => {

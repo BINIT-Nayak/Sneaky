@@ -7,6 +7,10 @@ import { SwipeButton } from "../../components/SwipeButton/SwipeButton";
 import { SwipeButtonType } from "../../components/SwipeButton/type";
 import type { Product } from "../../store/types";
 import {
+  getOptimizedImageUrl,
+  getResponsiveImageSrcSet,
+} from "../../utils/imageUrl";
+import {
   getSneakerDetails,
   UNIQUE_PRODUCT_MESSAGE,
 } from "../../utils/productDetails";
@@ -77,6 +81,15 @@ export const HomeContent: FC<HomeContentProps> = ({
     selectionProductId === currentProduct?.id
       ? selectedColor
       : defaultColor;
+  const productImageUrl = currentProduct
+    ? getOptimizedImageUrl(currentProduct.image, { quality: 62, width: 520 })
+    : "";
+  const productImageSrcSet = currentProduct
+    ? getResponsiveImageSrcSet(currentProduct.image, [320, 420, 520, 640], 62)
+    : "";
+  const productDetailsImageUrl = currentProduct
+    ? getOptimizedImageUrl(currentProduct.image, { quality: 74, width: 800 })
+    : "";
 
   if (isLoading) {
     return (
@@ -86,14 +99,29 @@ export const HomeContent: FC<HomeContentProps> = ({
             className={`${styles.home__skeleton} ${styles.home__skeletonImage}`}
           />
           <div className={styles.home__productInfo}>
+            <div className={styles.home__productTopline}>
+              <div
+                className={`${styles.home__skeleton} ${styles.home__skeletonPill}`}
+              />
+              <div
+                className={`${styles.home__skeleton} ${styles.home__skeletonPill}`}
+              />
+            </div>
+            <div className={styles.home__productHeader}>
+              <div>
+                <div
+                  className={`${styles.home__skeleton} ${styles.home__skeletonTitle}`}
+                />
+                <div
+                  className={`${styles.home__skeleton} ${styles.home__skeletonText}`}
+                />
+              </div>
+              <div
+                className={`${styles.home__skeleton} ${styles.home__skeletonPrice}`}
+              />
+            </div>
             <div
-              className={`${styles.home__skeleton} ${styles.home__skeletonTitle}`}
-            />
-            <div
-              className={`${styles.home__skeleton} ${styles.home__skeletonText}`}
-            />
-            <div
-              className={`${styles.home__skeleton} ${styles.home__skeletonPrice}`}
+              className={`${styles.home__skeleton} ${styles.home__skeletonLine}`}
             />
             <div
               className={`${styles.home__skeleton} ${styles.home__skeletonLine}`}
@@ -150,7 +178,12 @@ export const HomeContent: FC<HomeContentProps> = ({
         <div className={styles.home__finished}>
           <h2>🎉 You've seen all products! 🎉</h2>
           <p>Check your wishlist and cart for your favorites</p>
-          <Button variant={ButtonVariant.DEFAULT} glow onClick={onStartOver}>
+          <Button
+            className={styles.home__finishedAction}
+            variant={ButtonVariant.DEFAULT}
+            glow
+            onClick={onStartOver}
+          >
             Start Over
           </Button>
         </div>
@@ -172,20 +205,21 @@ export const HomeContent: FC<HomeContentProps> = ({
       <div className={styles.home__feed}>
         <div className={styles.home__imageStage}>
           <img
-            src={currentProduct.image}
+            src={productImageUrl}
+            srcSet={productImageSrcSet}
+            sizes="(max-width: 480px) calc(100vw - 64px), 460px"
             alt={currentProduct.name}
             className={styles.home__image}
-            decoding="async"
+            decoding="sync"
             fetchPriority="high"
+            height={650}
             loading="eager"
+            width={520}
           />
           <div className={styles.home__imageGlow} aria-hidden="true" />
           {currentProduct.recommended ? (
             <div className={styles.home__floatingBadge}>Recommended</div>
           ) : null}
-          <div className={styles.home__floatingPrice}>
-            ₹{currentProduct.price.toLocaleString()}
-          </div>
         </div>
 
         <div className={styles.home__productInfo}>
@@ -248,6 +282,7 @@ export const HomeContent: FC<HomeContentProps> = ({
       <div className={styles.home__controls}>
         <div className={styles.home__controls__detail}>
           <Button
+            className={styles.home__detailsButton}
             variant={ButtonVariant.NEUMORPHIC}
             style={{ maxWidth: "280px", width: "100%" }}
             glow
@@ -314,9 +349,10 @@ export const HomeContent: FC<HomeContentProps> = ({
               ×
             </button>
             <img
-              src={currentProduct.image}
+              src={productDetailsImageUrl}
               alt={currentProduct.name}
               className={styles.home__detailsImage}
+              loading="lazy"
             />
             <div className={styles.home__detailsContent}>
               <p className={styles.home__detailsCategory}>

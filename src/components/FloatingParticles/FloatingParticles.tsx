@@ -1,10 +1,15 @@
-import { useEffect, useRef, type CSSProperties, type FC } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type FC,
+} from "react";
 
 import styles from "./FloatingParticles.module.css";
 
 type Particle = {
-  vx: number;
-  vy: number;
   x: number;
   y: number;
 };
@@ -37,104 +42,280 @@ export const FloatingParticles: FC<FloatingParticlesProps> = ({
   velocityBias = 0.5,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const particleRefs = useRef<Array<HTMLSpanElement | null>>([]);
+  const workerRef = useRef<Worker | null>(null);
+  const [renderMode, setRenderMode] = useState<
+    "detecting" | "disabled" | "css" | "worker"
+  >("detecting");
+  const particles = useMemo<Particle[]>(
+    () =>
+      Array.from({ length: count }).map((_, index) => ({
+        x: ((index * 37) % 100) / 100,
+        y: ((index * 61) % 100) / 100,
+      })),
+    [count],
+  );
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    let mouseX = 0.5;
-    let mouseY = 0.5;
-
-    const handleMouseMove = (event: MouseEvent) => {
-      const rect = container.getBoundingClientRect();
-      mouseX = (event.clientX - rect.left) / rect.width;
-      mouseY = (event.clientY - rect.top) / rect.height;
+    const navigatorWithMemory = navigator as Navigator & {
+      deviceMemory?: number;
     };
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    const isLowEndDevice =
+      (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2) ||
+      (navigatorWithMemory.deviceMemory !== undefined &&
+        navigatorWithMemory.deviceMemory <= 2);
+    const canvas = canvasRef.current;
+    const canUseWorkerCanvas =
+      canvas !== null && "transferControlToOffscreen" in canvas;
 
-    if (cursorAttraction) {
-      window.addEventListener("mousemove", handleMouseMove);
+    if (prefersReducedMotion || isLowEndDevice) {
+      setRenderMode("disabled");
+      return;
     }
 
-    const particles: Particle[] = Array.from({ length: count }).map(() => ({
-      x: Math.random(),
-      y: Math.random(),
-      vx: (Math.random() - velocityBias) * speed,
-      vy: (Math.random() - velocityBias) * speed,
-    }));
+    setRenderMode(canUseWorkerCanvas ? "worker" : "css");
+  }, []);
 
-    const elements = particles.map(() => {
-      const element = document.createElement("div");
-      element.className = styles.floatingParticles__particle;
-      container.appendChild(element);
-      return element;
-    });
+  useEffect(() => {
+    if (renderMode !== "worker") return;
 
-    let frameId: number;
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
+    if (!canvas || !container || !("transferControlToOffscreen" in canvas)) {
+      return;
+    }
 
-    const animate = () => {
-      const width = container.clientWidth - size;
-      const height = container.clientHeight - size;
+    const resolvedColor = color.startsWith("var(")
+      ? getComputedStyle(document.documentElement)
+          .getPropertyValue(color.slice(4, -1).trim())
+          .trim()
+      : color;
+    const worker = new Worker(
+      new URL("./floatingParticlesWorker.ts", import.meta.url),
+      {
+        type: "module",
+      },
+    );
 
-      particles.forEach((particle, index) => {
-        particle.x += particle.vx;
-        particle.y += particle.vy;
-
-        if (cursorAttraction) {
-          const dx = mouseX - particle.x;
-          const dy = mouseY - particle.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-
-          if (distance < attractionRadius) {
-            particle.vx += dx * strength;
-            particle.vy += dy * strength;
-          }
-
-          particle.vx *= damping;
-          particle.vy *= damping;
-        }
-
-        if (particle.x <= 0 || particle.x >= 1) particle.vx *= -1;
-        if (particle.y <= 0 || particle.y >= 1) particle.vy *= -1;
-
-        elements[index].style.transform = `translate(${particle.x * width}px, ${
-          particle.y * height
-        }px)`;
+    const sendResize = () => {
+      const rect = container.getBoundingClientRect();
+      worker.postMessage({
+        height: Math.max(1, Math.round(rect.height)),
+        type: "resize",
+        width: Math.max(1, Math.round(rect.width)),
       });
-
-      frameId = requestAnimationFrame(animate);
     };
+    const rect = container.getBoundingClientRect();
+    let offscreenCanvas: OffscreenCanvas;
 
-    animate();
+    try {
+      offscreenCanvas = canvas.transferControlToOffscreen();
+    } catch {
+      worker.terminate();
+      setRenderMode("css");
+      return;
+    }
+
+    workerRef.current = worker;
+
+    worker.postMessage(
+      {
+        attractionRadius,
+        canvas: offscreenCanvas,
+        color: resolvedColor || "#dfb682",
+        count,
+        cursorAttraction,
+        damping,
+        height: Math.max(1, Math.round(rect.height)),
+        opacity,
+        size,
+        speed,
+        strength,
+        type: "init",
+        velocityBias,
+        width: Math.max(1, Math.round(rect.width)),
+      },
+      [offscreenCanvas],
+    );
+
+    const resizeObserver = new ResizeObserver(sendResize);
+    resizeObserver.observe(container);
 
     return () => {
-      cancelAnimationFrame(frameId);
-      if (cursorAttraction) {
-        window.removeEventListener("mousemove", handleMouseMove);
-      }
-      elements.forEach((element) => element.remove());
+      resizeObserver.disconnect();
+      worker.postMessage({ type: "stop" });
+      worker.terminate();
+      workerRef.current = null;
     };
   }, [
+    color,
     attractionRadius,
     count,
     cursorAttraction,
     damping,
+    opacity,
+    renderMode,
     size,
     speed,
     strength,
     velocityBias,
   ]);
 
+  useEffect(() => {
+    if (renderMode !== "worker" || !cursorAttraction) return;
+
+    let frameId = 0;
+    let latestMouse = { x: 0.5, y: 0.5 };
+
+    const sendMouse = () => {
+      frameId = 0;
+      workerRef.current?.postMessage({
+        type: "mouse",
+        x: latestMouse.x,
+        y: latestMouse.y,
+      });
+    };
+
+    const handleMouseMove = (event: MouseEvent) => {
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (!rect) return;
+
+      latestMouse = {
+        x: (event.clientX - rect.left) / rect.width,
+        y: (event.clientY - rect.top) / rect.height,
+      };
+
+      if (!frameId) {
+        frameId = requestAnimationFrame(sendMouse);
+      }
+    };
+
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      if (frameId) {
+        cancelAnimationFrame(frameId);
+      }
+    };
+  }, [cursorAttraction, renderMode]);
+
+  useEffect(() => {
+    if (renderMode !== "css" || !cursorAttraction) return;
+
+    let frameId = 0;
+    let latestMouse = { x: 0.5, y: 0.5 };
+
+    const resetParticles = () => {
+      for (const particle of particleRefs.current) {
+        if (particle) {
+          particle.style.transform = "translate3d(0, 0, 0)";
+        }
+      }
+    };
+
+    const updateParticles = () => {
+      frameId = 0;
+
+      for (let index = 0; index < particles.length; index += 1) {
+        const particle = particles[index];
+        const element = particleRefs.current[index];
+        if (!particle || !element) continue;
+
+        const dx = latestMouse.x - particle.x;
+        const dy = latestMouse.y - particle.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance >= attractionRadius) {
+          element.style.transform = "translate3d(0, 0, 0)";
+          continue;
+        }
+
+        const influence = (attractionRadius - distance) / attractionRadius;
+        const translateX = dx * influence * strength * 3600;
+        const translateY = dy * influence * strength * 3600;
+
+        element.style.transform = `translate3d(${translateX}px, ${translateY}px, 0)`;
+      }
+    };
+
+    const handleMouseMove = (event: MouseEvent) => {
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (!rect) return;
+
+      latestMouse = {
+        x: (event.clientX - rect.left) / rect.width,
+        y: (event.clientY - rect.top) / rect.height,
+      };
+
+      if (!frameId) {
+        frameId = requestAnimationFrame(updateParticles);
+      }
+    };
+
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    window.addEventListener("mouseleave", resetParticles);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseleave", resetParticles);
+      if (frameId) {
+        cancelAnimationFrame(frameId);
+      }
+      resetParticles();
+    };
+  }, [attractionRadius, cursorAttraction, particles, renderMode, strength]);
+
   const particleStyles = {
+    "--particle-attraction-radius": attractionRadius,
     "--particle-color": color,
+    "--particle-damping": damping,
     "--particle-opacity": opacity,
     "--particle-size": `${size}px`,
+    "--particle-speed": `${Math.max(8, 1 / speed / 80)}s`,
+    "--particle-strength": strength,
+    "--particle-velocity-bias": velocityBias,
   } as CSSProperties;
+
+  if (renderMode === "disabled") {
+    return null;
+  }
 
   return (
     <div
+      aria-hidden="true"
       className={`${styles.floatingParticles} ${className}`}
       ref={containerRef}
       style={particleStyles}
-    />
+    >
+      {renderMode === "worker" || renderMode === "detecting" ? (
+        <canvas className={styles.floatingParticles__canvas} ref={canvasRef} />
+      ) : (
+        particles.map((particle, index) => (
+          <span
+            className={`${styles.floatingParticles__particle} ${
+              cursorAttraction
+                ? styles.floatingParticles__particle_interactive
+                : ""
+            }`}
+            key={`${particle.x}-${particle.y}-${index}`}
+            ref={(element) => {
+              particleRefs.current[index] = element;
+            }}
+            style={
+              {
+                "--particle-delay": `${-(index % 10)}s`,
+                left: `${particle.x * 100}%`,
+                top: `${particle.y * 100}%`,
+              } as CSSProperties
+            }
+          />
+        ))
+      )}
+    </div>
   );
 };

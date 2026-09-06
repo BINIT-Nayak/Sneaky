@@ -1,5 +1,5 @@
 import type { TouchEvent } from "react";
-import { useRef, useEffect, useState, useContext } from "react";
+import { useRef, useEffect, useState, useContext, useMemo } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -10,7 +10,9 @@ import { useIsMobile, useIsTablet } from "../../hooks/useGetDeviceType";
 import { eventApi } from "../../services/eventAPI";
 import { fetchProducts } from "../../store/fetchAPI/fetchProducts";
 import { useSneakyStateSlice } from "../../store/sneakyState/sneakySelectors";
+import { sneakyStateActions } from "../../store/sneakyState/sneakySlice";
 import type { AppDispatch } from "../../store/sneakyStore";
+import type { Product } from "../../store/types";
 import { isAdminRole } from "../../utils/roles";
 
 import styles from "./Home.module.css";
@@ -20,9 +22,14 @@ import { useHomeActions } from "./useHomeActions";
 
 const RECENTLY_VIEWED_STORAGE_KEY = "sneaky:recently-viewed-products";
 const SWIPED_PRODUCTS_STORAGE_KEY = "sneaky:home-swiped-product-ids";
+const HOME_PRODUCTS_CACHE_KEY = "sneaky:home-products-cache";
 const RECENTLY_VIEWED_STORAGE_LIMIT = 3;
 const RECENTLY_VIEWED_VISIBLE_LIMIT = 2;
 const RECOMMENDATION_PREFETCH_THRESHOLD = 10;
+const SWIPED_PRODUCTS_STORAGE_LIMIT = 60;
+const EXCLUDE_IDS_QUERY_LIMIT = 60;
+const HOME_PRODUCTS_CACHE_LIMIT = 30;
+const HOME_PRODUCTS_CACHE_TTL_MS = 30 * 60 * 1000;
 
 const readStoredIds = (storage: Storage, key: string, limit?: number) => {
   try {
@@ -45,6 +52,53 @@ const writeStoredIds = (storage: Storage, key: string, ids: string[]) => {
     // Browser storage can be unavailable in private browsing or test contexts.
   }
 };
+
+const readCachedHomeProducts = (): Product[] => {
+  try {
+    const storedValue = window.localStorage.getItem(HOME_PRODUCTS_CACHE_KEY);
+    if (!storedValue) return [];
+
+    const payload = JSON.parse(storedValue) as {
+      products?: Product[];
+      savedAt?: number;
+    };
+
+    if (
+      typeof payload.savedAt !== "number" ||
+      Date.now() - payload.savedAt > HOME_PRODUCTS_CACHE_TTL_MS ||
+      !Array.isArray(payload.products)
+    ) {
+      return [];
+    }
+
+    return payload.products.filter(
+      (product): product is Product =>
+        typeof product?.id === "string" &&
+        typeof product.name === "string" &&
+        typeof product.image === "string",
+    );
+  } catch {
+    return [];
+  }
+};
+
+const writeCachedHomeProducts = (products: Product[]) => {
+  try {
+    window.localStorage.setItem(
+      HOME_PRODUCTS_CACHE_KEY,
+      JSON.stringify({
+        products: products.slice(0, HOME_PRODUCTS_CACHE_LIMIT),
+        savedAt: Date.now(),
+      }),
+    );
+  } catch {
+    // Product cache is an optimization only.
+  }
+};
+
+const uniqueIds = (ids: string[]) => Array.from(new Set(ids));
+const toRecommendationExcludeIds = (ids: string[]) =>
+  uniqueIds(ids).slice(0, EXCLUDE_IDS_QUERY_LIMIT);
 
 export const Home = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -74,17 +128,30 @@ export const Home = () => {
     ),
   );
   const [swipedProductIds, setSwipedProductIds] = useState<string[]>(() =>
-    readStoredIds(window.sessionStorage, SWIPED_PRODUCTS_STORAGE_KEY),
+    readStoredIds(
+      window.sessionStorage,
+      SWIPED_PRODUCTS_STORAGE_KEY,
+      SWIPED_PRODUCTS_STORAGE_LIMIT,
+    ),
   );
   const [lastProductsError, setLastProductsError] = useState<string | null>(
     null,
   );
   const cardRef = useRef<HTMLDivElement>(null);
+  const hasRequestedInitialProductsRef = useRef(false);
   const lastPrefetchRemainingRef = useRef<number | null>(null);
   const trackedImpressionIdsRef = useRef<Set<string>>(new Set());
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const isAdmin = isAdminRole(user?.role);
+  const excludedProductIds = useMemo(
+    () =>
+      toRecommendationExcludeIds([
+        ...products.map((product) => product.id),
+        ...swipedProductIds,
+      ]),
+    [products, swipedProductIds],
+  );
   const feedProducts = products.filter(
     (product) => !swipedProductIds.includes(product.id),
   );
@@ -103,11 +170,12 @@ export const Home = () => {
     currentProduct,
     isLoggedIn,
     onOpenAuth,
+    onProductAdvanceStart: () => setIsDetailsOpen(false),
     onProductSwiped: (product) => {
       setSwipedProductIds((previousIds) => {
         const nextIds = previousIds.includes(product.id)
           ? previousIds
-          : [...previousIds, product.id];
+          : [product.id, ...previousIds].slice(0, SWIPED_PRODUCTS_STORAGE_LIMIT);
 
         writeStoredIds(
           window.sessionStorage,
@@ -124,12 +192,93 @@ export const Home = () => {
     showAnimation,
   });
 
+  // Hover glow uses cached geometry and batches CSS variable writes per frame.
+  useEffect(() => {
+    if (isMobile || isTablet || !currentProduct) return;
+
+    const card = cardRef.current;
+    if (!card) return;
+
+    let frameId = 0;
+    let latestX = 50;
+    let latestY = 50;
+    let rect = card.getBoundingClientRect();
+
+    const updateGlow = () => {
+      frameId = 0;
+      card.style.setProperty("--mouse-x", `${latestX}%`);
+      card.style.setProperty("--mouse-y", `${latestY}%`);
+    };
+
+    const updateRect = () => {
+      rect = card.getBoundingClientRect();
+    };
+
+    const handleMouseMove = (event: MouseEvent) => {
+      latestX = ((event.clientX - rect.left) / rect.width) * 100;
+      latestY = ((event.clientY - rect.top) / rect.height) * 100;
+
+      if (!frameId) {
+        frameId = requestAnimationFrame(updateGlow);
+      }
+    };
+
+    card.addEventListener("mouseenter", updateRect);
+    card.addEventListener("mousemove", handleMouseMove, { passive: true });
+    window.addEventListener("resize", updateRect, { passive: true });
+
+    return () => {
+      card.removeEventListener("mouseenter", updateRect);
+      card.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("resize", updateRect);
+      if (frameId) {
+        cancelAnimationFrame(frameId);
+      }
+    };
+  }, [currentProduct, isMobile, isTablet]);
+
   // Fetch products on mount
   useEffect(() => {
-    if (products.length > 0 || productsLoading || productsError) return;
+    if (
+      hasRequestedInitialProductsRef.current ||
+      products.length > 0 ||
+      productsLoading ||
+      productsError
+    )
+      return;
 
-    dispatch(fetchProducts());
-  }, [dispatch, products.length, productsError, productsLoading]);
+    hasRequestedInitialProductsRef.current = true;
+    const cachedProducts = readCachedHomeProducts();
+
+    if (cachedProducts.length > 0) {
+      dispatch(sneakyStateActions.hydrateProductsFromCache(cachedProducts));
+    }
+
+    const excludeProductIds = toRecommendationExcludeIds(swipedProductIds);
+
+    dispatch(
+      fetchProducts(
+        cachedProducts.length > 0 || excludeProductIds.length > 0
+          ? {
+              ...(excludeProductIds.length > 0 ? { excludeProductIds } : {}),
+              ...(cachedProducts.length > 0 ? { forceRefresh: true } : {}),
+            }
+          : undefined,
+      ),
+    );
+  }, [
+    dispatch,
+    products.length,
+    productsError,
+    productsLoading,
+    swipedProductIds,
+  ]);
+
+  useEffect(() => {
+    if (products.length === 0) return;
+
+    writeCachedHomeProducts(products);
+  }, [products]);
 
   useEffect(() => {
     if (
@@ -151,14 +300,15 @@ export const Home = () => {
     lastPrefetchRemainingRef.current = remainingProducts;
     dispatch(
       fetchProducts({
-        excludeProductIds: products.map((product) => product.id),
+        excludeProductIds: excludedProductIds,
       }),
     );
   }, [
     currentIndex,
     dispatch,
+    excludedProductIds,
     feedProducts.length,
-    products,
+    products.length,
     productsError,
     productsLoading,
   ]);
@@ -204,23 +354,6 @@ export const Home = () => {
     const timer = window.setTimeout(() => setShowToast(null), 3000);
     return () => window.clearTimeout(timer);
   }, [lastProductsError, productsError]);
-
-  //handles hover glow effect on product card
-  useEffect(() => {
-    const card = cardRef.current;
-    if (!card) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const rect = card.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
-      card.style.setProperty("--mouse-x", `${x}%`);
-      card.style.setProperty("--mouse-y", `${y}%`);
-    };
-
-    card.addEventListener("mousemove", handleMouseMove);
-    return () => card.removeEventListener("mousemove", handleMouseMove);
-  }, []);
 
   // Keyboard navigation handling
   useEffect(() => {
@@ -279,9 +412,12 @@ export const Home = () => {
         <FloatingParticles
           color="var(--base-color3)"
           count={6}
-          cursorAttraction={!isMobile && !isTablet}
+          cursorAttraction={!isMobile}
+          attractionRadius={0.45}
+          damping={0.94}
           size={50}
           speed={0.0005}
+          strength={0.01}
           velocityBias={0.8}
         />
       ) : null}
@@ -292,7 +428,7 @@ export const Home = () => {
         currentProduct={currentProduct}
         isAdmin={isAdmin}
         isFinished={isFinished}
-        isLoading={productsLoading}
+        isLoading={productsLoading && !currentProduct}
         isDetailsOpen={isDetailsOpen}
         onAddToCart={onAddToCart}
         onCloseDetails={() => setIsDetailsOpen(false)}
@@ -349,7 +485,7 @@ export const Home = () => {
         }}
         onTouchEnd={handleTouchEnd}
         onTouchStart={handleTouchStart}
-        productsError={productsError}
+        productsError={currentProduct ? null : productsError}
         recentlyViewedProducts={recentlyViewedProducts}
         showAnimation={showAnimation}
         swipeDirection={swipeDirection}

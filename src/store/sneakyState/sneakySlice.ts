@@ -9,8 +9,8 @@ import { clearWishlistItems } from "../fetchAPI/clearWishlistItems";
 import { deleteCartItem } from "../fetchAPI/deleteCartItem";
 import { deleteWishlistItem } from "../fetchAPI/deleteWishlistItem";
 import { fetchCart } from "../fetchAPI/fetchCart";
-import { fetchProfileSummary } from "../fetchAPI/fetchProfileSummary";
 import { fetchProducts } from "../fetchAPI/fetchProducts";
+import { fetchProfileSummary } from "../fetchAPI/fetchProfileSummary";
 import { fetchWishlist } from "../fetchAPI/fetchWishlist";
 import { moveCartItemToWishlist } from "../fetchAPI/moveCartItemToWishlist";
 import { moveWishlistItemToCart } from "../fetchAPI/moveWishlistItemToCart";
@@ -132,6 +132,14 @@ export const sneakySlice = createSlice({
     setIsLoggedIn: (state, action: PayloadAction<boolean>) => {
       state.isLoggedIn = action.payload;
     },
+    hydrateProductsFromCache: (
+      state,
+      action: PayloadAction<UIStateProps["products"]>,
+    ) => {
+      if (state.products.length === 0) {
+        state.products = action.payload;
+      }
+    },
     resetWishlistState: (state) => {
       state.wishlist = [];
       state.wishlistStatus = "idle";
@@ -159,6 +167,15 @@ export const sneakySlice = createSlice({
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
         state.productsLoading = false;
+        if (
+          action.meta?.arg?.forceRefresh &&
+          !action.meta.arg.excludeProductIds?.length
+        ) {
+          state.products = action.payload;
+          state.productsError = null;
+          return;
+        }
+
         const existingProductIds = new Set(
           state.products.map((product) => product.id),
         );
@@ -191,7 +208,10 @@ export const sneakySlice = createSlice({
         state.wishlistLoading = false;
         state.wishlist = action.payload;
         state.wishlistError = null;
-        if (state.profileSummaryStatus === "succeeded" && state.profileSummary) {
+        if (
+          state.profileSummaryStatus === "succeeded" &&
+          state.profileSummary
+        ) {
           state.profileSummary.wishlistCount = action.payload.length;
           state.profileSummary.recentWishlist = action.payload.slice(
             0,
@@ -236,7 +256,10 @@ export const sneakySlice = createSlice({
       })
       .addCase(clearWishlistItems.fulfilled, (state) => {
         state.wishlist = [];
-        if (state.profileSummaryStatus === "succeeded" && state.profileSummary) {
+        if (
+          state.profileSummaryStatus === "succeeded" &&
+          state.profileSummary
+        ) {
           state.profileSummary.wishlistCount = 0;
           state.profileSummary.recentWishlist = [];
         }
@@ -341,7 +364,10 @@ export const sneakySlice = createSlice({
       })
       .addCase(clearCartItems.fulfilled, (state) => {
         state.cart = [];
-        if (state.profileSummaryStatus === "succeeded" && state.profileSummary) {
+        if (
+          state.profileSummaryStatus === "succeeded" &&
+          state.profileSummary
+        ) {
           state.profileSummary.cartCount = 0;
         }
       })

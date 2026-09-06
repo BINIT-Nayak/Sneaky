@@ -46,6 +46,15 @@ jest.mock("../../store/sneakyState/sneakySelectors", () => ({
   },
 }));
 
+jest.mock("../../store/sneakyState/sneakySlice", () => ({
+  sneakyStateActions: {
+    hydrateProductsFromCache: (payload: unknown) => ({
+      payload,
+      type: "sneakyState/hydrateProductsFromCache",
+    }),
+  },
+}));
+
 const mockedUseDispatch = jest.mocked(useDispatch);
 const mockedSelectors = jest.mocked(useSneakyStateSlice);
 
@@ -153,6 +162,59 @@ describe("Home", () => {
     renderHome();
 
     expect(dispatch).toHaveBeenCalled();
+  });
+
+  it("excludes session-swiped products when loading an empty deck", async () => {
+    const dispatch = jest.fn(() => ({
+      unwrap: jest.fn().mockResolvedValue(undefined),
+    }));
+    mockedUseDispatch.mockReturnValue(dispatch as never);
+    mockedSelectors.getProducts.mockReturnValue([]);
+    window.sessionStorage.setItem(
+      "sneaky:home-swiped-product-ids",
+      JSON.stringify(["product-1", "product-2"]),
+    );
+
+    renderHome();
+
+    await waitFor(() =>
+      expect(dispatch).toHaveBeenCalledWith({
+        payload: {
+          excludeProductIds: ["product-1", "product-2"],
+        },
+        type: "sneakyState/fetchProducts",
+      }),
+    );
+  });
+
+  it("hydrates cached home products before refreshing recommendations", async () => {
+    const dispatch = jest.fn(() => ({
+      unwrap: jest.fn().mockResolvedValue(undefined),
+    }));
+    mockedUseDispatch.mockReturnValue(dispatch as never);
+    mockedSelectors.getProducts.mockReturnValue([]);
+    window.localStorage.setItem(
+      "sneaky:home-products-cache",
+      JSON.stringify({
+        products: [product],
+        savedAt: Date.now(),
+      }),
+    );
+
+    renderHome();
+
+    await waitFor(() =>
+      expect(dispatch).toHaveBeenCalledWith({
+        payload: [product],
+        type: "sneakyState/hydrateProductsFromCache",
+      }),
+    );
+    expect(dispatch).toHaveBeenCalledWith({
+      payload: {
+        forceRefresh: true,
+      },
+      type: "sneakyState/fetchProducts",
+    });
   });
 
   it("reuses already loaded products when home remounts", () => {
@@ -323,6 +385,7 @@ describe("Home", () => {
     );
 
     await waitFor(() => expect(dispatch).toHaveBeenCalled());
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
   it("navigates admins to edit the current product", async () => {

@@ -23,6 +23,7 @@ const renderLandingPage = (isLoggedIn = false, onOpenAuth = jest.fn()) =>
     <MemoryRouter>
       <AuthContext.Provider
         value={{
+          isAuthReady: true,
           isLoggedIn,
           onOpenAuth,
           onLogout: jest.fn(),
