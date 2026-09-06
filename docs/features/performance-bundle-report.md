@@ -18,6 +18,53 @@ dist/assets 620K
 | Wishlist route chunk | 8.91 kB |
 | Profile route chunk | 8.90 kB |
 
+## Before / After / Impact
+
+```mermaid
+flowchart LR
+    Before[Before<br/>More critical-path work<br/>Heavy icon dependency<br/>Google Fonts request<br/>API-gated reload paint]
+    Work[Optimization Work<br/>Route splitting<br/>Local icons<br/>Local WOFF2 fonts<br/>Cache-first pages<br/>Deferred non-critical APIs]
+    After[After<br/>Smaller route chunks<br/>No react-icons<br/>No Google Fonts dependency<br/>Faster cached reload paint]
+    Impact[Impact<br/>Earlier useful UI<br/>Lower bundle pressure<br/>Lower LCP delay risk<br/>Fewer blocking startup calls]
+
+    Before --> Work --> After --> Impact
+```
+
+| Area | Before | After | Impact |
+| --- | --- | --- | --- |
+| Icons | `react-icons` package in dependency graph | Local SVG icon components | Lower dependency weight and better tree control |
+| Fonts | Google Fonts CSS request on render path | Local `woff2` fonts emitted by Vite | Removed external render-blocking font CSS request |
+| Route loading | More code could be pulled into startup path | Route-level lazy chunks | Initial JS stays smaller; pages load when needed |
+| Auth modal | Could be part of regular app path | Lazy loaded only when opened | Login UI does not add cost until used |
+| Notifications | `/api/notifications` could appear on Home critical path | Initial fetch deferred | Home paint is less likely to wait on notification API |
+| Event tracking | Passive impression event could chain during initial load | Event API deferred with idle callback | User-visible UI gets priority over analytics |
+| Profile reload | Summary waited on API for fresh data | Cached summary paints first, refreshes later | Profile feels faster on repeat visits |
+| Wishlist reload | Cached data could be hidden by immediate refresh skeleton | Cached wishlist grid stays visible, refresh runs later | Fixes high element render delay risk |
+| Cart reload | First cart image entered DOM late during refresh | Cached cart item renders first, refresh runs later | Reduces first image resource load delay risk |
+| Product/static images | Larger/default asset formats and unconstrained product requests | AVIF/WebP static assets, constrained product image URLs | Smaller image transfer and more predictable layout |
+
+### Measured Lighthouse Problems Addressed
+
+| Page | Lighthouse Signal Before | Main Cause | Fix Applied | Expected Impact |
+| --- | --- | --- | --- | --- |
+| Wishlist | Element render delay: `5,960 ms` | Wishlist grid hidden behind loading refresh | Cache-first render and idle refresh | Grid can paint from cache instead of waiting |
+| Cart | Resource load delay: `4,610 ms` | LCP image inserted/requested late | Cache-first render, early first image, `fetchpriority=high` | First cart image request starts earlier |
+| Home | Notification API appeared in critical request chain: `7,077 ms` | Non-critical notification fetch during startup | Deferred notification fetch | Home LCP less coupled to notifications |
+| Profile | Profile summary appeared in critical request chain: `8,457 ms` | Summary API blocked useful route content | Cached summary hydration and idle refresh | Repeat profile loads paint faster |
+| Fonts | Render-blocking request estimate: `800-1200 ms` | Google Fonts CSS request | Local WOFF2 font files | Removes external font CSS from critical path |
+
+### Bundle Impact Snapshot
+
+| Metric | Result After Optimization |
+| --- | ---: |
+| Total `dist` size | 628K |
+| Main JS gzip | 73.97 kB |
+| Home chunk gzip | 6.22 kB |
+| Cart chunk gzip | 3.95 kB |
+| Wishlist chunk gzip | 2.82 kB |
+| Profile chunk gzip | 2.77 kB |
+| `react-icons` dependency | Removed |
+
 ## Route Chunking
 
 ```mermaid
