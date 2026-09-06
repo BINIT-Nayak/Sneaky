@@ -129,6 +129,7 @@ export const HomeContent: FC<HomeContentProps> = ({
             <div
               className={`${styles.home__skeleton} ${styles.home__skeletonLineShort}`}
             />
+            <p className={styles.home__loadingStatus}>Finding sneakers...</p>
           </div>
         </div>
 

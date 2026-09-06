@@ -424,7 +424,7 @@
 
 .cart__titleSkeleton {
   height: 34px;
-  margin-bottom: 20px;
+  margin-bottom: 8px;
   width: 230px;
 }
 
@@ -450,6 +450,15 @@
 
 .cart__priceSkeleton {
   width: 90px;
+}
+
+.cart__loadingStatus {
+  color: rgb(239 231 219 / 72%);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+  margin: 0 0 18px;
+  min-height: 19px;
 }
 
 .cart__quantitySkeleton {

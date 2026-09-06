@@ -6,8 +6,6 @@ import userEvent from "@testing-library/user-event";
 import { AuthContext } from "../../context/AuthContext";
 import { useSneakyStateSlice } from "../../store/sneakyState/sneakySelectors";
 
-import { Wishlist } from "./Wishlist";
-
 jest.mock("react-redux", () => ({
   useDispatch: jest.fn(),
 }));
@@ -21,6 +19,17 @@ jest.mock("../../store/sneakyState/sneakySelectors", () => ({
   },
 }));
 
+jest.mock("../../store/sneakyState/sneakySlice", () => ({
+  sneakyStateActions: {
+    hydrateWishlistFromCache: jest.fn((payload?: unknown) => ({
+      payload,
+      type: "sneakyState/hydrateWishlistFromCache",
+    })),
+  },
+}));
+
+const { Wishlist } = require("./Wishlist") as typeof import("./Wishlist");
+
 const mockedUseDispatch = jest.mocked(useDispatch);
 const mockedSelectors = jest.mocked(useSneakyStateSlice);
 
@@ -28,6 +37,7 @@ const renderWishlist = (isLoggedIn = true, onOpenAuth = jest.fn()) =>
   render(
     <AuthContext.Provider
       value={{
+        isAuthReady: true,
         isLoggedIn,
         onOpenAuth,
         onLogout: jest.fn(),

@@ -137,6 +137,8 @@ export const Home = () => {
   const [lastProductsError, setLastProductsError] = useState<string | null>(
     null,
   );
+  const [hasStartedInitialProductsRequest, setHasStartedInitialProductsRequest] =
+    useState(products.length > 0);
   const cardRef = useRef<HTMLDivElement>(null);
   const hasRequestedInitialProductsRef = useRef(false);
   const lastPrefetchRemainingRef = useRef<number | null>(null);
@@ -156,7 +158,12 @@ export const Home = () => {
     (product) => !swipedProductIds.includes(product.id),
   );
   const currentProduct = feedProducts[currentIndex];
-  const isFinished = !productsLoading && currentIndex >= feedProducts.length;
+  const isInitialFeedPending =
+    !hasStartedInitialProductsRequest &&
+    products.length === 0 &&
+    !productsError;
+  const isFinished =
+    !isInitialFeedPending && !productsLoading && currentIndex >= feedProducts.length;
   const recentlyViewedProducts = recentlyViewedIds
     .filter((productId) => productId !== currentProduct?.id)
     .map((productId) =>
@@ -248,6 +255,7 @@ export const Home = () => {
       return;
 
     hasRequestedInitialProductsRef.current = true;
+    setHasStartedInitialProductsRequest(true);
     const cachedProducts = readCachedHomeProducts();
 
     if (cachedProducts.length > 0) {
@@ -428,7 +436,7 @@ export const Home = () => {
         currentProduct={currentProduct}
         isAdmin={isAdmin}
         isFinished={isFinished}
-        isLoading={productsLoading && !currentProduct}
+        isLoading={(productsLoading || isInitialFeedPending) && !currentProduct}
         isDetailsOpen={isDetailsOpen}
         onAddToCart={onAddToCart}
         onCloseDetails={() => setIsDetailsOpen(false)}

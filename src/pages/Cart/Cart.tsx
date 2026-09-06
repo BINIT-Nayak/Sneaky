@@ -29,7 +29,13 @@ import { fetchCart } from "../../store/fetchAPI/fetchCart";
 import { moveCartItemToWishlist } from "../../store/fetchAPI/moveCartItemToWishlist";
 import { updateCartQuantity } from "../../store/fetchAPI/updateCartQuantity";
 import { useSneakyStateSlice } from "../../store/sneakyState/sneakySelectors";
+import { sneakyStateActions } from "../../store/sneakyState/sneakySlice";
 import type { AppDispatch } from "../../store/sneakyStore";
+import type { ICartItem } from "../../store/types";
+import {
+  getOptimizedImageUrl,
+  getResponsiveImageSrcSet,
+} from "../../utils/imageUrl";
 import {
   getSneakerDetails,
   UNIQUE_PRODUCT_MESSAGE,
@@ -43,16 +49,65 @@ type ToastMessage = {
 };
 
 const CART_SKELETON_ITEMS = 4;
+const CART_CACHE_TTL_MS = 10 * 60 * 1000;
 const DELIVERY_FEE = 199;
 const FREE_DELIVERY_THRESHOLD = 10000;
 const SNEAKY_DISCOUNT_THRESHOLD = 20000;
 const SNEAKY_DISCOUNT_RATE = 0.1;
 
 const DEFAULT_MERCHANT_NAME = "Partner Store";
+const getCartCacheKey = (userId: string) => `sneaky:cart-cache:${userId}`;
+
+const isCartItem = (item: ICartItem | null | undefined) =>
+  typeof item?.productId === "string" &&
+  typeof item.name === "string" &&
+  typeof item.imageUrl === "string" &&
+  typeof item.brandName === "string" &&
+  typeof item.price === "number" &&
+  typeof item.quantity === "number" &&
+  typeof item.itemTotal === "number";
+
+const readCachedCart = (userId: string): ICartItem[] => {
+  try {
+    const storedValue = window.localStorage.getItem(getCartCacheKey(userId));
+    if (!storedValue) return [];
+
+    const payload = JSON.parse(storedValue) as {
+      items?: ICartItem[];
+      savedAt?: number;
+    };
+
+    if (
+      typeof payload.savedAt !== "number" ||
+      Date.now() - payload.savedAt > CART_CACHE_TTL_MS ||
+      !Array.isArray(payload.items)
+    ) {
+      return [];
+    }
+
+    return payload.items.filter(isCartItem);
+  } catch {
+    return [];
+  }
+};
+
+const writeCachedCart = (userId: string, items: ICartItem[]) => {
+  try {
+    window.localStorage.setItem(
+      getCartCacheKey(userId),
+      JSON.stringify({
+        items,
+        savedAt: Date.now(),
+      }),
+    );
+  } catch {
+    // Cart cache is only used to improve reload paint.
+  }
+};
 
 export const Cart = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { isAuthReady, isLoggedIn, onOpenAuth } = useContext(AuthContext);
+  const { isAuthReady, isLoggedIn, onOpenAuth, user } = useContext(AuthContext);
   const [submittingProductId, setSubmittingProductId] = useState<string | null>(
     null,
   );
@@ -61,6 +116,7 @@ export const Cart = () => {
   const [showToast, setShowToast] = useState<ToastMessage | null>(null);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const toastIdRef = useRef(0);
+  const hasRequestedCartRef = useRef(false);
 
   const cart = useSneakyStateSlice.getCart();
   const cartLoading = useSneakyStateSlice.getCartLoading();
@@ -69,10 +125,34 @@ export const Cart = () => {
   const isCartLoading = cartLoading || cartStatus === "idle";
 
   useEffect(() => {
-    if (!isAuthReady || !isLoggedIn || cartStatus !== "idle") return;
+    if (!isLoggedIn || !user?.userId || cartStatus !== "idle") return;
 
+    const cachedCart = readCachedCart(user.userId);
+    if (cachedCart.length > 0) {
+      dispatch(sneakyStateActions.hydrateCartFromCache(cachedCart));
+      hasRequestedCartRef.current = true;
+      void dispatch(fetchCart({ forceRefresh: true }));
+    }
+  }, [cartStatus, dispatch, isLoggedIn, user?.userId]);
+
+  useEffect(() => {
+    if (
+      !isAuthReady ||
+      !isLoggedIn ||
+      cartStatus !== "idle" ||
+      hasRequestedCartRef.current
+    )
+      return;
+
+    hasRequestedCartRef.current = true;
     void dispatch(fetchCart());
   }, [cartStatus, dispatch, isAuthReady, isLoggedIn]);
+
+  useEffect(() => {
+    if (!isLoggedIn || !user?.userId || cartStatus !== "succeeded") return;
+
+    writeCachedCart(user.userId, cart);
+  }, [cart, cartStatus, isLoggedIn, user?.userId]);
 
   useEffect(
     () => () => {
@@ -300,6 +380,7 @@ export const Cart = () => {
           <div
             className={`${styles.cart__skeleton} ${styles.cart__titleSkeleton}`}
           />
+          <p className={styles.cart__loadingStatus}>Loading cart...</p>
           <div className={styles.cart__content}>
             <div className={styles.cart__items}>
               {Array.from({ length: CART_SKELETON_ITEMS }, (_, index) => (
@@ -413,7 +494,7 @@ export const Cart = () => {
 
         <div className={styles.cart__content}>
           <div className={styles.cart__items}>
-            {cart.map((item) => {
+            {cart.map((item, index) => {
               const sneakerDetails = getSneakerDetails(item);
               const isItemSubmitting = submittingProductId === item.productId;
               const areItemActionsDisabled = isItemSubmitting || isClearing;
@@ -421,9 +502,23 @@ export const Cart = () => {
               return (
                 <div key={item.productId} className={styles.cart__item}>
                   <img
-                    src={item.imageUrl}
+                    src={getOptimizedImageUrl(item.imageUrl, {
+                      quality: 62,
+                      width: 180,
+                    })}
+                    srcSet={getResponsiveImageSrcSet(
+                      item.imageUrl,
+                      [120, 180, 240],
+                      62,
+                    )}
+                    sizes="92px"
                     alt={item.name}
                     className={styles.cart__itemImage}
+                    decoding="async"
+                    fetchPriority={index === 0 ? "high" : "auto"}
+                    height={92}
+                    loading={index < 3 ? "eager" : "lazy"}
+                    width={92}
                   />
                   <div className={styles.cart__itemDetails}>
                     <h3 className={styles.cart__itemTitle}>{item.name}</h3>

@@ -13,8 +13,13 @@ import { deleteWishlistItem } from "../../store/fetchAPI/deleteWishlistItem";
 import { fetchWishlist } from "../../store/fetchAPI/fetchWishlist";
 import { moveWishlistItemToCart } from "../../store/fetchAPI/moveWishlistItemToCart";
 import { useSneakyStateSlice } from "../../store/sneakyState/sneakySelectors";
+import { sneakyStateActions } from "../../store/sneakyState/sneakySlice";
 import type { AppDispatch } from "../../store/sneakyStore";
 import type { IWishlistItem } from "../../store/types";
+import {
+  getOptimizedImageUrl,
+  getResponsiveImageSrcSet,
+} from "../../utils/imageUrl";
 import {
   getSneakerDetails,
   UNIQUE_PRODUCT_MESSAGE,
@@ -33,15 +38,62 @@ const mapWishlistItem = (item: IWishlistItem) => ({
 });
 
 const WISHLIST_SKELETON_ITEMS = 6;
+const WISHLIST_CACHE_TTL_MS = 10 * 60 * 1000;
+const getWishlistCacheKey = (userId: string) => `sneaky:wishlist-cache:${userId}`;
 
 type ToastMessage = {
   id: number;
   message: string;
 };
 
+const isWishlistItem = (item: IWishlistItem | null | undefined) =>
+  typeof item?.productId === "string" &&
+  typeof item.name === "string" &&
+  typeof item.imageUrl === "string" &&
+  typeof item.brandName === "string" &&
+  typeof item.price === "number";
+
+const readCachedWishlist = (userId: string): IWishlistItem[] => {
+  try {
+    const storedValue = window.localStorage.getItem(getWishlistCacheKey(userId));
+    if (!storedValue) return [];
+
+    const payload = JSON.parse(storedValue) as {
+      items?: IWishlistItem[];
+      savedAt?: number;
+    };
+
+    if (
+      typeof payload.savedAt !== "number" ||
+      Date.now() - payload.savedAt > WISHLIST_CACHE_TTL_MS ||
+      !Array.isArray(payload.items)
+    ) {
+      return [];
+    }
+
+    return payload.items.filter(isWishlistItem);
+  } catch {
+    return [];
+  }
+};
+
+const writeCachedWishlist = (userId: string, items: IWishlistItem[]) => {
+  try {
+    window.localStorage.setItem(
+      getWishlistCacheKey(userId),
+      JSON.stringify({
+        items,
+        savedAt: Date.now(),
+      }),
+    );
+  } catch {
+    // Wishlist cache is only used to improve reload paint.
+  }
+};
+
 export const Wishlist = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { isAuthReady, isLoggedIn, onOpenAuth } = useContext(AuthContext);
+  const { isAuthReady, isLoggedIn, onOpenAuth, user } = useContext(AuthContext);
   const [removingProductId, setRemovingProductId] = useState<string | null>(
     null,
   );
@@ -51,6 +103,7 @@ export const Wishlist = () => {
   const [showToast, setShowToast] = useState<ToastMessage | null>(null);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const toastIdRef = useRef(0);
+  const hasRequestedWishlistRef = useRef(false);
 
   const wishlistItems = useSneakyStateSlice.getWishlist();
   const wishlistLoading = useSneakyStateSlice.getWishlistLoading();
@@ -59,10 +112,34 @@ export const Wishlist = () => {
   const isWishlistLoading = wishlistLoading || wishlistStatus === "idle";
 
   useEffect(() => {
-    if (!isAuthReady || !isLoggedIn || wishlistStatus !== "idle") return;
+    if (!isLoggedIn || !user?.userId || wishlistStatus !== "idle") return;
 
+    const cachedWishlist = readCachedWishlist(user.userId);
+    if (cachedWishlist.length > 0) {
+      dispatch(sneakyStateActions.hydrateWishlistFromCache(cachedWishlist));
+      hasRequestedWishlistRef.current = true;
+      void dispatch(fetchWishlist({ forceRefresh: true }));
+    }
+  }, [dispatch, isLoggedIn, user?.userId, wishlistStatus]);
+
+  useEffect(() => {
+    if (
+      !isAuthReady ||
+      !isLoggedIn ||
+      wishlistStatus !== "idle" ||
+      hasRequestedWishlistRef.current
+    )
+      return;
+
+    hasRequestedWishlistRef.current = true;
     void dispatch(fetchWishlist());
   }, [dispatch, isAuthReady, isLoggedIn, wishlistStatus]);
+
+  useEffect(() => {
+    if (!isLoggedIn || !user?.userId || wishlistStatus !== "succeeded") return;
+
+    writeCachedWishlist(user.userId, wishlistItems);
+  }, [isLoggedIn, user?.userId, wishlistItems, wishlistStatus]);
 
   useEffect(
     () => () => {
@@ -194,6 +271,9 @@ export const Wishlist = () => {
           <div
             className={`${styles.wishlist__skeleton} ${styles.wishlist__titleSkeleton}`}
           />
+          <p className={styles.wishlist__loadingStatus}>
+            Loading wishlist...
+          </p>
           <div className={styles.wishlist__grid}>
             {Array.from({ length: WISHLIST_SKELETON_ITEMS }, (_, index) => (
               <div key={index} className={styles.wishlist__item}>
@@ -298,12 +378,19 @@ export const Wishlist = () => {
           <div className={styles.wishlist__deleteError}>{deleteError}</div>
         ) : null}
         <div className={styles.wishlist__grid}>
-          {mappedItems.map((item) => (
+          {mappedItems.map((item, index) => (
             <div key={item.id} className={styles.wishlist__item}>
               <img
-                src={item.image}
+                src={getOptimizedImageUrl(item.image, { quality: 62, width: 360 })}
+                srcSet={getResponsiveImageSrcSet(item.image, [240, 320, 420], 62)}
+                sizes="(max-width: 768px) calc(100vw - 72px), 320px"
                 alt={item.name}
                 className={styles.wishlist__itemImage}
+                decoding="async"
+                fetchPriority={index === 0 ? "high" : "auto"}
+                height={200}
+                loading={index < 2 ? "eager" : "lazy"}
+                width={320}
               />
               <div className={styles.wishlist__itemInfo}>
                 <h3>{item.name}</h3>

@@ -6,8 +6,6 @@ import userEvent from "@testing-library/user-event";
 import { AuthContext } from "../../context/AuthContext";
 import { useSneakyStateSlice } from "../../store/sneakyState/sneakySelectors";
 
-import { Cart } from "./Cart";
-
 jest.mock("react-redux", () => ({
   useDispatch: jest.fn(),
 }));
@@ -21,6 +19,23 @@ jest.mock("../../store/sneakyState/sneakySelectors", () => ({
   },
 }));
 
+jest.mock("../../services/eventAPI", () => ({
+  eventApi: {
+    track: jest.fn().mockResolvedValue(undefined),
+  },
+}));
+
+jest.mock("../../store/sneakyState/sneakySlice", () => ({
+  sneakyStateActions: {
+    hydrateCartFromCache: jest.fn((payload?: unknown) => ({
+      payload,
+      type: "sneakyState/hydrateCartFromCache",
+    })),
+  },
+}));
+
+const { Cart } = require("./Cart") as typeof import("./Cart");
+
 const mockedUseDispatch = jest.mocked(useDispatch);
 const mockedSelectors = jest.mocked(useSneakyStateSlice);
 
@@ -28,6 +43,7 @@ const renderCart = (isLoggedIn = true, onOpenAuth = jest.fn()) =>
   render(
     <AuthContext.Provider
       value={{
+        isAuthReady: true,
         isLoggedIn,
         onOpenAuth,
         onLogout: jest.fn(),

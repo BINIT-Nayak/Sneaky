@@ -632,6 +632,15 @@
   width: 64%;
 }
 
+.home__loadingStatus {
+  color: rgb(239 231 219 / 72%);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+  margin: 12px 0 0;
+  min-height: 19px;
+}
+
 .home__skeletonDetail {
   height: 44px;
   margin: 0 auto;

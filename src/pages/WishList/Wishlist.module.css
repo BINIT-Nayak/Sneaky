@@ -275,7 +275,7 @@
 
 .wishlist__titleSkeleton {
   height: 34px;
-  margin-bottom: 24px;
+  margin-bottom: 8px;
   width: 210px;
 }
 
@@ -308,6 +308,15 @@
   height: 40px;
   margin-top: 14px;
   width: 100%;
+}
+
+.wishlist__loadingStatus {
+  color: rgb(239 231 219 / 72%);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+  margin: 0 0 18px;
+  min-height: 19px;
 }
 
 @keyframes wishlist-skeleton-shimmer {

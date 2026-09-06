@@ -140,6 +140,28 @@ export const sneakySlice = createSlice({
         state.products = action.payload;
       }
     },
+    hydrateWishlistFromCache: (
+      state,
+      action: PayloadAction<UIStateProps["wishlist"]>,
+    ) => {
+      if (state.wishlistStatus === "idle" && state.wishlist.length === 0) {
+        state.wishlist = action.payload;
+        state.wishlistStatus = "succeeded";
+        state.wishlistLoading = false;
+        state.wishlistError = null;
+      }
+    },
+    hydrateCartFromCache: (
+      state,
+      action: PayloadAction<UIStateProps["cart"]>,
+    ) => {
+      if (state.cartStatus === "idle" && state.cart.length === 0) {
+        state.cart = action.payload;
+        state.cartStatus = "succeeded";
+        state.cartLoading = false;
+        state.cartError = null;
+      }
+    },
     resetWishlistState: (state) => {
       state.wishlist = [];
       state.wishlistStatus = "idle";

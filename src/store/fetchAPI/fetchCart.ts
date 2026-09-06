@@ -4,9 +4,13 @@ import { cartApi } from "../../services/cartAPI";
 import { getUserFriendlyErrorMessage } from "../../utils/errorMessages";
 import type { ICartItem, UIStateProps } from "../types";
 
+type FetchCartPayload = {
+  forceRefresh?: boolean;
+};
+
 export const fetchCart = createAsyncThunk(
   "sneakyState/fetchCart",
-  async (_, { rejectWithValue }) => {
+  async (_payload: FetchCartPayload | undefined, { rejectWithValue }) => {
     try {
       const items = await cartApi.getCart();
       return items satisfies ICartItem[];
@@ -20,9 +24,12 @@ export const fetchCart = createAsyncThunk(
     }
   },
   {
-    condition: (_, { getState }) => {
+    condition: (payload, { getState }) => {
       const { sneakyState } = getState() as { sneakyState: UIStateProps };
-      return sneakyState.cartStatus === "idle";
+      return (
+        !sneakyState.cartLoading &&
+        (payload?.forceRefresh || sneakyState.cartStatus === "idle")
+      );
     },
   },
 );
