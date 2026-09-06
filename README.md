@@ -23,6 +23,7 @@ This repository showcases practical development patterns, reusable components, a
 - 🧩 Reusable component structure
 - 🏠 Swipe-style home product feed
 - 🧠 Recommended product ordering from the backend
+- 🧭 Documented HLD/LLD for recommendation, Kafka, Redis, and cache flows
 - 🏷️ Product category badges on home cards
 - 🤝 Merchant partner links on product details and cart checkout groups
 - ❤️ Wishlist management with single-item delete and clear-all support
@@ -118,6 +119,7 @@ Sneaky uses the backend for authentication, recommended products, wishlist/cart 
 
 Detailed docs:
 
+- [HLD and LLD diagrams](docs/hld-lld-diagrams.md)
 - [Backend integration](docs/features/backend-integration.md)
 - [Frontend API lifecycle](docs/features/api-lifecycle.md)
 - [Performance and bundle report](docs/features/performance-bundle-report.md)
