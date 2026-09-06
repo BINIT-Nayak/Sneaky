@@ -31,6 +31,16 @@ const EXCLUDE_IDS_QUERY_LIMIT = 60;
 const HOME_PRODUCTS_CACHE_LIMIT = 30;
 const HOME_PRODUCTS_CACHE_TTL_MS = 30 * 60 * 1000;
 
+type IdleCallbackHandle = number;
+
+type WindowWithIdleCallback = Window & {
+  cancelIdleCallback?: (handle: IdleCallbackHandle) => void;
+  requestIdleCallback?: (
+    callback: IdleRequestCallback,
+    options?: IdleRequestOptions,
+  ) => IdleCallbackHandle;
+};
+
 const readStoredIds = (storage: Storage, key: string, limit?: number) => {
   try {
     const storedValue = storage.getItem(key);
@@ -342,16 +352,27 @@ export const Home = () => {
     if (trackedImpressionIdsRef.current.has(impressionKey)) return;
 
     trackedImpressionIdsRef.current.add(impressionKey);
-    void eventApi
-      .track({
+    const trackImpression = () => {
+      void eventApi.track({
         productId: currentProduct.id,
         type: "IMPRESSION",
         source: "DISCOVERY_FEED",
         position: currentIndex,
-      })
-      .catch(() => {
+      }).catch(() => {
         // Event tracking should not block product browsing.
       });
+    };
+
+    const idleWindow = window as WindowWithIdleCallback;
+    if (idleWindow.requestIdleCallback) {
+      const idleHandle = idleWindow.requestIdleCallback(trackImpression, {
+        timeout: 2500,
+      });
+      return () => idleWindow.cancelIdleCallback?.(idleHandle);
+    }
+
+    const timeoutId = window.setTimeout(trackImpression, 1500);
+    return () => window.clearTimeout(timeoutId);
   }, [currentIndex, currentProduct, isLoggedIn]);
 
   useEffect(() => {

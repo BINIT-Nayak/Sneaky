@@ -7,12 +7,22 @@ import { AuthContext } from "./context/AuthContext";
 import { NotificationsProvider } from "./context/NotificationsContext";
 import { useAuth } from "./hooks/useAuth";
 import styles from "./index.module.css";
-import { AuthModal } from "./pages/Auth/AuthModal";
-import { Home } from "./pages/Home/Home";
-import { LandingPage } from "./pages/LandingPage/LandingPage";
 import { useSneakyStateSlice } from "./store/sneakyState/sneakySelectors";
 import { isAdminRole } from "./utils/roles";
 
+const AuthModal = lazy(() =>
+  import("./pages/Auth/AuthModal").then((module) => ({
+    default: module.AuthModal,
+  })),
+);
+const Home = lazy(() =>
+  import("./pages/Home/Home").then((module) => ({ default: module.Home })),
+);
+const LandingPage = lazy(() =>
+  import("./pages/LandingPage/LandingPage").then((module) => ({
+    default: module.LandingPage,
+  })),
+);
 const Admin = lazy(() =>
   import("./pages/Admin/Admin").then((module) => ({ default: module.Admin })),
 );
@@ -109,14 +119,18 @@ export const App = () => {
           </main>
         </div>
 
-        <AuthModal
-          isOpen={isAuthModalOpen}
-          onClose={handleCloseAuth}
-          onLogin={handleLogin}
-          onSignUp={handleSignUp}
-          error={authError}
-          isSubmitting={isAuthLoading}
-        />
+        {isAuthModalOpen ? (
+          <Suspense fallback={null}>
+            <AuthModal
+              isOpen={isAuthModalOpen}
+              onClose={handleCloseAuth}
+              onLogin={handleLogin}
+              onSignUp={handleSignUp}
+              error={authError}
+              isSubmitting={isAuthLoading}
+            />
+          </Suspense>
+        ) : null}
       </NotificationsProvider>
     </AuthContext.Provider>
   );

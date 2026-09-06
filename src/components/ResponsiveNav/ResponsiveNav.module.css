@@ -66,7 +66,7 @@
 }
 
 .responsiveNav__panel {
-  height: 100vh;
+  height: 100dvh;
   left: 0;
   position: fixed;
   top: 0;

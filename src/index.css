@@ -1,5 +1,5 @@
 @font-face {
-  font-display: swap;
+  font-display: optional;
   font-family: "Space Grotesk";
   font-style: normal;
   font-weight: 300 700;
@@ -8,7 +8,7 @@
 }
 
 @font-face {
-  font-display: swap;
+  font-display: optional;
   font-family: "Imperial Script";
   font-style: normal;
   font-weight: 400;
@@ -97,7 +97,7 @@
     var(--base-color6) 70%
   );
   display: flex;
-  height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   position: relative;
   width: 100%;
@@ -125,7 +125,7 @@
 .app__main {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100dvh;
   margin-left: var(--nav-width);
   overflow: hidden;
   position: relative;

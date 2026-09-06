@@ -391,6 +391,7 @@
 .home__controls__detail {
   display: flex;
   justify-content: center;
+  min-height: 46px;
   transform: translateY(0);
   transition: transform var(--transition-base);
 }
@@ -650,7 +651,7 @@
 }
 
 .home__skeletonDetail {
-  height: 44px;
+  height: 46px;
   margin: 0 auto;
   max-width: 280px;
   width: 100%;
