@@ -212,7 +212,7 @@ export const HomeContent: FC<HomeContentProps> = ({
             alt={currentProduct.name}
             className={styles.home__image}
             decoding="sync"
-            fetchPriority="high"
+            {...{ fetchpriority: "high" }}
             height={650}
             loading="eager"
             width={520}

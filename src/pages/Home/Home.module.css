@@ -441,13 +441,15 @@
   color: var(--base-color5);
   cursor: pointer;
   display: flex;
-  font-size: 28px;
-  height: 65px;
+  font-size: 10px;
+  height: 58px;
   justify-content: center;
   overflow: hidden;
   position: relative;
   transition: transform var(--transition-base);
-  width: 65px;
+  width: 58px;
+
+  --home-action-icon-size: 24px;
 }
 
 .home__actionBtn::before {
@@ -469,6 +471,17 @@
   z-index: 1;
 }
 
+.home__actionBtn > span {
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.home__actionBtn svg {
+  height: var(--home-action-icon-size);
+  width: var(--home-action-icon-size);
+}
+
 .home__actionBtn:hover {
   border-color: currentcolor;
   transform: scale(1.16) translateY(-7px);
@@ -487,7 +500,7 @@
   color: #ff6b6b;
 }
 
-.home__actionBtn_dislike > button {
+.home__actionBtn_dislike > span {
   color: #ff6b6b;
 }
 
@@ -502,12 +515,13 @@
     rgb(255 255 255 / 8%);
   border-color: rgb(0 214 201 / 36%);
   color: #aafff8;
-  font-size: 32px;
-  height: 75px;
-  width: 75px;
+  height: 66px;
+  width: 66px;
+
+  --home-action-icon-size: 28px;
 }
 
-.home__actionBtn_cart > button {
+.home__actionBtn_cart > span {
   color: #aafff8;
 }
 
@@ -523,7 +537,7 @@
   color: #51cf66;
 }
 
-.home__actionBtn_like > button {
+.home__actionBtn_like > span {
   color: #51cf66;
 }
 
@@ -966,15 +980,17 @@
   }
 
   .home__actionBtn {
-    font-size: 24px;
-    height: 55px;
-    width: 55px;
+    height: 52px;
+    width: 52px;
+
+    --home-action-icon-size: 22px;
   }
 
   .home__actionBtn_cart {
-    font-size: 28px;
-    height: 65px;
-    width: 65px;
+    height: 60px;
+    width: 60px;
+
+    --home-action-icon-size: 26px;
   }
 
   .home__skeletonActionLarge {
@@ -1047,15 +1063,17 @@
   }
 
   .home__actionBtn {
-    font-size: 22px;
-    height: 50px;
-    width: 50px;
+    height: 48px;
+    width: 48px;
+
+    --home-action-icon-size: 20px;
   }
 
   .home__actionBtn_cart {
-    font-size: 26px;
-    height: 60px;
-    width: 60px;
+    height: 54px;
+    width: 54px;
+
+    --home-action-icon-size: 24px;
   }
 
   .home__skeletonActionLarge {
