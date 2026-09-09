@@ -472,7 +472,7 @@
 }
 
 .home__actionBtn > span {
-  font-size: 10px;
+  font-size: 15px;
   font-weight: 800;
   line-height: 1;
 }
@@ -482,19 +482,6 @@
   width: var(--home-action-icon-size);
 }
 
-.home__actionBtn:hover {
-  border-color: currentcolor;
-  transform: scale(1.16) translateY(-7px);
-}
-
-.home__actionBtn:hover::before {
-  opacity: 0.2;
-}
-
-.home__actionBtn:active {
-  transform: scale(0.95) translateY(0);
-}
-
 .home__actionBtn_dislike {
   border-color: rgb(255 107 107 / 34%);
   color: #ff6b6b;
@@ -502,11 +489,6 @@
 
 .home__actionBtn_dislike > span {
   color: #ff6b6b;
-}
-
-.home__actionBtn_dislike:hover {
-  background: rgb(255 107 107 / 15%);
-  box-shadow: 0 15px 30px rgb(255 107 107 / 40%);
 }
 
 .home__actionBtn_cart {
@@ -525,13 +507,6 @@
   color: #aafff8;
 }
 
-.home__actionBtn_cart:hover {
-  background:
-    linear-gradient(145deg, rgb(0 214 201 / 28%), rgb(223 182 130 / 18%)),
-    rgb(255 255 255 / 10%);
-  box-shadow: 0 15px 30px rgb(0 214 201 / 28%);
-}
-
 .home__actionBtn_like {
   border-color: rgb(81 207 102 / 30%);
   color: #51cf66;
@@ -541,9 +516,51 @@
   color: #51cf66;
 }
 
-.home__actionBtn_like:hover {
-  background: rgb(81 207 102 / 15%);
-  box-shadow: 0 15px 30px rgb(81 207 102 / 40%);
+@media (hover: hover) and (pointer: fine) {
+  .home__actionBtn:hover {
+    border-color: currentcolor;
+    transform: scale(1.16) translateY(-7px);
+  }
+
+  .home__actionBtn:hover::before {
+    opacity: 0.2;
+  }
+
+  .home__actionBtn:active {
+    transform: scale(0.95) translateY(0);
+  }
+
+  .home__actionBtn_dislike:hover {
+    background: rgb(255 107 107 / 15%);
+    box-shadow: 0 15px 30px rgb(255 107 107 / 40%);
+  }
+
+  .home__actionBtn_cart:hover {
+    background:
+      linear-gradient(145deg, rgb(0 214 201 / 28%), rgb(223 182 130 / 18%)),
+      rgb(255 255 255 / 10%);
+    box-shadow: 0 15px 30px rgb(0 214 201 / 28%);
+  }
+
+  .home__actionBtn_like:hover {
+    background: rgb(81 207 102 / 15%);
+    box-shadow: 0 15px 30px rgb(81 207 102 / 40%);
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .home__actionBtn {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .home__actionBtn:active {
+    border-color: currentcolor;
+    transform: scale(0.94);
+  }
+
+  .home__actionBtn:active::before {
+    opacity: 0.14;
+  }
 }
 
 .home__loading {

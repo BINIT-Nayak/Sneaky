@@ -54,7 +54,7 @@
   transition: transform 0.2s ease;
 }
 
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .swipeButton:hover {
     box-shadow:
       0 2px 13px 5px rgb(0 0 0 / 30%),
@@ -65,12 +65,26 @@
   .swipeButton:hover::after {
     transform: translateX(-100%);
   }
+
+  .swipeButton:active::after {
+    transform: translateX(-100%);
+  }
+
+  .swipeButton:active .swipeButton__icon {
+    transform: scale(1.5);
+  }
 }
 
-.swipeButton:active::after {
-  transform: translateX(-100%);
-}
+@media (hover: none), (pointer: coarse) {
+  .swipeButton:active {
+    filter: drop-shadow(0 0 8px rgb(223 182 130 / 20%));
+  }
 
-.swipeButton:active .swipeButton__icon {
-  transform: scale(1.5);
+  .swipeButton:active::after {
+    transform: none;
+  }
+
+  .swipeButton:active .swipeButton__icon {
+    transform: scale(1.12);
+  }
 }
